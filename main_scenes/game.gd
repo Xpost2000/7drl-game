@@ -70,31 +70,59 @@ func update_player(player_node):
 			elif not in_bounds:
 				_message_log.push_message("You've hit the entrance to the great beyond");
 
-var test_chunk = [];
-const CHUNK_SIZE = 96;
-func empty_chunk():
-	var chunk_result = [];
-	for y in range(CHUNK_SIZE):
-		var row = [];
-		for x in range(CHUNK_SIZE):
-			row.push_back(0);
-		chunk_result.push_back(row);
-	return chunk_result;
+const CHUNK_SIZE = 36;
+var test_chunk;
+class WorldChunk:
+	func _init():
+		var chunk_result = [];
+		self.dirty_cells = [];
+		for y in range(CHUNK_SIZE):
+			var row = [];
+			for x in range(CHUNK_SIZE):
+				if randf() < 0.5:
+					row.push_back(1);
+				else:
+					row.push_back(0);
+				self.dirty_cells.push_back(Vector2(x, y));
+			chunk_result.push_back(row);
+		self.cells = chunk_result;
+
+	func get_dirty_cells():
+		return dirty_cells;
+
+	func clear_dirty():
+		dirty_cells = [];
+
+	func get_cell(x, y):
+		return cells[y][x];
+
+	func set_cell(x, y, val):
+		cells[y][x] = val;
+		self.dirty_cells.push_back(Vector2(x, y));
+
+	var cells: Array;
+	# for repainting
+	var dirty_cells: Array;
 
 func _ready():
-	test_chunk = empty_chunk();
+	test_chunk = WorldChunk.new();
 
 # yes this is probably very slow. I'm trying to go as far as I can with the
 # engine is just my client approach, since it's easier for me to do that.
 func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
 	tilemap.clear();
-	for y in range(CHUNK_SIZE):
-		for x in range(CHUNK_SIZE):
-			tilemap.set_cell(x - (chunk_x * CHUNK_SIZE), y - (chunk_y * CHUNK_SIZE), chunk[y][x]);
+	for dirty_cell in chunk.get_dirty_cells():
+		var x = dirty_cell.x;
+		var y = dirty_cell.y;
+		tilemap.set_cell(x - (chunk_x * CHUNK_SIZE), y - (chunk_y * CHUNK_SIZE), chunk.get_cell(x, y));
 
 func _process(_delta):
 	paint_chunk_to_tilemap($ChunkViews/Top, test_chunk, 0, -1);
+	paint_chunk_to_tilemap($ChunkViews/TopRight, test_chunk, 1, -1);
+	paint_chunk_to_tilemap($ChunkViews/TopLeft, test_chunk, -1, -1);
 	paint_chunk_to_tilemap($ChunkViews/Bottom, test_chunk, 0, 1);
+	paint_chunk_to_tilemap($ChunkViews/BottomRight, test_chunk, 1, 1);
+	paint_chunk_to_tilemap($ChunkViews/BottomLeft, test_chunk, -1, 1);
 	paint_chunk_to_tilemap($ChunkViews/Right, test_chunk, 1, 0);
 	paint_chunk_to_tilemap($ChunkViews/Left, test_chunk, -1, 0);
 	paint_chunk_to_tilemap(_world_map, test_chunk, 0, 0);
