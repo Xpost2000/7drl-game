@@ -194,16 +194,8 @@ class WorldChunk:
 	# for repainting
 	var dirty_cells: Array;
 
-var _animated_paint_timer;
 var _last_known_current_chunk_position;
 func _ready():
-	_animated_paint_timer = Timer.new();
-	add_child(_animated_paint_timer);
-	_animated_paint_timer.wait_time = 0.25;
-	_animated_paint_timer.one_shot = false;
-	_animated_paint_timer.start();
-	_animated_paint_timer.connect("timeout", self, "repaint_animated_tiles");
-
 	add_entity("Sean", Vector2.ZERO);
 	_last_known_current_chunk_position = entities[0].calculate_current_chunk_position();
 
@@ -223,16 +215,14 @@ func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
 
 var _global_tile_tick_frame = 0;
 func paint_animated_tiles(tilemap, chunk, chunk_x, chunk_y):
-	_global_tile_tick_frame += 1;
 	for animated_cell_datum in chunk.animated_cells:
 		var cell = animated_cell_datum[0];
 		var cell_frames = animated_cell_datum[2];
 		var cell_id = animated_cell_datum[1] + _global_tile_tick_frame % cell_frames;
 		var x = cell.x;
 		var y = cell.y;
-		# print(x + (chunk_x * CHUNK_SIZE), " ", y + (chunk_y * CHUNK_SIZE), ' ', cell_id);
-		# tilemap.set_cell(x + (chunk_x * CHUNK_SIZE), y + (chunk_y * CHUNK_SIZE), _global_tile_tick_frame % 15);
-		tilemap.set_cell(x + (chunk_x * CHUNK_SIZE), y + (chunk_y * CHUNK_SIZE), 10 + _global_tile_tick_frame%4);
+
+		tilemap.set_cell(x + (chunk_x * CHUNK_SIZE), y + (chunk_y * CHUNK_SIZE), cell_id);
 
 const neighbor_vectors = [Vector2(-1, 0),
 						  Vector2(1, 0),
@@ -256,10 +246,10 @@ func repaint_animated_tiles():
 		if valid_chunk_position(_chunks, offset_position):
 			$ChunkViews.get_child(neighbor_index).show();
 			call_deferred("paint_animated_tiles", $ChunkViews.get_child(neighbor_index), _chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
-			# paint_animated_tiles();
 		else:
 			$ChunkViews.get_child(neighbor_index).hide();
 
+var _tick_time = 0;
 func _process(_delta):
 	var current_chunk_position = entities[0].calculate_current_chunk_position();
 	if _last_known_current_chunk_position != current_chunk_position:
@@ -268,6 +258,13 @@ func _process(_delta):
 				chunk.mark_all_dirty();
 		for chunk_view in $ChunkViews.get_children():
 			chunk_view.clear();
+
+	if _tick_time > 0.15:
+		repaint_animated_tiles();
+		_tick_time = 0;
+	else:
+		_tick_time += _delta;
+		_global_tile_tick_frame += 1;
 
 	var chunk_offsets = neighbor_vectors.duplicate();
 	chunk_offsets.push_back(Vector2(0, 0));
