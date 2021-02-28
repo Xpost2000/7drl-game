@@ -21,7 +21,7 @@ const CHUNK_SIZE = 16;
 var _chunks;
 
 func valid_chunk_position(chunks, where):
-	return where.y >= 0 && where.y < len(chunks) && where.x >= 0 && where.x < len(chunks[where.y]);
+	return (where.y >= 0 && where.y < len(chunks)) && where.x >= 0 && where.x < len(chunks[where.y]);
 
 func create_tween(node_to_tween, property, start, end, tween_fn, tween_ease, time=1.0, delay=0.0):
 	var new_tween = Tween.new();
@@ -115,7 +115,10 @@ func update_player(player_entity):
 	if direction != Vector2.ZERO:
 		var new_player_position = player_entity.position + direction;
 
-		var in_bounds = in_bounds_of(_world_map, new_player_position) or valid_chunk_position(_chunks, calculate_chunk_position(new_player_position));
+		# negative coordinates are not allowed since they complicate things...
+		# by making me shift them until they're in the correct quadrants.
+		var in_world_bounds = (new_player_position.x >= 0) && (new_player_position.y >= 0) && valid_chunk_position(_chunks, calculate_chunk_position(new_player_position));
+		var in_bounds = in_bounds_of(_world_map, new_player_position);
 		var hitting_wall = is_solid_tile(_world_map, new_player_position);
 		if in_bounds && not hitting_wall:
 			player_entity.position = new_player_position;
@@ -123,7 +126,10 @@ func update_player(player_entity):
 			if hitting_wall:
 				_message_log.push_message("You bumped into a wall");
 			elif not in_bounds:
-				_message_log.push_message("You've hit the entrance to the great beyond");
+				if in_world_bounds:
+					player_entity.position = new_player_position;
+				else:
+					_message_log.push_message("You've hit the entrance to the great beyond");
 
 class WorldChunk:
 	func _init():
@@ -150,7 +156,13 @@ class WorldChunk:
 	func mark_all_dirty():
 		for y in range(CHUNK_SIZE):
 			for x in range(CHUNK_SIZE):
-				self.dirty_cells.push_back(Vector2(x, y));
+				var any_animated = false;
+				for animated_cell in animated_cells:
+					if animated_cell[0].x == x && animated_cell[0].y == y:
+						any_animated = true;
+						break;
+				if not any_animated:
+					self.dirty_cells.push_back(Vector2(x, y));
 
 	func clear_dirty():
 		dirty_cells = [];
@@ -188,14 +200,6 @@ func _ready():
 
 	_chunks = [[WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
 			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
 			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()]];
 
 # yes this is probably very slow. I'm trying to go as far as I can with the
@@ -217,7 +221,9 @@ func paint_animated_tiles(tilemap, chunk, chunk_x, chunk_y):
 		var cell_id = animated_cell_datum[1] + _global_tile_tick_frame % cell_frames;
 		var x = cell.x;
 		var y = cell.y;
-		tilemap.set_cell(x + (chunk_x * CHUNK_SIZE), y + (chunk_y * CHUNK_SIZE), cell_id);
+		# print(x + (chunk_x * CHUNK_SIZE), " ", y + (chunk_y * CHUNK_SIZE), ' ', cell_id);
+		# tilemap.set_cell(x + (chunk_x * CHUNK_SIZE), y + (chunk_y * CHUNK_SIZE), _global_tile_tick_frame % 15);
+		tilemap.set_cell(x + (chunk_x * CHUNK_SIZE), y + (chunk_y * CHUNK_SIZE), 10 + _global_tile_tick_frame%4);
 
 const neighbor_vectors = [Vector2(-1, 0),
 						  Vector2(1, 0),
@@ -231,15 +237,17 @@ const neighbor_vectors = [Vector2(-1, 0),
 
 func repaint_animated_tiles():
 	var current_chunk_position = entities[0].calculate_current_chunk_position();
+
 	var chunk_offsets = neighbor_vectors.duplicate();
 	chunk_offsets.push_back(Vector2(0, 0));
 	for neighbor_index in len(chunk_offsets):
 		var neighbor_vector = chunk_offsets[neighbor_index];
 		var offset_position = current_chunk_position + neighbor_vector;
 		
-		if (offset_position.y >= 0) && (offset_position.y < len(_chunks)) && (offset_position.x >= 0) && (offset_position.x) < (len(_chunks[offset_position.y])):
+		if valid_chunk_position(_chunks, offset_position):
 			$ChunkViews.get_child(neighbor_index).show();
-			paint_animated_tiles($ChunkViews.get_child(neighbor_index), _chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
+			call_deferred("paint_animated_tiles", $ChunkViews.get_child(neighbor_index), _chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
+			# paint_animated_tiles();
 		else:
 			$ChunkViews.get_child(neighbor_index).hide();
 
@@ -258,7 +266,7 @@ func _process(_delta):
 		var neighbor_vector = chunk_offsets[neighbor_index];
 		var offset_position = current_chunk_position + neighbor_vector;
 		
-		if (offset_position.y >= 0) && (offset_position.y < len(_chunks)) && (offset_position.x >= 0) && (offset_position.x) < (len(_chunks[offset_position.y])):
+		if valid_chunk_position(_chunks, offset_position):
 			$ChunkViews.get_child(neighbor_index).show();
 			paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), _chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
 		else:

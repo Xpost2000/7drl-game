@@ -39,7 +39,10 @@ MESSAGE_LIFETIME_MAX = 1.0
 self_modulate = Color( 0.937255, 0.435294, 0.435294, 1 )
 tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
+cell_quadrant_size = 32
+cell_clip_uv = true
 format = 1
+tile_data = PoolIntArray( 131080, 11, 0, 196616, 10, 0 )
 __meta__ = {
 "_editor_description_": "Shit stuff into here to make worlds!"
 }
@@ -106,6 +109,7 @@ __meta__ = {
 }
 
 [node name="Current" type="TileMap" parent="ChunkViews"]
+modulate = Color( 1, 0.992157, 0.00784314, 1 )
 tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1
@@ -115,7 +119,6 @@ __meta__ = {
 
 [node name="GameCamera" type="Camera2D" parent="."]
 current = true
-zoom = Vector2( 2, 2 )
 smoothing_enabled = true
 
 [node name="CameraTracer" type="RemoteTransform2D" parent="."]
