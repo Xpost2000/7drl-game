@@ -70,6 +70,9 @@ class WorldChunk:
 	# for repainting
 	var dirty_cells: Array;
 
+func in_bounds(where):
+	return (where.y >= 0 && where.y < len(world_chunks)) && where.x >= 0 && where.x < len(world_chunks[where.y]);
+
 func _ready():
 	world_chunks = [
 		[WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE)],

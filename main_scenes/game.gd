@@ -19,9 +19,6 @@ onready var _entity_sprites = $EntitySprites;
 const TILE_SIZE = 32;
 const CHUNK_SIZE = 16;
 
-func valid_chunk_position(chunks, where):
-	return (where.y >= 0 && where.y < len(chunks)) && where.x >= 0 && where.x < len(chunks[where.y]);
-
 func create_tween(node_to_tween, property, start, end, tween_fn, tween_ease, time=1.0, delay=0.0):
 	var new_tween = Tween.new();
 	new_tween.interpolate_property(node_to_tween, property, start, end, time, tween_fn, tween_ease, delay)
@@ -118,7 +115,7 @@ func move_entity(entity, direction):
 	if direction != Vector2.ZERO:
 		var new_position = entity.position + direction;
 
-		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && valid_chunk_position($ChunkViews.world_chunks, calculate_chunk_position(new_position));
+		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && $ChunkViews.in_bounds(calculate_chunk_position(new_position));
 		var in_bounds = in_bounds_of(current_chunk, new_position, chunk_position.x, chunk_position.y);
 		var hitting_wall = is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * CHUNK_SIZE, chunk_position.y * CHUNK_SIZE));
 		if in_bounds && not hitting_wall:
@@ -238,7 +235,7 @@ func repaint_animated_tiles():
 		var neighbor_vector = chunk_offsets[neighbor_index];
 		var offset_position = current_chunk_position + neighbor_vector;
 		
-		if valid_chunk_position($ChunkViews.world_chunks, offset_position):
+		if $ChunkViews.in_bounds(offset_position):
 			$ChunkViews.get_child(neighbor_index).show();
 			call_deferred("paint_animated_tiles", $ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
 		else:
@@ -263,7 +260,7 @@ func _process(_delta):
 			var neighbor_vector = chunk_offsets[neighbor_index];
 			var offset_position = current_chunk_position + neighbor_vector;
 			
-			if valid_chunk_position($ChunkViews.world_chunks, offset_position):
+			if $ChunkViews.in_bounds(offset_position):
 				$ChunkViews.get_child(neighbor_index).show();
 				paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
 			else:
@@ -283,7 +280,8 @@ func _process(_delta):
 		var neighbor_vector = chunk_offsets[neighbor_index];
 		var offset_position = current_chunk_position + neighbor_vector;
 		
-		if valid_chunk_position($ChunkViews.world_chunks, offset_position):
+
+		if $ChunkViews.in_bounds(offset_position):
 			$ChunkViews.get_child(neighbor_index).show();
 			paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
 		else:
