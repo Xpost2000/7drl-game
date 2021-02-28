@@ -1,5 +1,6 @@
 # Should rename this later...
 extends Node2D
+const TILE_SIZE = 32;
 export var CHUNK_MAX_SIZE = 16;
 
 func in_bounds_of(position, chunk_x, chunk_y) -> bool:
@@ -15,6 +16,20 @@ const neighbor_vectors = [Vector2(-1, 0),
 						  Vector2(1, -1),
 						  Vector2(-1, -1),
 						  ];
+
+func calculate_chunk_position(absolute_position):
+	return Vector2(int(absolute_position.x / CHUNK_MAX_SIZE), int(absolute_position.y / CHUNK_MAX_SIZE));
+
+# for now keep this in sync with tileset...
+var _solid_cells_list = [8, 9];
+func is_solid_tile(world_map, position) -> bool:
+	# this shouldn't happen, however it is cause the tiles are relative to the chunk position.
+	if in_bounds_of(position, 0, 0):
+		var cell_at_position = world_map.get_cell(position.x, position.y);
+		for cell in _solid_cells_list:
+			if cell == cell_at_position:
+				return true;
+	return false;
 
 # provide world generation algorithms.
 class WorldChunk:

@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://main_scenes/Chunks.gd" type="Script" id=1]
 [ext_resource path="res://main_scenes/game.gd" type="Script" id=2]
 [ext_resource path="res://resources/DinaRemasterCollection.ttf" type="DynamicFontData" id=3]
 [ext_resource path="res://interface/messages.gd" type="Script" id=4]
 [ext_resource path="res://tilesets/dungeon_crawl_stone_soup_tiles.tres" type="TileSet" id=5]
+[ext_resource path="res://main_scenes/Entities.gd" type="Script" id=6]
 
 [sub_resource type="DynamicFont" id=1]
 font_data = ExtResource( 3 )
@@ -119,3 +120,6 @@ smoothing_enabled = true
 remote_path = NodePath("../GameCamera")
 
 [node name="EntitySprites" type="Node2D" parent="."]
+
+[node name="Entities" type="Node" parent="."]
+script = ExtResource( 6 )
