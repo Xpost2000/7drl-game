@@ -44,7 +44,7 @@ class WorldChunk:
 				if probability > 0.7:
 					row.push_back(0);
 				elif probability > 0.4: 
-					row.push_back(1);
+					row.push_back(8);
 				else:
 					# This push is for collision detection. Auxiliary holder
 					row.push_back(10);
@@ -92,6 +92,7 @@ func in_bounds(where):
 	return (where.y >= 0 && where.y < len(world_chunks)) && where.x >= 0 && where.x < len(world_chunks[where.y]);
 
 func _ready():
+	randomize();
 	world_chunks = [
 		[WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE)],
 		[WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE)],

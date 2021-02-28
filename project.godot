@@ -19,6 +19,10 @@ config/name="Minimal-Roguelike-Or-Tilebased-Game-Thing"
 run/main_scene="res://main_scenes/GameMain.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+Enumerations="*res://main_scenes/Enumerations.gd"
+
 [rendering]
 
 environment/default_environment="res://default_env.tres"

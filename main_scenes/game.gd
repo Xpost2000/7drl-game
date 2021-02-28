@@ -46,19 +46,17 @@ func player_movement_direction():
 
 	return Vector2.ZERO;
 
-const HIT_WALL = 0;
-const HIT_WORLD_EDGE = 1;
-const NO_COLLISION = 2;
-
 func update_player(player_entity):
 	var move_result = $Entities.move_entity(player_entity, player_movement_direction());
 	match move_result:
-		HIT_WALL: _message_log.push_message("You bumped into a wall.");
-		HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
+		Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
+		Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
+		Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
 
 var _last_known_current_chunk_position;
 func _ready():
 	$Entities.add_entity("Sean", Vector2.ZERO);
+	$Entities.add_entity("Martin", Vector2(3, 4));
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 
 func _process(_delta):
