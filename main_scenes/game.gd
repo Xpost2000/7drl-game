@@ -18,7 +18,6 @@ onready var _entity_sprites = $EntitySprites;
 
 const TILE_SIZE = 32;
 const CHUNK_SIZE = 16;
-var _chunks;
 
 func valid_chunk_position(chunks, where):
 	return (where.y >= 0 && where.y < len(chunks)) && where.x >= 0 && where.x < len(chunks[where.y]);
@@ -113,13 +112,13 @@ const NO_COLLISION = 2;
 func move_entity(entity, direction):
 	var sprite_node = entity.associated_sprite_node;
 	var chunk_position = entity.calculate_current_chunk_position();
-	var current_chunk = _chunks[chunk_position.y][chunk_position.x];
+	var current_chunk = $ChunkViews.world_chunks[chunk_position.y][chunk_position.x];
 
 	sprite_node.position = (entity.position+Vector2(0.5, 0.5)) * TILE_SIZE;
 	if direction != Vector2.ZERO:
 		var new_position = entity.position + direction;
 
-		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && valid_chunk_position(_chunks, calculate_chunk_position(new_position));
+		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && valid_chunk_position($ChunkViews.world_chunks, calculate_chunk_position(new_position));
 		var in_bounds = in_bounds_of(current_chunk, new_position, chunk_position.x, chunk_position.y);
 		var hitting_wall = is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * CHUNK_SIZE, chunk_position.y * CHUNK_SIZE));
 		if in_bounds && not hitting_wall:
@@ -199,10 +198,6 @@ func _ready():
 	add_entity("Sean", Vector2.ZERO);
 	_last_known_current_chunk_position = entities[0].calculate_current_chunk_position();
 
-	_chunks = [[WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()],
-			  [WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new(), WorldChunk.new()]];
-
 # yes this is probably very slow. I'm trying to go as far as I can with the
 # engine is just my client approach, since it's easier for me to do that.
 func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
@@ -243,17 +238,20 @@ func repaint_animated_tiles():
 		var neighbor_vector = chunk_offsets[neighbor_index];
 		var offset_position = current_chunk_position + neighbor_vector;
 		
-		if valid_chunk_position(_chunks, offset_position):
+		if valid_chunk_position($ChunkViews.world_chunks, offset_position):
 			$ChunkViews.get_child(neighbor_index).show();
-			call_deferred("paint_animated_tiles", $ChunkViews.get_child(neighbor_index), _chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
+			call_deferred("paint_animated_tiles", $ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
 		else:
 			$ChunkViews.get_child(neighbor_index).hide();
 
+
+
 var _tick_time = 0;
+
 func _process(_delta):
 	var current_chunk_position = entities[0].calculate_current_chunk_position();
 	if _last_known_current_chunk_position != current_chunk_position:
-		for chunk_row in _chunks:
+		for chunk_row in $ChunkViews.world_chunks:
 			for chunk in chunk_row:
 				chunk.mark_all_dirty();
 		for chunk_view in $ChunkViews.get_children():
@@ -265,9 +263,9 @@ func _process(_delta):
 			var neighbor_vector = chunk_offsets[neighbor_index];
 			var offset_position = current_chunk_position + neighbor_vector;
 			
-			if valid_chunk_position(_chunks, offset_position):
+			if valid_chunk_position($ChunkViews.world_chunks, offset_position):
 				$ChunkViews.get_child(neighbor_index).show();
-				paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), _chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
+				paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
 			else:
 				$ChunkViews.get_child(neighbor_index).hide();
 		repaint_animated_tiles();
@@ -285,9 +283,9 @@ func _process(_delta):
 		var neighbor_vector = chunk_offsets[neighbor_index];
 		var offset_position = current_chunk_position + neighbor_vector;
 		
-		if valid_chunk_position(_chunks, offset_position):
+		if valid_chunk_position($ChunkViews.world_chunks, offset_position):
 			$ChunkViews.get_child(neighbor_index).show();
-			paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), _chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
+			paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
 		else:
 			$ChunkViews.get_child(neighbor_index).hide();
 
