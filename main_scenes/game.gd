@@ -259,6 +259,19 @@ func _process(_delta):
 		for chunk_view in $ChunkViews.get_children():
 			chunk_view.clear();
 
+		var chunk_offsets = neighbor_vectors.duplicate();
+		chunk_offsets.push_back(Vector2(0, 0));
+		for neighbor_index in len(chunk_offsets):
+			var neighbor_vector = chunk_offsets[neighbor_index];
+			var offset_position = current_chunk_position + neighbor_vector;
+			
+			if valid_chunk_position(_chunks, offset_position):
+				$ChunkViews.get_child(neighbor_index).show();
+				paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), _chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
+			else:
+				$ChunkViews.get_child(neighbor_index).hide();
+		repaint_animated_tiles();
+
 	if _tick_time > 0.15:
 		repaint_animated_tiles();
 		_tick_time = 0;
