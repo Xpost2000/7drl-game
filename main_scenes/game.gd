@@ -70,7 +70,7 @@ func update_player(player_node):
 			elif not in_bounds:
 				_message_log.push_message("You've hit the entrance to the great beyond");
 
-const CHUNK_SIZE = 128;
+const CHUNK_SIZE = 32;
 var test_chunk;
 var test_chunk1;
 var test_chunk2;
@@ -87,16 +87,20 @@ class WorldChunk:
 		for y in range(CHUNK_SIZE):
 			var row = [];
 			for x in range(CHUNK_SIZE):
-				if randf() < 0.5:
+				var probability = randf();
+				if probability > 0.7:
+					row.push_back(0);
+				elif probability > 0.4: 
 					row.push_back(1);
 				else:
-					row.push_back(0);
+					# This push is for collision detection. Auxiliary holder
+					row.push_back(10);
+					# Animated cells draw on top of "real" cells.
+					# maybe this should be a dictionary.
+					animated_cells.push_back([Vector2(x, y), 10, 4]);
 				self.dirty_cells.push_back(Vector2(x, y));
 			chunk_result.push_back(row);
 		self.cells = chunk_result;
-
-	func get_dirty_cells():
-		return dirty_cells;
 
 	func clear_dirty():
 		dirty_cells = [];
@@ -105,14 +109,29 @@ class WorldChunk:
 		return cells[y][x];
 
 	func set_cell(x, y, val):
+		for animated_cell in animated_cells:
+			var position_of_cell = animated_cell[0];
+			if position_of_cell.x == x && position_of_cell.y == y:
+				animated_cells.erase(animated_cell);
+				break;
+
 		cells[y][x] = val;
 		self.dirty_cells.push_back(Vector2(x, y));
 
 	var cells: Array;
+	var animated_cells: Array;
 	# for repainting
 	var dirty_cells: Array;
 
+var _animated_paint_timer;
 func _ready():
+	_animated_paint_timer = Timer.new();
+	add_child(_animated_paint_timer);
+	_animated_paint_timer.wait_time = 0.25;
+	_animated_paint_timer.one_shot = false;
+	_animated_paint_timer.start();
+	_animated_paint_timer.connect("timeout", self, "repaint_animated_tiles");
+	
 	test_chunk = WorldChunk.new();
 	test_chunk1 = WorldChunk.new();
 	test_chunk2 = WorldChunk.new();
@@ -126,11 +145,34 @@ func _ready():
 # yes this is probably very slow. I'm trying to go as far as I can with the
 # engine is just my client approach, since it's easier for me to do that.
 func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
-	for dirty_cell in chunk.get_dirty_cells():
+	for dirty_cell in chunk.dirty_cells:
 		var x = dirty_cell.x;
 		var y = dirty_cell.y;
 		tilemap.set_cell(x - (chunk_x * CHUNK_SIZE), y - (chunk_y * CHUNK_SIZE), chunk.get_cell(x, y));
+
 	chunk.clear_dirty();
+
+var _global_tile_tick_frame = 0;
+func paint_animated_tiles(tilemap, chunk, chunk_x, chunk_y):
+	_global_tile_tick_frame += 1;
+	for animated_cell_datum in chunk.animated_cells:
+		var cell = animated_cell_datum[0];
+		var cell_frames = animated_cell_datum[2];
+		var cell_id = animated_cell_datum[1] + _global_tile_tick_frame % cell_frames;
+		var x = cell.x;
+		var y = cell.y;
+		tilemap.set_cell(x - (chunk_x * CHUNK_SIZE), y - (chunk_y * CHUNK_SIZE), cell_id);
+
+func repaint_animated_tiles():
+	paint_animated_tiles($ChunkViews/Top, test_chunk7, 0, -1);
+	paint_animated_tiles($ChunkViews/TopRight, test_chunk1, 1, -1);
+	paint_animated_tiles($ChunkViews/TopLeft, test_chunk2, -1, -1);
+	paint_animated_tiles($ChunkViews/Bottom, test_chunk3, 0, 1);
+	paint_animated_tiles($ChunkViews/BottomRight, test_chunk4, 1, 1);
+	paint_animated_tiles($ChunkViews/BottomLeft, test_chunk5, -1, 1);
+	paint_animated_tiles($ChunkViews/Right, test_chunk6, 1, 0);
+	paint_animated_tiles($ChunkViews/Left, test_chunk7, -1, 0);
+	paint_animated_tiles(_world_map, test_chunk, 0, 0);
 
 func _process(_delta):
 	paint_chunk_to_tilemap($ChunkViews/Top, test_chunk8, 0, -1);
