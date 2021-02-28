@@ -55,16 +55,17 @@ func player_movement_direction():
 
 # for now keep this in sync with tileset...
 var _solid_cells_list = [8, 9];
-func is_solid_tile(world_map, position) -> bool:
-	var cell_at_position = world_map.get_cell(position.x, position.y);
-	for cell in _solid_cells_list:
-		if cell == cell_at_position:
-			return true;
-	return false;
+func in_bounds_of(world_map, position, chunk_x, chunk_y) -> bool:
+	return (position.x >= chunk_x*CHUNK_SIZE && position.x < (chunk_x + CHUNK_SIZE)) && (position.y >= chunk_y*CHUNK_SIZE && position.y < (chunk_y + CHUNK_SIZE));
 
-func in_bounds_of(world_map, position) -> bool:
-	var bounds_rect = world_map.get_used_rect();
-	return (position.x >= bounds_rect.position.x && position.x < bounds_rect.size.x) && (position.y >= bounds_rect.position.y && position.y < bounds_rect.size.y);
+func is_solid_tile(world_map, position) -> bool:
+	# this shouldn't happen, however it is cause the tiles are relative to the chunk position.
+	if in_bounds_of(world_map, position, 0, 0):
+		var cell_at_position = world_map.get_cell(position.x, position.y);
+		for cell in _solid_cells_list:
+			if cell == cell_at_position:
+				return true;
+	return false;
 
 # might be uber class?
 # everything will probably only have one turn, to be safe?
@@ -106,30 +107,38 @@ func add_entity(name, position):
 	entities.push_back(new_entity);
 	return new_entity;
 
-# var actual_player_position = Vector2.ZERO;
-func update_player(player_entity):
-	var direction = player_movement_direction();
-	var sprite_node = player_entity.associated_sprite_node;
+const HIT_WALL = 0;
+const HIT_WORLD_EDGE = 1;
+const NO_COLLISION = 2;
+func move_entity(entity, direction):
+	var sprite_node = entity.associated_sprite_node;
+	var chunk_position = entity.calculate_current_chunk_position();
+	var current_chunk = _chunks[chunk_position.y][chunk_position.x];
 
-	sprite_node.position = (player_entity.position+Vector2(0.5, 0.5)) * TILE_SIZE;
+	sprite_node.position = (entity.position+Vector2(0.5, 0.5)) * TILE_SIZE;
 	if direction != Vector2.ZERO:
-		var new_player_position = player_entity.position + direction;
+		var new_position = entity.position + direction;
 
-		# negative coordinates are not allowed since they complicate things...
-		# by making me shift them until they're in the correct quadrants.
-		var in_world_bounds = (new_player_position.x >= 0) && (new_player_position.y >= 0) && valid_chunk_position(_chunks, calculate_chunk_position(new_player_position));
-		var in_bounds = in_bounds_of(_world_map, new_player_position);
-		var hitting_wall = is_solid_tile(_world_map, new_player_position);
+		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && valid_chunk_position(_chunks, calculate_chunk_position(new_position));
+		var in_bounds = in_bounds_of(current_chunk, new_position, chunk_position.x, chunk_position.y);
+		var hitting_wall = is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * CHUNK_SIZE, chunk_position.y * CHUNK_SIZE));
 		if in_bounds && not hitting_wall:
-			player_entity.position = new_player_position;
+			entity.position = new_position;
 		else:
 			if hitting_wall:
-				_message_log.push_message("You bumped into a wall");
+				return HIT_WALL;
 			elif not in_bounds:
 				if in_world_bounds:
-					player_entity.position = new_player_position;
+					entity.position = new_position;
+					return NO_COLLISION;
 				else:
-					_message_log.push_message("You've hit the entrance to the great beyond");
+					return HIT_WORLD_EDGE;
+
+func update_player(player_entity):
+	var move_result = move_entity(player_entity, player_movement_direction());
+	match move_result:
+		HIT_WALL: _message_log.push_message("You bumped into a wall.");
+		HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
 
 class WorldChunk:
 	func _init():
