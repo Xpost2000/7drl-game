@@ -231,6 +231,8 @@ func _process(_delta):
 	paint_chunk_to_tilemap($ChunkViews/Right, test_chunk6, 1, 0);
 	paint_chunk_to_tilemap($ChunkViews/Left, test_chunk7, -1, 0);
 	paint_chunk_to_tilemap(_world_map, test_chunk, 0, 0);
+
+	$CameraTracer.position = entities[0].associated_sprite_node.global_position;
 	update_player(entities[0]);
 
 func _physics_process(_delta):
