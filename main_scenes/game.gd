@@ -4,8 +4,17 @@ extends Node2D
 # Doing a roguelike might require me to do a lot of perversion of the idiomatic godot way
 # in which case I'm just writing a python roguelike engine and using godot as my driver/client...
 # Which works I guess?
+
+# It gets stuff done really fast even though it ain't maintainable. If godot supported less node based modules
+# it'd be way easier to do things...
+
+# Particularly the turnbased part. As to avoid giving myself a headache I can just
+# register the turns centrally here...
+# If it were real time, I'd do the nodes...
+
 onready var _world_map = $ChunkViews/Current;
 onready var _message_log = $InterfaceLayer/Interface/Messages;
+onready var _entity_sprites = $EntitySprites;
 
 const TILE_SIZE = 32;
 
@@ -52,18 +61,54 @@ func in_bounds_of(world_map, position) -> bool:
 	var bounds_rect = world_map.get_used_rect();
 	return (position.x >= bounds_rect.position.x && position.x < bounds_rect.size.x) && (position.y >= bounds_rect.position.y && position.y < bounds_rect.size.y);
 
-var actual_player_position = Vector2.ZERO;
-func update_player(player_node):
-	var direction = player_movement_direction();
+# might be uber class?
+# everything will probably only have one turn, to be safe?
+# TODO support multi turn entities
+class Entity:
+	func _init(sprite):
+		self.associated_sprite_node = sprite;
 
-	player_node.position = (actual_player_position+Vector2(0.5, 0.5)) * TILE_SIZE;
+	var name: String;
+	var health: int;
+	var position: Vector2;
+	var associated_sprite_node: Sprite;
+var entities = [];
+func remove_entity_at_index(index):
+	var sprite = entities[index].associated_sprite_node;
+	entities.remove(index);
+	_entity_sprites.remove_child(sprite);
+	sprite.queue_free();
+
+func add_entity(name, position):
+	var sprite = Sprite.new();
+
+	var atlas_texture = AtlasTexture.new();
+	atlas_texture.atlas = load("res://resources/ProjectUtumno_full.png");
+	atlas_texture.region = Rect2(450, 1890, 30, 30);
+
+	sprite.texture = atlas_texture;
+	_entity_sprites.add_child(sprite);
+
+	var new_entity = Entity.new(sprite);
+	new_entity.name = name;
+	new_entity.position = position;
+
+	entities.push_back(new_entity);
+	return new_entity;
+
+# var actual_player_position = Vector2.ZERO;
+func update_player(player_entity):
+	var direction = player_movement_direction();
+	var sprite_node = player_entity.associated_sprite_node;
+
+	sprite_node.position = (player_entity.position+Vector2(0.5, 0.5)) * TILE_SIZE;
 	if direction != Vector2.ZERO:
-		var new_player_position = actual_player_position + direction;
+		var new_player_position = player_entity.position + direction;
 
 		var in_bounds = in_bounds_of(_world_map, new_player_position);
 		var hitting_wall = is_solid_tile(_world_map, new_player_position);
 		if in_bounds && not hitting_wall:
-			actual_player_position = new_player_position;
+			player_entity.position = new_player_position;
 		else:
 			if hitting_wall:
 				_message_log.push_message("You bumped into a wall");
@@ -131,6 +176,8 @@ func _ready():
 	_animated_paint_timer.one_shot = false;
 	_animated_paint_timer.start();
 	_animated_paint_timer.connect("timeout", self, "repaint_animated_tiles");
+
+	add_entity("Sean", Vector2.ZERO);
 	
 	test_chunk = WorldChunk.new();
 	test_chunk1 = WorldChunk.new();
@@ -184,7 +231,7 @@ func _process(_delta):
 	paint_chunk_to_tilemap($ChunkViews/Right, test_chunk6, 1, 0);
 	paint_chunk_to_tilemap($ChunkViews/Left, test_chunk7, -1, 0);
 	paint_chunk_to_tilemap(_world_map, test_chunk, 0, 0);
-	update_player($PlayerSprite);
+	update_player(entities[0]);
 
 func _physics_process(_delta):
 	pass;
