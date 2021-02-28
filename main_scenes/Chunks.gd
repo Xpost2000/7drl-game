@@ -2,6 +2,9 @@
 extends Node2D
 export var CHUNK_MAX_SIZE = 16;
 
+func in_bounds_of(position, chunk_x, chunk_y) -> bool:
+	return (position.x >= chunk_x*CHUNK_MAX_SIZE && position.x < (chunk_x + CHUNK_MAX_SIZE)) && (position.y >= chunk_y*CHUNK_MAX_SIZE && position.y < (chunk_y + CHUNK_MAX_SIZE));
+
 var world_chunks = [];
 const neighbor_vectors = [Vector2(-1, 0),
 						  Vector2(1, 0),

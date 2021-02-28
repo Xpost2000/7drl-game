@@ -17,7 +17,6 @@ onready var _message_log = $InterfaceLayer/Interface/Messages;
 onready var _entity_sprites = $EntitySprites;
 
 const TILE_SIZE = 32;
-const CHUNK_SIZE = 16;
 
 func create_tween(node_to_tween, property, start, end, tween_fn, tween_ease, time=1.0, delay=0.0):
 	var new_tween = Tween.new();
@@ -51,12 +50,9 @@ func player_movement_direction():
 
 # for now keep this in sync with tileset...
 var _solid_cells_list = [8, 9];
-func in_bounds_of(position, chunk_x, chunk_y) -> bool:
-	return (position.x >= chunk_x*CHUNK_SIZE && position.x < (chunk_x + CHUNK_SIZE)) && (position.y >= chunk_y*CHUNK_SIZE && position.y < (chunk_y + CHUNK_SIZE));
-
 func is_solid_tile(world_map, position) -> bool:
 	# this shouldn't happen, however it is cause the tiles are relative to the chunk position.
-	if in_bounds_of(position, 0, 0):
+	if $ChunkViews.in_bounds_of(position, 0, 0):
 		var cell_at_position = world_map.get_cell(position.x, position.y);
 		for cell in _solid_cells_list:
 			if cell == cell_at_position:
@@ -67,13 +63,10 @@ func is_solid_tile(world_map, position) -> bool:
 # everything will probably only have one turn, to be safe?
 # TODO support multi turn entities
 func calculate_chunk_position(absolute_position):
-	return Vector2(int(absolute_position.x / CHUNK_SIZE), int(absolute_position.y / CHUNK_SIZE));
+	return Vector2(int(absolute_position.x / $ChunkViews.CHUNK_MAX_SIZE), int(absolute_position.y / $ChunkViews.CHUNK_MAX_SIZE));
 class Entity:
 	func _init(sprite):
 		self.associated_sprite_node = sprite;
-
-	func calculate_current_chunk_position():
-		return Vector2(int(position.x / CHUNK_SIZE), int(position.y / CHUNK_SIZE));
 
 	var name: String;
 	var health: int;
@@ -108,15 +101,15 @@ const HIT_WORLD_EDGE = 1;
 const NO_COLLISION = 2;
 
 func try_move(entity, direction):
-	var chunk_position = entity.calculate_current_chunk_position();
+	var chunk_position = calculate_chunk_position(entity.position);
 	var current_chunk = $ChunkViews.world_chunks[chunk_position.y][chunk_position.x];
 
 	if direction != Vector2.ZERO:
 		var new_position = entity.position + direction;
 
 		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && $ChunkViews.in_bounds(calculate_chunk_position(new_position));
-		var in_bounds = in_bounds_of(new_position, chunk_position.x, chunk_position.y);
-		var hitting_wall = is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * CHUNK_SIZE, chunk_position.y * CHUNK_SIZE));
+		var in_bounds = $ChunkViews.in_bounds_of(new_position, chunk_position.x, chunk_position.y);
+		var hitting_wall = is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * $ChunkViews.CHUNK_MAX_SIZE, chunk_position.y * $ChunkViews.CHUNK_MAX_SIZE));
 		if in_bounds && not hitting_wall:
 			return NO_COLLISION;
 		else:
@@ -149,10 +142,10 @@ func update_player(player_entity):
 var _last_known_current_chunk_position;
 func _ready():
 	add_entity("Sean", Vector2.ZERO);
-	_last_known_current_chunk_position = entities[0].calculate_current_chunk_position();
+	_last_known_current_chunk_position = calculate_chunk_position(entities[0].position);
 
 func _process(_delta):
-	var current_chunk_position = entities[0].calculate_current_chunk_position();
+	var current_chunk_position = calculate_chunk_position(entities[0].position);
 	if _last_known_current_chunk_position != current_chunk_position:
 		for chunk_row in $ChunkViews.world_chunks:
 			for chunk in chunk_row:

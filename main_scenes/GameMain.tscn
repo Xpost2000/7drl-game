@@ -37,6 +37,7 @@ MESSAGE_LIFETIME_MAX = 1.0
 [node name="ChunkViews" type="Node2D" parent="."]
 position = Vector2( 0, 2 )
 script = ExtResource( 1 )
+CHUNK_MAX_SIZE = 32
 
 [node name="Current" type="TileMap" parent="ChunkViews"]
 tile_set = ExtResource( 5 )
