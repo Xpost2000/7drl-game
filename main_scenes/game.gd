@@ -5,7 +5,7 @@ extends Node2D
 # in which case I'm just writing a python roguelike engine and using godot as my driver/client...
 # Which works I guess?
 onready var _world_map = $WorldMap;
-onready var _message_log = $Interface/Messages;
+onready var _message_log = $InterfaceLayer/Interface/Messages;
 
 const TILE_SIZE = 32;
 
@@ -26,12 +26,6 @@ func bump_tween(node, start, direction):
 	var second = create_tween(node, "position", start + direction * (TILE_SIZE/2), start, Tween.TRANS_LINEAR, Tween.EASE_IN, 0.25);
 
 	first.connect("tween_all_completed", second, "start");
-
-func _ready():
-	pass;
-
-func _physics_process(_delta):
-	pass;
 
 func player_movement_direction():
 	if Input.is_action_just_pressed("ui_up"):
@@ -62,7 +56,7 @@ var actual_player_position = Vector2.ZERO;
 func update_player(player_node):
 	var direction = player_movement_direction();
 
-	player_node.position = actual_player_position * TILE_SIZE;
+	player_node.position = (actual_player_position+Vector2(0.5, 0.5)) * TILE_SIZE;
 	if direction != Vector2.ZERO:
 		var new_player_position = actual_player_position + direction;
 
@@ -76,5 +70,31 @@ func update_player(player_node):
 			elif not in_bounds:
 				_message_log.push_message("You've hit the entrance to the great beyond");
 
+var test_chunk = [];
+const CHUNK_SIZE = 96;
+func empty_chunk():
+	var chunk_result = [];
+	for y in range(CHUNK_SIZE):
+		var row = [];
+		for x in range(CHUNK_SIZE):
+			row.push_back(0);
+		chunk_result.push_back(row);
+	return chunk_result;
+
+func _ready():
+	test_chunk = empty_chunk();
+
+# yes this is probably very slow. I'm trying to go as far as I can with the
+# engine is just my client approach, since it's easier for me to do that.
+func paint_chunk_to_tilemap(tilemap, chunk):
+	tilemap.clear();
+	for y in range(CHUNK_SIZE):
+		for x in range(CHUNK_SIZE):
+			tilemap.set_cell(x, y, chunk[y][x]);
+
 func _process(_delta):
+	paint_chunk_to_tilemap(_world_map, test_chunk);
 	update_player($PlayerSprite);
+
+func _physics_process(_delta):
+	pass;
