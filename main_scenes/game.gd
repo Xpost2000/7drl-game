@@ -4,7 +4,7 @@ extends Node2D
 # Doing a roguelike might require me to do a lot of perversion of the idiomatic godot way
 # in which case I'm just writing a python roguelike engine and using godot as my driver/client...
 # Which works I guess?
-onready var _world_map = $WorldMap;
+onready var _world_map = $ChunkViews/Current;
 onready var _message_log = $InterfaceLayer/Interface/Messages;
 
 const TILE_SIZE = 32;
@@ -86,14 +86,18 @@ func _ready():
 
 # yes this is probably very slow. I'm trying to go as far as I can with the
 # engine is just my client approach, since it's easier for me to do that.
-func paint_chunk_to_tilemap(tilemap, chunk):
+func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
 	tilemap.clear();
 	for y in range(CHUNK_SIZE):
 		for x in range(CHUNK_SIZE):
-			tilemap.set_cell(x, y, chunk[y][x]);
+			tilemap.set_cell(x - (chunk_x * CHUNK_SIZE), y - (chunk_y * CHUNK_SIZE), chunk[y][x]);
 
 func _process(_delta):
-	paint_chunk_to_tilemap(_world_map, test_chunk);
+	paint_chunk_to_tilemap($ChunkViews/Top, test_chunk, 0, -1);
+	paint_chunk_to_tilemap($ChunkViews/Bottom, test_chunk, 0, 1);
+	paint_chunk_to_tilemap($ChunkViews/Right, test_chunk, 1, 0);
+	paint_chunk_to_tilemap($ChunkViews/Left, test_chunk, -1, 0);
+	paint_chunk_to_tilemap(_world_map, test_chunk, 0, 0);
 	update_player($PlayerSprite);
 
 func _physics_process(_delta):

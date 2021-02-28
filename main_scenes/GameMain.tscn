@@ -199,7 +199,41 @@ __meta__ = {
 }
 MESSAGE_LIFETIME_MAX = 1.0
 
-[node name="WorldMap" type="TileMap" parent="."]
+[node name="ChunkViews" type="Node2D" parent="."]
+
+[node name="Left" type="TileMap" parent="ChunkViews"]
+tile_set = SubResource( 3 )
+cell_size = Vector2( 32, 32 )
+format = 1
+__meta__ = {
+"_editor_description_": "Shit stuff into here to make worlds!"
+}
+
+[node name="Right" type="TileMap" parent="ChunkViews"]
+tile_set = SubResource( 3 )
+cell_size = Vector2( 32, 32 )
+format = 1
+__meta__ = {
+"_editor_description_": "Shit stuff into here to make worlds!"
+}
+
+[node name="Top" type="TileMap" parent="ChunkViews"]
+tile_set = SubResource( 3 )
+cell_size = Vector2( 32, 32 )
+format = 1
+__meta__ = {
+"_editor_description_": "Shit stuff into here to make worlds!"
+}
+
+[node name="Bottom" type="TileMap" parent="ChunkViews"]
+tile_set = SubResource( 3 )
+cell_size = Vector2( 32, 32 )
+format = 1
+__meta__ = {
+"_editor_description_": "Shit stuff into here to make worlds!"
+}
+
+[node name="Current" type="TileMap" parent="ChunkViews"]
 tile_set = SubResource( 3 )
 cell_size = Vector2( 32, 32 )
 format = 1
