@@ -36,6 +36,7 @@ MESSAGE_LIFETIME_MAX = 1.0
 [node name="ChunkViews" type="Node2D" parent="."]
 
 [node name="Left" type="TileMap" parent="ChunkViews"]
+self_modulate = Color( 0.937255, 0.435294, 0.435294, 1 )
 tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1
@@ -44,6 +45,7 @@ __meta__ = {
 }
 
 [node name="Right" type="TileMap" parent="ChunkViews"]
+modulate = Color( 0.172549, 0.454902, 0.517647, 1 )
 tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1
@@ -52,22 +54,7 @@ __meta__ = {
 }
 
 [node name="Top" type="TileMap" parent="ChunkViews"]
-tile_set = ExtResource( 5 )
-cell_size = Vector2( 32, 32 )
-format = 1
-__meta__ = {
-"_editor_description_": "Shit stuff into here to make worlds!"
-}
-
-[node name="TopRight" type="TileMap" parent="ChunkViews"]
-tile_set = ExtResource( 5 )
-cell_size = Vector2( 32, 32 )
-format = 1
-__meta__ = {
-"_editor_description_": "Shit stuff into here to make worlds!"
-}
-
-[node name="TopLeft" type="TileMap" parent="ChunkViews"]
+modulate = Color( 0.458824, 0.0666667, 0.47451, 1 )
 tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1
@@ -76,6 +63,25 @@ __meta__ = {
 }
 
 [node name="Bottom" type="TileMap" parent="ChunkViews"]
+modulate = Color( 0.121569, 0.854902, 0.305882, 1 )
+tile_set = ExtResource( 5 )
+cell_size = Vector2( 32, 32 )
+format = 1
+tile_data = PoolIntArray( -131048, 1073741834, 0 )
+__meta__ = {
+"_editor_description_": "Shit stuff into here to make worlds!"
+}
+
+[node name="TopRight" type="TileMap" parent="ChunkViews"]
+tile_set = ExtResource( 5 )
+cell_size = Vector2( 32, 32 )
+format = 1
+tile_data = PoolIntArray( 196618, 1073741834, 0 )
+__meta__ = {
+"_editor_description_": "Shit stuff into here to make worlds!"
+}
+
+[node name="TopLeft" type="TileMap" parent="ChunkViews"]
 tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1
@@ -109,6 +115,7 @@ __meta__ = {
 
 [node name="GameCamera" type="Camera2D" parent="."]
 current = true
+zoom = Vector2( 3, 3 )
 smoothing_enabled = true
 
 [node name="CameraTracer" type="RemoteTransform2D" parent="."]
