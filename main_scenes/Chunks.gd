@@ -1,6 +1,5 @@
 # Should rename this later...
 extends Node2D
-
 export var CHUNK_MAX_SIZE = 16;
 
 var world_chunks = [];
@@ -14,6 +13,7 @@ const neighbor_vectors = [Vector2(-1, 0),
 						  Vector2(-1, -1),
 						  ];
 
+# provide world generation algorithms.
 class WorldChunk:
 	func _init(size):
 		self.size = size;
@@ -81,5 +81,61 @@ func _ready():
 			  ];
 	pass;
 
+var _global_tile_tick_frame = 0;
+func paint_animated_tiles(tilemap, chunk, chunk_x, chunk_y):
+	for animated_cell_datum in chunk.animated_cells:
+		var cell = animated_cell_datum[0];
+		var cell_frames = animated_cell_datum[2];
+		var cell_id = animated_cell_datum[1] + _global_tile_tick_frame % cell_frames;
+		var x = cell.x;
+		var y = cell.y;
+
+		tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), cell_id);
+
+func repaint_animated_tiles(current_chunk_position):
+	var chunk_offsets = neighbor_vectors.duplicate();
+	chunk_offsets.push_back(Vector2(0, 0));
+	for neighbor_index in len(chunk_offsets):
+		var neighbor_vector = chunk_offsets[neighbor_index];
+		var offset_position = current_chunk_position + neighbor_vector;
+		
+		if in_bounds(offset_position):
+			get_child(neighbor_index).show();
+			call_deferred("paint_animated_tiles", get_child(neighbor_index), world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
+		else:
+			get_child(neighbor_index).hide();
+
+func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
+	for dirty_cell in chunk.dirty_cells:
+		var x = dirty_cell.x;
+		var y = dirty_cell.y;
+		tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
+
+	chunk.clear_dirty();
+
+var _tick_time = 0;
+
+func inclusively_redraw_chunks_around(chunk_position):
+	if _tick_time > 0.15:
+		repaint_animated_tiles(chunk_position);
+	else:
+		_global_tile_tick_frame += 1;
+
+	var chunk_offsets = neighbor_vectors.duplicate();
+	chunk_offsets.push_back(Vector2(0, 0));
+	for neighbor_index in len(chunk_offsets):
+		var neighbor_vector = chunk_offsets[neighbor_index];
+		var offset_position = chunk_position + neighbor_vector;
+		
+		if in_bounds(offset_position):
+			get_child(neighbor_index).show();
+			paint_chunk_to_tilemap(get_child(neighbor_index), world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
+		else:
+			get_child(neighbor_index).hide();
+
+
 func _process(delta):
-	pass;
+	if _tick_time > 0.15:
+		_tick_time = 0;
+	else:
+		_tick_time += delta;

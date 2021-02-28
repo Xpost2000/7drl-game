@@ -51,12 +51,12 @@ func player_movement_direction():
 
 # for now keep this in sync with tileset...
 var _solid_cells_list = [8, 9];
-func in_bounds_of(world_map, position, chunk_x, chunk_y) -> bool:
+func in_bounds_of(position, chunk_x, chunk_y) -> bool:
 	return (position.x >= chunk_x*CHUNK_SIZE && position.x < (chunk_x + CHUNK_SIZE)) && (position.y >= chunk_y*CHUNK_SIZE && position.y < (chunk_y + CHUNK_SIZE));
 
 func is_solid_tile(world_map, position) -> bool:
 	# this shouldn't happen, however it is cause the tiles are relative to the chunk position.
-	if in_bounds_of(world_map, position, 0, 0):
+	if in_bounds_of(position, 0, 0):
 		var cell_at_position = world_map.get_cell(position.x, position.y);
 		for cell in _solid_cells_list:
 			if cell == cell_at_position:
@@ -106,29 +106,39 @@ func add_entity(name, position):
 const HIT_WALL = 0;
 const HIT_WORLD_EDGE = 1;
 const NO_COLLISION = 2;
-func move_entity(entity, direction):
-	var sprite_node = entity.associated_sprite_node;
+
+func try_move(entity, direction):
 	var chunk_position = entity.calculate_current_chunk_position();
 	var current_chunk = $ChunkViews.world_chunks[chunk_position.y][chunk_position.x];
 
-	sprite_node.position = (entity.position+Vector2(0.5, 0.5)) * TILE_SIZE;
 	if direction != Vector2.ZERO:
 		var new_position = entity.position + direction;
 
 		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && $ChunkViews.in_bounds(calculate_chunk_position(new_position));
-		var in_bounds = in_bounds_of(current_chunk, new_position, chunk_position.x, chunk_position.y);
+		var in_bounds = in_bounds_of(new_position, chunk_position.x, chunk_position.y);
 		var hitting_wall = is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * CHUNK_SIZE, chunk_position.y * CHUNK_SIZE));
 		if in_bounds && not hitting_wall:
-			entity.position = new_position;
+			return NO_COLLISION;
 		else:
 			if hitting_wall:
 				return HIT_WALL;
 			elif not in_bounds:
 				if in_world_bounds:
-					entity.position = new_position;
 					return NO_COLLISION;
 				else:
 					return HIT_WORLD_EDGE;
+
+
+func move_entity(entity, direction):
+	var sprite_node = entity.associated_sprite_node;
+	sprite_node.position = (entity.position+Vector2(0.5, 0.5)) * TILE_SIZE;
+
+	if direction != Vector2.ZERO:
+		var new_position = entity.position + direction;
+		var result = try_move(entity, direction);
+		if result == NO_COLLISION:
+			entity.position = new_position;
+		return result;
 
 func update_player(player_entity):
 	var move_result = move_entity(player_entity, player_movement_direction());
@@ -136,114 +146,10 @@ func update_player(player_entity):
 		HIT_WALL: _message_log.push_message("You bumped into a wall.");
 		HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
 
-class WorldChunk:
-	func _init():
-		var chunk_result = [];
-		self.dirty_cells = [];
-		for y in range(CHUNK_SIZE):
-			var row = [];
-			for x in range(CHUNK_SIZE):
-				var probability = randf();
-				if probability > 0.7:
-					row.push_back(0);
-				elif probability > 0.4: 
-					row.push_back(1);
-				else:
-					# This push is for collision detection. Auxiliary holder
-					row.push_back(10);
-					# Animated cells draw on top of "real" cells.
-					# maybe this should be a dictionary.
-					animated_cells.push_back([Vector2(x, y), 10, 4]);
-				self.dirty_cells.push_back(Vector2(x, y));
-			chunk_result.push_back(row);
-		self.cells = chunk_result;
-
-	func mark_all_dirty():
-		for y in range(CHUNK_SIZE):
-			for x in range(CHUNK_SIZE):
-				var any_animated = false;
-				for animated_cell in animated_cells:
-					if animated_cell[0].x == x && animated_cell[0].y == y:
-						any_animated = true;
-						break;
-				if not any_animated:
-					self.dirty_cells.push_back(Vector2(x, y));
-
-	func clear_dirty():
-		dirty_cells = [];
-
-	func get_cell(x, y):
-		return cells[y][x];
-
-	func set_cell(x, y, val):
-		for animated_cell in animated_cells:
-			var position_of_cell = animated_cell[0];
-			if position_of_cell.x == x && position_of_cell.y == y:
-				animated_cells.erase(animated_cell);
-				break;
-
-		cells[y][x] = val;
-		self.dirty_cells.push_back(Vector2(x, y));
-
-	var cells: Array;
-	var animated_cells: Array;
-	# for repainting
-	var dirty_cells: Array;
-
 var _last_known_current_chunk_position;
 func _ready():
 	add_entity("Sean", Vector2.ZERO);
 	_last_known_current_chunk_position = entities[0].calculate_current_chunk_position();
-
-# yes this is probably very slow. I'm trying to go as far as I can with the
-# engine is just my client approach, since it's easier for me to do that.
-func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
-	for dirty_cell in chunk.dirty_cells:
-		var x = dirty_cell.x;
-		var y = dirty_cell.y;
-		tilemap.set_cell(x + (chunk_x * CHUNK_SIZE), y + (chunk_y * CHUNK_SIZE), chunk.get_cell(x, y));
-
-	chunk.clear_dirty();
-
-var _global_tile_tick_frame = 0;
-func paint_animated_tiles(tilemap, chunk, chunk_x, chunk_y):
-	for animated_cell_datum in chunk.animated_cells:
-		var cell = animated_cell_datum[0];
-		var cell_frames = animated_cell_datum[2];
-		var cell_id = animated_cell_datum[1] + _global_tile_tick_frame % cell_frames;
-		var x = cell.x;
-		var y = cell.y;
-
-		tilemap.set_cell(x + (chunk_x * CHUNK_SIZE), y + (chunk_y * CHUNK_SIZE), cell_id);
-
-const neighbor_vectors = [Vector2(-1, 0),
-						  Vector2(1, 0),
-						  Vector2(0, 1),
-						  Vector2(0, -1),
-						  Vector2(1, 1),
-						  Vector2(-1, 1),
-						  Vector2(1, -1),
-						  Vector2(-1, -1),
-						  ];
-
-func repaint_animated_tiles():
-	var current_chunk_position = entities[0].calculate_current_chunk_position();
-
-	var chunk_offsets = neighbor_vectors.duplicate();
-	chunk_offsets.push_back(Vector2(0, 0));
-	for neighbor_index in len(chunk_offsets):
-		var neighbor_vector = chunk_offsets[neighbor_index];
-		var offset_position = current_chunk_position + neighbor_vector;
-		
-		if $ChunkViews.in_bounds(offset_position):
-			$ChunkViews.get_child(neighbor_index).show();
-			call_deferred("paint_animated_tiles", $ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
-		else:
-			$ChunkViews.get_child(neighbor_index).hide();
-
-
-
-var _tick_time = 0;
 
 func _process(_delta):
 	var current_chunk_position = entities[0].calculate_current_chunk_position();
@@ -253,39 +159,10 @@ func _process(_delta):
 				chunk.mark_all_dirty();
 		for chunk_view in $ChunkViews.get_children():
 			chunk_view.clear();
+		$ChunkViews.inclusively_redraw_chunks_around(current_chunk_position);
+		$ChunkViews.repaint_animated_tiles(current_chunk_position);
 
-		var chunk_offsets = neighbor_vectors.duplicate();
-		chunk_offsets.push_back(Vector2(0, 0));
-		for neighbor_index in len(chunk_offsets):
-			var neighbor_vector = chunk_offsets[neighbor_index];
-			var offset_position = current_chunk_position + neighbor_vector;
-			
-			if $ChunkViews.in_bounds(offset_position):
-				$ChunkViews.get_child(neighbor_index).show();
-				paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
-			else:
-				$ChunkViews.get_child(neighbor_index).hide();
-		repaint_animated_tiles();
-
-	if _tick_time > 0.15:
-		repaint_animated_tiles();
-		_tick_time = 0;
-	else:
-		_tick_time += _delta;
-		_global_tile_tick_frame += 1;
-
-	var chunk_offsets = neighbor_vectors.duplicate();
-	chunk_offsets.push_back(Vector2(0, 0));
-	for neighbor_index in len(chunk_offsets):
-		var neighbor_vector = chunk_offsets[neighbor_index];
-		var offset_position = current_chunk_position + neighbor_vector;
-		
-
-		if $ChunkViews.in_bounds(offset_position):
-			$ChunkViews.get_child(neighbor_index).show();
-			paint_chunk_to_tilemap($ChunkViews.get_child(neighbor_index), $ChunkViews.world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
-		else:
-			$ChunkViews.get_child(neighbor_index).hide();
+	$ChunkViews.inclusively_redraw_chunks_around(current_chunk_position);
 
 	$CameraTracer.position = entities[0].associated_sprite_node.global_position;
 	update_player(entities[0]);
