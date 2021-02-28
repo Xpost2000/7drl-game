@@ -70,8 +70,16 @@ func update_player(player_node):
 			elif not in_bounds:
 				_message_log.push_message("You've hit the entrance to the great beyond");
 
-const CHUNK_SIZE = 36;
+const CHUNK_SIZE = 128;
 var test_chunk;
+var test_chunk1;
+var test_chunk2;
+var test_chunk3;
+var test_chunk4;
+var test_chunk5;
+var test_chunk6;
+var test_chunk7;
+var test_chunk8;
 class WorldChunk:
 	func _init():
 		var chunk_result = [];
@@ -106,25 +114,33 @@ class WorldChunk:
 
 func _ready():
 	test_chunk = WorldChunk.new();
+	test_chunk1 = WorldChunk.new();
+	test_chunk2 = WorldChunk.new();
+	test_chunk3 = WorldChunk.new();
+	test_chunk4 = WorldChunk.new();
+	test_chunk5 = WorldChunk.new();
+	test_chunk6 = WorldChunk.new();
+	test_chunk7 = WorldChunk.new();
+	test_chunk8 = WorldChunk.new();
 
 # yes this is probably very slow. I'm trying to go as far as I can with the
 # engine is just my client approach, since it's easier for me to do that.
 func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
-	tilemap.clear();
 	for dirty_cell in chunk.get_dirty_cells():
 		var x = dirty_cell.x;
 		var y = dirty_cell.y;
 		tilemap.set_cell(x - (chunk_x * CHUNK_SIZE), y - (chunk_y * CHUNK_SIZE), chunk.get_cell(x, y));
+	chunk.clear_dirty();
 
 func _process(_delta):
-	paint_chunk_to_tilemap($ChunkViews/Top, test_chunk, 0, -1);
-	paint_chunk_to_tilemap($ChunkViews/TopRight, test_chunk, 1, -1);
-	paint_chunk_to_tilemap($ChunkViews/TopLeft, test_chunk, -1, -1);
-	paint_chunk_to_tilemap($ChunkViews/Bottom, test_chunk, 0, 1);
-	paint_chunk_to_tilemap($ChunkViews/BottomRight, test_chunk, 1, 1);
-	paint_chunk_to_tilemap($ChunkViews/BottomLeft, test_chunk, -1, 1);
-	paint_chunk_to_tilemap($ChunkViews/Right, test_chunk, 1, 0);
-	paint_chunk_to_tilemap($ChunkViews/Left, test_chunk, -1, 0);
+	paint_chunk_to_tilemap($ChunkViews/Top, test_chunk8, 0, -1);
+	paint_chunk_to_tilemap($ChunkViews/TopRight, test_chunk1, 1, -1);
+	paint_chunk_to_tilemap($ChunkViews/TopLeft, test_chunk2, -1, -1);
+	paint_chunk_to_tilemap($ChunkViews/Bottom, test_chunk3, 0, 1);
+	paint_chunk_to_tilemap($ChunkViews/BottomRight, test_chunk4, 1, 1);
+	paint_chunk_to_tilemap($ChunkViews/BottomLeft, test_chunk5, -1, 1);
+	paint_chunk_to_tilemap($ChunkViews/Right, test_chunk6, 1, 0);
+	paint_chunk_to_tilemap($ChunkViews/Left, test_chunk7, -1, 0);
 	paint_chunk_to_tilemap(_world_map, test_chunk, 0, 0);
 	update_player($PlayerSprite);
 
