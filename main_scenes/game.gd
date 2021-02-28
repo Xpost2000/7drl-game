@@ -17,7 +17,7 @@ onready var _message_log = $InterfaceLayer/Interface/Messages;
 onready var _entity_sprites = $EntitySprites;
 
 const TILE_SIZE = 32;
-const CHUNK_SIZE = 32;
+const CHUNK_SIZE = 16;
 var _chunks;
 
 func valid_chunk_position(chunks, where):
@@ -231,12 +231,6 @@ const neighbor_vectors = [Vector2(-1, 0),
 
 func repaint_animated_tiles():
 	var current_chunk_position = entities[0].calculate_current_chunk_position();
-	if _last_known_current_chunk_position != current_chunk_position:
-		for chunk_row in _chunks:
-			for chunk in chunk_row:
-				chunk.mark_all_dirty();
-		for chunk_view in $ChunkViews.get_children():
-			chunk_view.clear();
 	var chunk_offsets = neighbor_vectors.duplicate();
 	chunk_offsets.push_back(Vector2(0, 0));
 	for neighbor_index in len(chunk_offsets):
@@ -257,6 +251,7 @@ func _process(_delta):
 				chunk.mark_all_dirty();
 		for chunk_view in $ChunkViews.get_children():
 			chunk_view.clear();
+
 	var chunk_offsets = neighbor_vectors.duplicate();
 	chunk_offsets.push_back(Vector2(0, 0));
 	for neighbor_index in len(chunk_offsets):
