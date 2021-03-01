@@ -43,10 +43,11 @@ class WorldChunk:
 				row.push_back(0);
 				var probability = randf();
 
-				if probability > 0.7:
-					row.push_back(0);
-				elif probability > 0.1: 
-					row.push_back(8);
+				row.push_back(0);
+				# if probability > 0.7:
+				# 	row.push_back(0);
+				# elif probability > 0.1: 
+				# 	row.push_back(8);
 				# else:
 				# 	# This push is for collision detection. Auxiliary holder
 				# 	row.push_back(10);

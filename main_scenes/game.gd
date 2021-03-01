@@ -64,6 +64,55 @@ func _draw():
 	draw_rect(rectangle_to_draw, Color.red);
 	pass;
 
+
+# BFS search for now. Since it's the one I can do off the top of my head.
+# This is for a chunked path since there's not a good way to make this generic...
+# Thankfully I can just make a game one giant chunk and that would also let this work...
+const neighbor_vectors = [Vector2(-1, 0),
+						Vector2(1, 0),
+						Vector2(0, 1),
+						Vector2(0, -1),
+						Vector2(1, 1),
+						Vector2(-1, 1),
+						Vector2(1, -1),
+						Vector2(-1, -1), ];
+func neighbors(current_chunk, point, chunk_location = Vector2.ZERO):
+	var valid_neighbors = [];
+	var chunk_size = $ChunkViews.CHUNK_MAX_SIZE;
+	for neighbor in neighbor_vectors:
+		var new_point = point + neighbor;
+
+		var point_relative_to_chunk = new_point - (chunk_location * chunk_size);
+		if not (point_relative_to_chunk.x < 0 or point_relative_to_chunk.y < 0 or point_relative_to_chunk.x >= chunk_size or point_relative_to_chunk.y >= chunk_size):
+			if not $ChunkViews.is_solid_tile(current_chunk, point_relative_to_chunk):
+				valid_neighbors.push_back(new_point);
+	return valid_neighbors;
+
+func request_path_from_to(chunks, start, end):
+	var frontier = [start];
+	var visited = {};
+	var origins = {};
+
+	while len(frontier):
+		var current = frontier.pop_front();
+
+		var current_chunk_location = chunks.calculate_chunk_position(current); 
+		var in_world_bounds = (current_chunk_location.x >= 0) && (current_chunk_location.y >= 0) && chunks.in_bounds(current_chunk_location);
+		if in_world_bounds:
+			var current_chunk = chunks.world_chunks[current_chunk_location.y][current_chunk_location.x];
+			for neighbor in neighbors(current_chunk, current, current_chunk_location):
+				if not (neighbor in visited):
+					visited[neighbor] = true;
+					origins[neighbor] = current;
+					frontier.push_back(neighbor);
+
+		visited[current] = true;
+
+		if current == end:
+			return true;
+	return null;
+
+
 func _process(_delta):
 	var current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 	if _last_known_current_chunk_position != current_chunk_position:
@@ -80,10 +129,10 @@ func _process(_delta):
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
 	
-	var current_chunk = $ChunkViews.world_chunks[current_chunk_position.y][current_chunk_position.x];
-	print(current_chunk);
+	print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
 	# print($Entities.entities[0].position);
-	print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
+	# print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
+	# print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
 	# print($Entities.entities[0].can_see($Entities.entities[1].position));
 
 	_last_known_current_chunk_position = current_chunk_position;
