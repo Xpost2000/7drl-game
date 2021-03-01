@@ -35,15 +35,16 @@ func is_solid_tile(world_map, position) -> bool:
 class WorldChunk:
 	func _init(size):
 		self.size = size;
+		var visibility_result = [];
 		var chunk_result = [];
 		self.dirty_cells = [];
 		for y in range(size):
 			var row = [];
+			var visibility_row = [];
 			for x in range(size):
 				row.push_back(0);
-				var probability = randf();
-
-				row.push_back(0);
+				visibility_row.push_back(false);
+				# var probability = randf();
 				# if probability > 0.7:
 				# 	row.push_back(0);
 				# elif probability > 0.1: 
@@ -56,7 +57,9 @@ class WorldChunk:
 				# 	animated_cells.push_back([Vector2(x, y), 10, 4]);
 				self.dirty_cells.push_back(Vector2(x, y));
 			chunk_result.push_back(row);
+			visibility_result.push_back(visibility_row);
 		self.cells = chunk_result;
+		self.visible_cells = visibility_result;
 
 	func mark_all_dirty():
 		for y in range(size):
@@ -75,6 +78,14 @@ class WorldChunk:
 	func get_cell(x, y):
 		return cells[y][x];
 
+	func is_cell_visible(x, y):
+		return visible_cells[y][x];
+
+	# Technically we shouldn't be doing dirty cells for this one but whatever.
+	func set_cell_visible(x, y, val):
+		visible_cells[y][x] = val;
+		self.dirty_cells.push_back(Vector2(x, y));
+
 	func set_cell(x, y, val):
 		for animated_cell in animated_cells:
 			var position_of_cell = animated_cell[0];
@@ -87,6 +98,7 @@ class WorldChunk:
 
 	var size: int;
 	var cells: Array;
+	var visible_cells: Array;
 	var animated_cells: Array;
 	# for repainting
 	var dirty_cells: Array;
@@ -127,11 +139,16 @@ func repaint_animated_tiles(current_chunk_position):
 		else:
 			get_child(neighbor_index).hide();
 
+# The current tileset shows the "invisible cell" as id 14.
+# Obviously change this for the real stuff.
 func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
 	for dirty_cell in chunk.dirty_cells:
 		var x = dirty_cell.x;
 		var y = dirty_cell.y;
-		tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
+		if chunk.is_cell_visible(x, y):
+			tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
+		else:
+			tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), 14);
 
 	chunk.clear_dirty();
 

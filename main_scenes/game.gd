@@ -48,6 +48,19 @@ func player_movement_direction():
 
 func update_player(player_entity):
 	var move_result = $Entities.move_entity(player_entity, player_movement_direction());
+
+	var current_chunk_location = $ChunkViews.calculate_chunk_position(player_entity.position); 
+	var in_world_bounds = (current_chunk_location.x >= 0) && (current_chunk_location.y >= 0) && $ChunkViews.in_bounds(current_chunk_location);
+	if in_world_bounds:
+		var current_chunk = $ChunkViews.world_chunks[current_chunk_location.y][current_chunk_location.x];
+		for visibility_area_y in range(-5, 5):
+			for visibility_area_x in range(-5, 5):
+				var visible_point = (player_entity.position + Vector2(visibility_area_x, visibility_area_y));
+				var distance_in_radius = visible_point.distance_squared_to(player_entity.position) <= 25;
+				visible_point -= current_chunk_location * $ChunkViews.CHUNK_MAX_SIZE;
+				if distance_in_radius and (visible_point.x >= 0 and visible_point.x < $ChunkViews.CHUNK_MAX_SIZE) and (visible_point.y >= 0 and visible_point.y < $ChunkViews.CHUNK_MAX_SIZE):
+					current_chunk.set_cell_visible(visible_point.x, visible_point.y, true);
+
 	match move_result:
 		Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
 		Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
@@ -140,8 +153,7 @@ func _process(_delta):
 
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
-	
-	print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
+	# print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
 
 	_last_known_current_chunk_position = current_chunk_position;
 
