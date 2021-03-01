@@ -14,11 +14,13 @@ class Entity:
 		var step = 0;
 		var ray_position = self.position;
 
+		var last_ray_position = ray_position;
 		while (ray_position.round() != target_position):
 			ray_position = self.position + (direction * step);
-			if chunks.is_solid_tile(ray_position.round()):
+			if chunks.is_solid_tile(last_ray_position):
 				return false;
-			step += 0.5;
+			last_ray_position = ray_position;
+			step += 1;
 		return true;
 
 	func is_dead():
@@ -104,8 +106,12 @@ func _ready():
 
 # TODO allow for tweening.
 func _process(delta):
+	var deletion_list = [];
 	for entity in entities:
 		var sprite_node = entity.associated_sprite_node;
 		sprite_node.position = (entity.position+Vector2(0.5, 0.5)) * _chunk_views.TILE_SIZE;
 		if entity.is_dead() and not (entity.flags & FLAG_DO_NOT_REMOVE_ON_DEATH):
-			remove_entity(entity);
+			deletion_list.push_back(entity);
+
+	for entity in deletion_list:
+		remove_entity(entity);

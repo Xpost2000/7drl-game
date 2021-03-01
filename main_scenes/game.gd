@@ -54,8 +54,13 @@ func update_player(player_entity):
 			player_entity.health = 0;
 			_message_log.push_message("You have chosen to die.");
 
-		for neighbor in neighbor_vectors:
-			$ChunkViews.reveal_quadrant(5, player_entity.position, neighbor.x, neighbor.y);
+		var player_visibility_radius = 5;
+		for y_distance in range(-player_visibility_radius, player_visibility_radius):
+			for x_distance in range(-player_visibility_radius, player_visibility_radius):
+				var cell_position = player_entity.position + Vector2(x_distance, y_distance);
+				if cell_position.distance_squared_to(player_entity.position) <= player_visibility_radius*player_visibility_radius:
+					if player_entity.can_see_from($ChunkViews, cell_position):
+						$ChunkViews.set_cell_visibility(cell_position, true);
 
 		match move_result:
 			Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
@@ -66,9 +71,11 @@ var _last_known_current_chunk_position;
 func _ready():
 	$Entities.add_entity("Sean", Vector2.ZERO);
 	$Entities.entities[0].flags = 1;
+	$Entities.entities[0].position = Vector2(0, 0);
 	$Entities.add_entity("Martin", Vector2(3, 4));
 	$ChunkViews.set_cell(Vector2(1, 0), 8);
 	$ChunkViews.set_cell(Vector2(1, 1), 8);
+	$ChunkViews.set_cell(Vector2(3, 0), 8);
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 
 func _draw():
