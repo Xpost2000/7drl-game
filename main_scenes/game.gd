@@ -83,17 +83,12 @@ const neighbor_vectors = [Vector2(-1, 0),
 						Vector2(-1, 1),
 						Vector2(1, -1),
 						Vector2(-1, -1), ];
-func neighbors(current_chunk, point):
+func neighbors(chunks, point):
 	var valid_neighbors = [];
-	var chunk_size = $ChunkViews.CHUNK_MAX_SIZE;
 	for neighbor in neighbor_vectors:
 		var new_point = point + neighbor;
-		var chunk_location = $ChunkViews.calculate_chunk_position(new_point);
-
-		var point_relative_to_chunk = new_point - (chunk_location * chunk_size);
-		if not (point_relative_to_chunk.x < 0 or point_relative_to_chunk.y < 0 or point_relative_to_chunk.x >= chunk_size or point_relative_to_chunk.y >= chunk_size):
-			if not $ChunkViews.is_solid_tile(current_chunk, point_relative_to_chunk):
-				valid_neighbors.push_back(new_point);
+		if not chunks.is_solid_tile(new_point):
+			valid_neighbors.push_back(new_point);
 	return valid_neighbors;
 
 func trace_path(start, origins):
@@ -112,12 +107,8 @@ func request_path_from_to(chunks, start, end):
 
 	while len(frontier):
 		var current = frontier.pop_front();
-
-		var current_chunk_location = chunks.calculate_chunk_position(current); 
-		var in_world_bounds = (current_chunk_location.x >= 0) && (current_chunk_location.y >= 0) && chunks.in_bounds(current_chunk_location);
-		if in_world_bounds:
-			var current_chunk = chunks.world_chunks[current_chunk_location.y][current_chunk_location.x];
-			for neighbor in neighbors(current_chunk, current):
+		if chunks.get_chunk_at(current):
+			for neighbor in neighbors(chunks, current):
 				if not (neighbor in visited):
 					visited[neighbor] = true;
 					origins[neighbor] = current;
@@ -144,10 +135,11 @@ func _process(_delta):
 
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
-	# print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
+	# request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position)
+	# print();
 	# print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
 
-	print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
+	# print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
 
 	_last_known_current_chunk_position = current_chunk_position;
 
