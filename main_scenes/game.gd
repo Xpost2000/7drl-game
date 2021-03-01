@@ -58,7 +58,7 @@ func _ready():
 	$Entities.add_entity("Sean", Vector2.ZERO);
 	$Entities.add_entity("Martin", Vector2(3, 4));
 	$ChunkViews.world_chunks[0][0].set_cell(1, 1, 8);
-	$ChunkViews.world_chunks[0][0].set_cell(0, 1, 8);
+	# $ChunkViews.world_chunks[0][0].set_cell(0, 1, 8);
 	$ChunkViews.world_chunks[0][0].set_cell(1, 0, 8);
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 
@@ -92,6 +92,15 @@ func neighbors(current_chunk, point):
 				valid_neighbors.push_back(new_point);
 	return valid_neighbors;
 
+func trace_path(start, origins):
+	var current = start;
+	var final_path = [];
+	while current in origins:
+		final_path.push_front(current);
+		current = origins[current];
+	final_path.push_front(current);
+	return final_path;
+
 func request_path_from_to(chunks, start, end):
 	var frontier = [start];
 	var visited = {};
@@ -111,9 +120,8 @@ func request_path_from_to(chunks, start, end):
 					frontier.push_back(neighbor);
 
 		visited[current] = true;
-
 		if current == end:
-			return true;
+			return trace_path(current, origins);
 	return null;
 
 
@@ -134,10 +142,6 @@ func _process(_delta):
 	update_player($Entities.entities[0]);
 	
 	print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
-	# print($Entities.entities[0].position);
-	# print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
-	# print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
-	# print($Entities.entities[0].can_see($Entities.entities[1].position));
 
 	_last_known_current_chunk_position = current_chunk_position;
 
