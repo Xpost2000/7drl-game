@@ -22,13 +22,11 @@ func calculate_chunk_position(absolute_position):
 
 # for now keep this in sync with tileset...
 export var _solid_cells_list = [8, 9];
-func is_solid_tile(world_map, position) -> bool:
-	# this shouldn't happen, however it is cause the tiles are relative to the chunk position.
-	if in_bounds_of(position, 0, 0):
-		var cell_at_position = world_map.get_cell(position.x, position.y);
-		for cell in _solid_cells_list:
-			if cell == cell_at_position:
-				return true;
+func is_solid_tile(position) -> bool:
+	var cell_at_position = get_cell(position);
+	for cell in _solid_cells_list:
+		if cell == cell_at_position:
+			return true;
 	return false;
 
 # provide world generation algorithms.
@@ -81,7 +79,7 @@ class WorldChunk:
 			visible_point -= current_chunk_location * chunks.CHUNK_MAX_SIZE;
 			if distance_in_radius and (visible_point.x >= 0 and visible_point.x < chunks.CHUNK_MAX_SIZE) and (visible_point.y >= 0 and visible_point.y < chunks.CHUNK_MAX_SIZE):
 				set_cell_visible(visible_point.x, visible_point.y, true);
-				if chunks.is_solid_tile(self, visible_point):
+				if chunks.is_solid_tile(visible_point):
 					break;
 
 	func clear_dirty():
@@ -120,7 +118,7 @@ func in_bounds(where):
 
 func get_chunk_at(where):
 	var current_chunk_location = calculate_chunk_position(where); 
-	if in_bounds(current_chunk_location):
+	if where.x >= 0 && where.y >= 0 && in_bounds(current_chunk_location):
 		return world_chunks[current_chunk_location.y][current_chunk_location.x];
 	return null;
 func set_cell(where, value):

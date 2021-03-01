@@ -65,13 +65,12 @@ func try_move(entity, direction):
 
 	if direction != Vector2.ZERO:
 		var new_position = entity.position + direction;
-		var chunk_position = _chunk_views.calculate_chunk_position(new_position);
-		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && _chunk_views.in_bounds(_chunk_views.calculate_chunk_position(new_position));
+		var in_world_bounds = (_chunk_views.get_chunk_at(new_position) != null);
 
 		if in_world_bounds:
-			var current_chunk = _chunk_views.world_chunks[chunk_position.y][chunk_position.x];
+			var chunk_position = _chunk_views.calculate_chunk_position(new_position);
 			var in_bounds = _chunk_views.in_bounds_of(new_position, chunk_position.x, chunk_position.y);
-			var hitting_wall = _chunk_views.is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * _chunk_views.CHUNK_MAX_SIZE, chunk_position.y * _chunk_views.CHUNK_MAX_SIZE));
+			var hitting_wall = _chunk_views.is_solid_tile(new_position);
 			var hitting_anyone = find_any_entity_collisions(new_position);
 
 			if in_bounds && not hitting_wall && not hitting_anyone:
