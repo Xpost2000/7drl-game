@@ -21,7 +21,7 @@ func calculate_chunk_position(absolute_position):
 	return Vector2(int(absolute_position.x / CHUNK_MAX_SIZE), int(absolute_position.y / CHUNK_MAX_SIZE));
 
 # for now keep this in sync with tileset...
-var _solid_cells_list = [8, 9];
+export var _solid_cells_list = [8, 9];
 func is_solid_tile(world_map, position) -> bool:
 	# this shouldn't happen, however it is cause the tiles are relative to the chunk position.
 	if in_bounds_of(position, 0, 0):
@@ -40,17 +40,19 @@ class WorldChunk:
 		for y in range(size):
 			var row = [];
 			for x in range(size):
+				row.push_back(0);
 				var probability = randf();
+
 				if probability > 0.7:
 					row.push_back(0);
-				elif probability > 0.4: 
+				elif probability > 0.1: 
 					row.push_back(8);
-				else:
-					# This push is for collision detection. Auxiliary holder
-					row.push_back(10);
-					# Animated cells draw on top of "real" cells.
-					# maybe this should be a dictionary.
-					animated_cells.push_back([Vector2(x, y), 10, 4]);
+				# else:
+				# 	# This push is for collision detection. Auxiliary holder
+				# 	row.push_back(10);
+				# 	# Animated cells draw on top of "real" cells.
+				# 	# maybe this should be a dictionary.
+				# 	animated_cells.push_back([Vector2(x, y), 10, 4]);
 				self.dirty_cells.push_back(Vector2(x, y));
 			chunk_result.push_back(row);
 		self.cells = chunk_result;
