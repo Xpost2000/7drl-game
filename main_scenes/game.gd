@@ -64,8 +64,8 @@ func _ready():
 	# $ChunkViews.world_chunks[0][0].set_cell(1, 1, 8);
 	# $ChunkViews.world_chunks[0][0].set_cell(0, 1, 8);
 	# $ChunkViews.world_chunks[0][0].set_cell(1, 0, 8);
-	$ChunkViews.set_cell(0, 0, 8);
-	$ChunkViews.set_cell(1, 1, 8);
+	$ChunkViews.set_cell(Vector2(1, 0), 8);
+	$ChunkViews.set_cell(Vector2(1, 1), 8);
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 
 func _draw():

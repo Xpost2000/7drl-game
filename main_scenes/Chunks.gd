@@ -124,21 +124,29 @@ func get_chunk_at(where):
 		return world_chunks[current_chunk_location.y][current_chunk_location.x];
 	return null;
 func set_cell(where, value):
+	var current_chunk_location = calculate_chunk_position(where); 
 	var chunk = get_chunk_at(where);
+	where -= current_chunk_location * CHUNK_MAX_SIZE;
 	if chunk:
 		chunk.set_cell(where.x, where.y, value);
 func get_cell(where):
+	var current_chunk_location = calculate_chunk_position(where); 
 	var chunk = get_chunk_at(where);
+	where -= current_chunk_location * CHUNK_MAX_SIZE;
 	if chunk:
 		return chunk.get_cell(where.x, where.y);
 	return null;
 
 func set_cell_visibility(where, value):
+	var current_chunk_location = calculate_chunk_position(where); 
 	var chunk = get_chunk_at(where);
+	where -= current_chunk_location * CHUNK_MAX_SIZE;
 	if chunk:
 		chunk.set_cell_visible(where.x, where.y, value);
 func is_cell_visible(where):
+	var current_chunk_location = calculate_chunk_position(where); 
 	var chunk = get_chunk_at(where);
+	where -= current_chunk_location * CHUNK_MAX_SIZE;
 	if chunk:
 		return chunk.is_cell_visible(where.x, where.y);
 	return null;
