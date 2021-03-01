@@ -1,17 +1,11 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://main_scenes/Chunks.gd" type="Script" id=1]
 [ext_resource path="res://main_scenes/game.gd" type="Script" id=2]
-[ext_resource path="res://resources/DinaRemasterCollection.ttf" type="DynamicFontData" id=3]
+[ext_resource path="res://interface/main_interface_theme.tres" type="Theme" id=3]
 [ext_resource path="res://interface/messages.gd" type="Script" id=4]
 [ext_resource path="res://tilesets/dungeon_crawl_stone_soup_tiles.tres" type="TileSet" id=5]
 [ext_resource path="res://main_scenes/Entities.gd" type="Script" id=6]
-
-[sub_resource type="DynamicFont" id=1]
-font_data = ExtResource( 3 )
-
-[sub_resource type="Theme" id=2]
-default_font = SubResource( 1 )
 
 [node name="GameMain" type="Node2D"]
 script = ExtResource( 2 )
@@ -21,6 +15,7 @@ script = ExtResource( 2 )
 [node name="Interface" type="Control" parent="InterfaceLayer"]
 margin_right = 40.0
 margin_bottom = 40.0
+theme = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -28,12 +23,25 @@ __meta__ = {
 [node name="Messages" type="VBoxContainer" parent="InterfaceLayer/Interface"]
 margin_right = 40.0
 margin_bottom = 40.0
-theme = SubResource( 2 )
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 MESSAGE_LIFETIME_MAX = 1.0
+
+[node name="DeathScreen" type="Control" parent="InterfaceLayer/Interface"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="DeathFlavorText" type="Label" parent="InterfaceLayer/Interface/DeathScreen"]
+margin_left = 417.656
+margin_top = 182.552
+margin_right = 828.656
+margin_bottom = 219.552
+text = "DEATH IS NOT YOUR FATE..."
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="ChunkViews" type="Node2D" parent="."]
 position = Vector2( 1, 3 )
