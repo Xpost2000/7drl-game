@@ -118,17 +118,6 @@ class WorldChunk:
 func in_bounds(where):
 	return (where.y >= 0 && where.y < len(world_chunks)) && where.x >= 0 && where.x < len(world_chunks[where.y]);
 
-func get_chunk_at(where):
-	var current_chunk_location = calculate_chunk_position(where); 
-	if in_bounds(current_chunk_location):
-		return world_chunks[current_chunk_location.y][current_chunk_location.x];
-	return null;
-
-func reveal_quadrant(radius, where, sign_x, sign_y):
-	var chunk = get_chunk_at(where);
-	if chunk:
-		chunk.reveal_quadrant(self, radius, where, sign_x, sign_y);
-
 func _ready():
 	randomize();
 	world_chunks = [
