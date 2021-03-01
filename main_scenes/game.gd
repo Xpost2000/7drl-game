@@ -47,30 +47,32 @@ func player_movement_direction():
 	return Vector2.ZERO;
 
 func update_player(player_entity):
-	var move_result = $Entities.move_entity(player_entity, player_movement_direction());
+	if not player_entity.is_dead():
+		var move_result = $Entities.move_entity(player_entity, player_movement_direction());
 
-	for neighbor in neighbor_vectors:
-		$ChunkViews.reveal_quadrant(5, player_entity.position, neighbor.x, neighbor.y);
+		if Input.is_action_just_pressed("ui_end"):
+			player_entity.health = 0;
+			_message_log.push_message("You have chosen to die.");
 
-	match move_result:
-		Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
-		Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
-		Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
+		for neighbor in neighbor_vectors:
+			$ChunkViews.reveal_quadrant(5, player_entity.position, neighbor.x, neighbor.y);
+
+		match move_result:
+			Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
+			Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
+			Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
 
 var _last_known_current_chunk_position;
 func _ready():
 	$Entities.add_entity("Sean", Vector2.ZERO);
+	$Entities.entities[0].flags = 1;
 	$Entities.add_entity("Martin", Vector2(3, 4));
-	# $ChunkViews.world_chunks[0][0].set_cell(1, 1, 8);
-	# $ChunkViews.world_chunks[0][0].set_cell(0, 1, 8);
-	# $ChunkViews.world_chunks[0][0].set_cell(1, 0, 8);
 	$ChunkViews.set_cell(Vector2(1, 0), 8);
 	$ChunkViews.set_cell(Vector2(1, 1), 8);
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 
 func _draw():
 	pass;
-
 
 # BFS search for now. Since it's the one I can do off the top of my head.
 # This is for a chunked path since there's not a good way to make this generic...
@@ -135,11 +137,6 @@ func _process(_delta):
 
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
-	# request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position)
-	# print();
-	# print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
-
-	# print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
 
 	_last_known_current_chunk_position = current_chunk_position;
 

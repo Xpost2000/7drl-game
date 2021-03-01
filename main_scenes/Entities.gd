@@ -2,11 +2,12 @@ extends Node
 var _entity_sprites;
 var _chunk_views;
 
-
 var entities = [];
+const FLAG_DO_NOT_REMOVE_ON_DEATH = 1;
 class Entity:
 	func _init(sprite):
 		self.associated_sprite_node = sprite;
+		self.health = 20;
 
 	func can_see_from(chunks, target_position):
 		var direction = (target_position - self.position).normalized();
@@ -20,16 +21,25 @@ class Entity:
 			step += 0.5;
 		return true;
 
+	func is_dead():
+		return (health <= 0);
+
 	var name: String;
+	var turn_speed: int;
+
 	var health: int;
 	var position: Vector2;
 	var associated_sprite_node: Sprite;
+	var flags: int;
 
 func remove_entity_at_index(index):
 	var sprite = entities[index].associated_sprite_node;
 	entities.remove(index);
 	_entity_sprites.remove_child(sprite);
 	sprite.queue_free();
+
+func remove_entity(entity):
+	remove_entity_at_index(entities.find(entity));
 
 func add_entity(name, position):
 	var sprite = Sprite.new();
@@ -55,7 +65,6 @@ func find_any_entity_collisions(position):
 	return false;
 
 func try_move(entity, direction):
-
 	if direction != Vector2.ZERO:
 		var new_position = entity.position + direction;
 		var in_world_bounds = (_chunk_views.get_chunk_at(new_position) != null);
@@ -98,3 +107,5 @@ func _process(delta):
 	for entity in entities:
 		var sprite_node = entity.associated_sprite_node;
 		sprite_node.position = (entity.position+Vector2(0.5, 0.5)) * _chunk_views.TILE_SIZE;
+		if entity.is_dead() and not (entity.flags & FLAG_DO_NOT_REMOVE_ON_DEATH):
+			remove_entity(entity);
