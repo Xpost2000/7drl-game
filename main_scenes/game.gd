@@ -145,6 +145,9 @@ func _process(_delta):
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
 	# print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
+	# print(request_path_from_to($ChunkViews, $Entities.entities[0].position, $Entities.entities[1].position));
+
+	print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
 
 	_last_known_current_chunk_position = current_chunk_position;
 
