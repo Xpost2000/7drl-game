@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://main_scenes/Chunks.gd" type="Script" id=1]
-[ext_resource path="res://main_scenes/game.gd" type="Script" id=2]
+[ext_resource path="res://main_scenes/Game.gd" type="Script" id=2]
 [ext_resource path="res://interface/main_interface_theme.tres" type="Theme" id=3]
 [ext_resource path="res://interface/messages.gd" type="Script" id=4]
 [ext_resource path="res://tilesets/dungeon_crawl_stone_soup_tiles.tres" type="TileSet" id=5]
@@ -13,8 +13,8 @@ script = ExtResource( 2 )
 [node name="InterfaceLayer" type="CanvasLayer" parent="."]
 
 [node name="Interface" type="Control" parent="InterfaceLayer"]
-margin_right = 40.0
-margin_bottom = 40.0
+margin_right = 1280.0
+margin_bottom = 720.0
 theme = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -29,20 +29,44 @@ __meta__ = {
 }
 MESSAGE_LIFETIME_MAX = 1.0
 
-[node name="Ingame" type="Control" parent="InterfaceLayer/Interface"]
-margin_left = 467.223
-margin_right = 507.223
-margin_bottom = 40.0
+[node name="Ingame" type="CenterContainer" parent="InterfaceLayer/Interface"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -640.0
+margin_right = 640.0
+margin_bottom = 16.0
 __meta__ = {
 "_edit_group_": true,
 "_edit_use_anchors_": false
 }
 
 [node name="StatBar" type="HBoxContainer" parent="InterfaceLayer/Interface/Ingame"]
+margin_left = 564.0
+margin_right = 716.0
+margin_bottom = 16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Name" type="Label" parent="InterfaceLayer/Interface/Ingame/StatBar"]
 margin_right = 40.0
-margin_bottom = 40.0
+margin_bottom = 16.0
+text = "Sean,"
+
+[node name="Level" type="Label" parent="InterfaceLayer/Interface/Ingame/StatBar"]
+margin_left = 44.0
+margin_right = 92.0
+margin_bottom = 16.0
+text = "lvl 1,"
+
+[node name="Class" type="Label" parent="InterfaceLayer/Interface/Ingame/StatBar"]
+margin_left = 96.0
+margin_right = 152.0
+margin_bottom = 16.0
+text = "Warrior"
 
 [node name="Death" type="Control" parent="InterfaceLayer/Interface"]
+visible = false
 margin_right = 1026.0
 margin_bottom = 599.0
 __meta__ = {
@@ -51,19 +75,17 @@ __meta__ = {
 }
 
 [node name="Holder" type="Control" parent="InterfaceLayer/Interface/Death"]
-margin_left = 22.2487
-margin_top = 70.984
-margin_right = 62.2487
-margin_bottom = 110.984
+margin_left = 561.443
+margin_top = 272.943
+margin_right = 766.443
+margin_bottom = 418.943
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="VBoxContainer" type="VBoxContainer" parent="InterfaceLayer/Interface/Death/Holder"]
-margin_left = 413.191
-margin_top = 169.514
-margin_right = 613.191
-margin_bottom = 209.514
+margin_right = 200.0
+margin_bottom = 40.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -83,22 +105,22 @@ margin_bottom = 36.0
 text = "SCORE: 1234567889"
 
 [node name="OptionsLayout" type="VBoxContainer" parent="InterfaceLayer/Interface/Death/Holder"]
-margin_left = 445.0
-margin_top = 222.0
-margin_right = 574.0
-margin_bottom = 370.0
+margin_left = 25.0
+margin_top = 50.0
+margin_right = 129.0
+margin_bottom = 148.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Button" type="Button" parent="InterfaceLayer/Interface/Death/Holder/OptionsLayout"]
-margin_right = 129.0
+[node name="Restart" type="Button" parent="InterfaceLayer/Interface/Death/Holder/OptionsLayout"]
+margin_right = 104.0
 margin_bottom = 22.0
 text = "Restart"
 
-[node name="Button3" type="Button" parent="InterfaceLayer/Interface/Death/Holder/OptionsLayout"]
+[node name="Quit" type="Button" parent="InterfaceLayer/Interface/Death/Holder/OptionsLayout"]
 margin_top = 26.0
-margin_right = 129.0
+margin_right = 104.0
 margin_bottom = 48.0
 text = "Quit"
 
@@ -179,6 +201,8 @@ __meta__ = {
 }
 
 [node name="GameCamera" type="Camera2D" parent="."]
+current = true
+zoom = Vector2( 0.5, 0.5 )
 smoothing_enabled = true
 smoothing_speed = 10.0
 

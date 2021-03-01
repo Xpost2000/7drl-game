@@ -68,6 +68,16 @@ func update_player(player_entity):
 			Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
 
 var _last_known_current_chunk_position;
+
+func quit_game():
+	get_tree().quit();
+func restart_game():
+	get_tree().reload_current_scene();
+
+func setup_ui():
+	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Restart.connect("pressed", self, "restart_game");
+	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Quit.connect("pressed", self, "quit_game");
+
 func _ready():
 	$Entities.add_entity("Sean", Vector2.ZERO);
 	$Entities.entities[0].flags = 1;
@@ -77,6 +87,7 @@ func _ready():
 	$ChunkViews.set_cell(Vector2(1, 1), 8);
 	$ChunkViews.set_cell(Vector2(3, 0), 8);
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
+	setup_ui();
 
 func _draw():
 	pass;
@@ -144,6 +155,10 @@ func _process(_delta):
 
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
+
+	if ($Entities.entities[0].is_dead()):
+		$InterfaceLayer/Interface/Death.show();
+		$InterfaceLayer/Interface/Ingame.hide();
 
 	_last_known_current_chunk_position = current_chunk_position;
 
