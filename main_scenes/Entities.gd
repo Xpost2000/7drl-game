@@ -47,25 +47,27 @@ func try_move(entity, direction):
 	if direction != Vector2.ZERO:
 		var new_position = entity.position + direction;
 		var chunk_position = _chunk_views.calculate_chunk_position(new_position);
-		var current_chunk = _chunk_views.world_chunks[chunk_position.y][chunk_position.x];
-
 		var in_world_bounds = (new_position.x >= 0) && (new_position.y >= 0) && _chunk_views.in_bounds(_chunk_views.calculate_chunk_position(new_position));
-		var in_bounds = _chunk_views.in_bounds_of(new_position, chunk_position.x, chunk_position.y);
-		var hitting_wall = _chunk_views.is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * _chunk_views.CHUNK_MAX_SIZE, chunk_position.y * _chunk_views.CHUNK_MAX_SIZE));
-		var hitting_anyone = find_any_entity_collisions(new_position);
 
-		if in_bounds && not hitting_wall && not hitting_anyone:
-			return Enumerations.COLLISION_NO_COLLISION;
-		else:
-			if hitting_wall:
-				return Enumerations.COLLISION_HIT_WALL;
-			elif hitting_anyone:
-				return Enumerations.COLLISION_HIT_ENTITY;
-			elif not in_bounds:
-				if in_world_bounds:
-					return Enumerations.COLLISION_NO_COLLISION;
-				else:
-					return Enumerations.COLLISION_HIT_WORLD_EDGE;
+		if in_world_bounds:
+			var current_chunk = _chunk_views.world_chunks[chunk_position.y][chunk_position.x];
+			var in_bounds = _chunk_views.in_bounds_of(new_position, chunk_position.x, chunk_position.y);
+			var hitting_wall = _chunk_views.is_solid_tile(current_chunk, new_position - Vector2(chunk_position.x * _chunk_views.CHUNK_MAX_SIZE, chunk_position.y * _chunk_views.CHUNK_MAX_SIZE));
+			var hitting_anyone = find_any_entity_collisions(new_position);
+
+			if in_bounds && not hitting_wall && not hitting_anyone:
+				return Enumerations.COLLISION_NO_COLLISION;
+			else:
+				if hitting_wall:
+					return Enumerations.COLLISION_HIT_WALL;
+				elif hitting_anyone:
+					return Enumerations.COLLISION_HIT_ENTITY;
+				elif not in_bounds:
+					if in_world_bounds:
+						return Enumerations.COLLISION_NO_COLLISION;
+					else:
+						return Enumerations.COLLISION_HIT_WORLD_EDGE;
+		return Enumerations.COLLISION_HIT_WORLD_EDGE;
 
 
 func move_entity(entity, direction):

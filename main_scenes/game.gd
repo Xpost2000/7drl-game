@@ -59,6 +59,11 @@ func _ready():
 	$Entities.add_entity("Martin", Vector2(3, 4));
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 
+func _draw():
+	# var rectangle_to_draw = Rect2(0, 0, 300, 300);
+	# draw_rect(rectangle_to_draw, Color.red);
+	pass;
+
 func _process(_delta):
 	var current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 	if _last_known_current_chunk_position != current_chunk_position:
