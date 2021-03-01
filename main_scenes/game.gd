@@ -57,6 +57,9 @@ var _last_known_current_chunk_position;
 func _ready():
 	$Entities.add_entity("Sean", Vector2.ZERO);
 	$Entities.add_entity("Martin", Vector2(3, 4));
+	$ChunkViews.world_chunks[0][0].set_cell(1, 1, 8);
+	$ChunkViews.world_chunks[0][0].set_cell(0, 1, 8);
+	$ChunkViews.world_chunks[0][0].set_cell(1, 0, 8);
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 
 func _draw():
@@ -76,11 +79,12 @@ const neighbor_vectors = [Vector2(-1, 0),
 						Vector2(-1, 1),
 						Vector2(1, -1),
 						Vector2(-1, -1), ];
-func neighbors(current_chunk, point, chunk_location = Vector2.ZERO):
+func neighbors(current_chunk, point):
 	var valid_neighbors = [];
 	var chunk_size = $ChunkViews.CHUNK_MAX_SIZE;
 	for neighbor in neighbor_vectors:
 		var new_point = point + neighbor;
+		var chunk_location = $ChunkViews.calculate_chunk_position(new_point);
 
 		var point_relative_to_chunk = new_point - (chunk_location * chunk_size);
 		if not (point_relative_to_chunk.x < 0 or point_relative_to_chunk.y < 0 or point_relative_to_chunk.x >= chunk_size or point_relative_to_chunk.y >= chunk_size):
@@ -100,7 +104,7 @@ func request_path_from_to(chunks, start, end):
 		var in_world_bounds = (current_chunk_location.x >= 0) && (current_chunk_location.y >= 0) && chunks.in_bounds(current_chunk_location);
 		if in_world_bounds:
 			var current_chunk = chunks.world_chunks[current_chunk_location.y][current_chunk_location.x];
-			for neighbor in neighbors(current_chunk, current, current_chunk_location):
+			for neighbor in neighbors(current_chunk, current):
 				if not (neighbor in visited):
 					visited[neighbor] = true;
 					origins[neighbor] = current;
