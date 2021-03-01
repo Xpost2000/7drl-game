@@ -60,8 +60,8 @@ func _ready():
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 
 func _draw():
-	# var rectangle_to_draw = Rect2(0, 0, 300, 300);
-	# draw_rect(rectangle_to_draw, Color.red);
+	var rectangle_to_draw = Rect2(0, 0, 300, 300);
+	draw_rect(rectangle_to_draw, Color.red);
 	pass;
 
 func _process(_delta):
@@ -79,6 +79,13 @@ func _process(_delta):
 
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
+	
+	var current_chunk = $ChunkViews.world_chunks[current_chunk_position.y][current_chunk_position.x];
+	print(current_chunk);
+	# print($Entities.entities[0].position);
+	print($Entities.entities[0].can_see_from($ChunkViews, $Entities.entities[1].position));
+	# print($Entities.entities[0].can_see($Entities.entities[1].position));
+
 	_last_known_current_chunk_position = current_chunk_position;
 
 func _physics_process(_delta):

@@ -8,6 +8,25 @@ class Entity:
 	func _init(sprite):
 		self.associated_sprite_node = sprite;
 
+	func can_see_from(chunks, target_position):
+		var direction = (target_position - self.position).normalized();
+		var step = 0;
+
+		var ray_position = self.position;
+		while (ray_position.round() != target_position):
+			ray_position = self.position + (direction * step);
+			var rounded_position = ray_position.round();
+
+			var current_chunk_location = chunks.calculate_chunk_position(rounded_position);
+			var in_world_bounds = (current_chunk_location.x >= 0) && (current_chunk_location.y >= 0) && chunks.in_bounds(current_chunk_location);
+			var current_chunk = chunks.world_chunks[current_chunk_location.y][current_chunk_location.x];
+
+			var ray_relative_position = ray_position - (current_chunk_location * chunks.CHUNK_MAX_SIZE);
+			if chunks.is_solid_tile(current_chunk, ray_relative_position) or (not in_world_bounds):
+				return false;
+			step += 0.5;
+		return true;
+
 	var name: String;
 	var health: int;
 	var position: Vector2;
