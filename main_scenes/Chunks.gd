@@ -123,6 +123,26 @@ func get_chunk_at(where):
 	if in_bounds(current_chunk_location):
 		return world_chunks[current_chunk_location.y][current_chunk_location.x];
 	return null;
+func set_cell(where, value):
+	var chunk = get_chunk_at(where);
+	if chunk:
+		chunk.set_cell(where.x, where.y, value);
+func get_cell(where):
+	var chunk = get_chunk_at(where);
+	if chunk:
+		return chunk.get_cell(where.x, where.y);
+	return null;
+
+func set_cell_visibility(where, value):
+	var chunk = get_chunk_at(where);
+	if chunk:
+		chunk.set_cell_visible(where.x, where.y, value);
+func is_cell_visible(where):
+	var chunk = get_chunk_at(where);
+	if chunk:
+		return chunk.is_cell_visible(where.x, where.y);
+	return null;
+
 
 func reveal_quadrant(radius, where, sign_x, sign_y):
 	var chunk = get_chunk_at(where);
