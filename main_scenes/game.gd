@@ -53,10 +53,11 @@ func update_player(player_entity):
 	var in_world_bounds = (current_chunk_location.x >= 0) && (current_chunk_location.y >= 0) && $ChunkViews.in_bounds(current_chunk_location);
 	if in_world_bounds:
 		var current_chunk = $ChunkViews.world_chunks[current_chunk_location.y][current_chunk_location.x];
-		current_chunk.reveal_quadrant($ChunkViews, 5, player_entity.position, 1, 1);
-		current_chunk.reveal_quadrant($ChunkViews, 5, player_entity.position, -1, 1);
-		current_chunk.reveal_quadrant($ChunkViews, 5, player_entity.position, 1, -1);
-		current_chunk.reveal_quadrant($ChunkViews, 5, player_entity.position, -1, -1);
+		for neighbor in neighbor_vectors:
+			current_chunk.reveal_quadrant($ChunkViews, 5, player_entity.position, neighbor.x, neighbor.y);
+		# current_chunk.reveal_quadrant($ChunkViews, 5, player_entity.position, -1, 1);
+		# current_chunk.reveal_quadrant($ChunkViews, 5, player_entity.position, 1, -1);
+		# current_chunk.reveal_quadrant($ChunkViews, 5, player_entity.position, -1, -1);
 
 	match move_result:
 		Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");

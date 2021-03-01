@@ -75,15 +75,14 @@ class WorldChunk:
 	func reveal_quadrant(chunks, radius, point, sign_x, sign_y):
 		var current_chunk_location = chunks.calculate_chunk_position(point); 
 		var in_world_bounds = (current_chunk_location.x >= 0) && (current_chunk_location.y >= 0) && chunks.in_bounds(current_chunk_location);
-		for visibility_area_y in range(0, radius):
-			for visibility_area_x in range(0, radius):
-				var visible_point = (point + Vector2(visibility_area_x * sign_x, visibility_area_y * sign_y));
-				var distance_in_radius = visible_point.distance_squared_to(point) <= radius*radius;
-				visible_point -= current_chunk_location * chunks.CHUNK_MAX_SIZE;
-				if distance_in_radius and (visible_point.x >= 0 and visible_point.x < chunks.CHUNK_MAX_SIZE) and (visible_point.y >= 0 and visible_point.y < chunks.CHUNK_MAX_SIZE):
-					set_cell_visible(visible_point.x, visible_point.y, true);
-					if chunks.is_solid_tile(self, visible_point):
-						break;
+		for distance in range(0, radius):
+			var visible_point = (point + Vector2(distance * sign_x, distance * sign_y));
+			var distance_in_radius = visible_point.distance_squared_to(point) <= radius*radius;
+			visible_point -= current_chunk_location * chunks.CHUNK_MAX_SIZE;
+			if distance_in_radius and (visible_point.x >= 0 and visible_point.x < chunks.CHUNK_MAX_SIZE) and (visible_point.y >= 0 and visible_point.y < chunks.CHUNK_MAX_SIZE):
+				set_cell_visible(visible_point.x, visible_point.y, true);
+				if chunks.is_solid_tile(self, visible_point):
+					break;
 
 	func clear_dirty():
 		dirty_cells = [];
