@@ -148,7 +148,6 @@ func distance_field_next_best_position(chunks, distance_field, from):
 		var minimum_neighbor = distance_field[from];
 		for neighbor in neighbors(chunks, from):
 			var neighbor_cell = distance_field[neighbor]; 
-			print(neighbor_cell, " ",  minimum_neighbor);
 			if not minimum_neighbor or neighbor_cell < minimum_neighbor:
 				minimum_neighbor = neighbor_cell;
 				result_position = neighbor;
@@ -177,7 +176,7 @@ func distance_field_map_from(chunks, start):
 				else:
 					neighbor_score = 0;
 
-				var movement_distance = current_score + neighbor_score + 1;
+				var movement_distance = current_score + neighbor_score + 1 + start.distance_to(neighbor);
 				if not (neighbor in visited) or movement_distance < neighbor_score:
 					visited[neighbor] = true;
 					distance_scores[neighbor] = movement_distance;
