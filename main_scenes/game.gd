@@ -66,6 +66,9 @@ func update_player(player_entity):
 			Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
 			Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
 			Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
+			Enumerations.COLLISION_NO_COLLISION: 
+				var distance_field = distance_field_map_from($ChunkViews, player_entity.position);
+				print(distance_field_next_best_position($ChunkViews, distance_field, Vector2(1, 1)));
 
 var _last_known_current_chunk_position;
 
@@ -83,9 +86,9 @@ func _ready():
 	$Entities.entities[0].flags = 1;
 	$Entities.entities[0].position = Vector2(0, 0);
 	$Entities.add_entity("Martin", Vector2(3, 4));
-	$ChunkViews.set_cell(Vector2(1, 0), 8);
-	$ChunkViews.set_cell(Vector2(1, 1), 8);
-	$ChunkViews.set_cell(Vector2(3, 0), 8);
+	# $ChunkViews.set_cell(Vector2(1, 0), 8);
+	# $ChunkViews.set_cell(Vector2(1, 1), 8);
+	# $ChunkViews.set_cell(Vector2(3, 0), 8);
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 	setup_ui();
 
@@ -107,7 +110,7 @@ func neighbors(chunks, point):
 	var valid_neighbors = [];
 	for neighbor in neighbor_vectors:
 		var new_point = point + neighbor;
-		if not chunks.is_solid_tile(new_point):
+		if chunks.get_chunk_at(new_point) and not chunks.is_solid_tile(new_point):
 			valid_neighbors.push_back(new_point);
 	return valid_neighbors;
 
@@ -138,6 +141,52 @@ func request_path_from_to(chunks, start, end):
 		if current == end:
 			return trace_path(current, origins);
 	return null;
+
+# This is an example of how I should use the distance field.
+# only accounts for solid blocks.
+func distance_field_next_best_position(chunks, distance_field, from):
+	if from in distance_field:
+		var result_position = null;
+		var minimum_neighbor = null;
+		for neighbor in neighbors(chunks, from):
+			var neighbor_cell = distance_field[neighbor]; 
+			print(neighbor_cell, " ",  minimum_neighbor);
+			if not minimum_neighbor or neighbor_cell < minimum_neighbor:
+				minimum_neighbor = neighbor_cell;
+				result_position = neighbor;
+		return result_position;
+	return null;
+	
+func distance_field_map_from(chunks, start):
+	var frontier = [start];
+	var visited = {};
+	var distance_scores = {};
+	distance_scores[start] = 0;
+
+	while len(frontier):
+		var current = frontier.pop_front();
+		if chunks.get_chunk_at(current):
+			for neighbor in neighbors(chunks, current):
+				var current_score;
+				var neighbor_score;
+				if current in distance_scores:
+					current_score = distance_scores[current];
+				else:
+					current_score = 0;
+
+				if neighbor in distance_scores:
+					neighbor_score = distance_scores[neighbor];
+				else:
+					neighbor_score = 0;
+
+				var movement_distance = current_score + neighbor_score + 1;
+				if not (neighbor in visited) or movement_distance < neighbor_score:
+					visited[neighbor] = true;
+					distance_scores[neighbor] = movement_distance;
+					frontier.push_back(neighbor);
+
+		visited[current] = true;
+	return distance_scores;
 
 
 func _process(_delta):

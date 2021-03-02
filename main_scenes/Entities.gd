@@ -99,6 +99,7 @@ func move_entity(entity, direction):
 		if result == Enumerations.COLLISION_NO_COLLISION:
 			entity.position = new_position;
 		return result;
+	return Enumerations.NO_MOVE;
 
 func _ready():
 	_entity_sprites = get_parent().get_node("Entities");
