@@ -1,17 +1,5 @@
 extends Node2D
 
-# Just quickly seeing what would get me a decent organization structure.
-# Doing a roguelike might require me to do a lot of perversion of the idiomatic godot way
-# in which case I'm just writing a python roguelike engine and using godot as my driver/client...
-# Which works I guess?
-
-# It gets stuff done really fast even though it ain't maintainable. If godot supported less node based modules
-# it'd be way easier to do things...
-
-# Particularly the turnbased part. As to avoid giving myself a headache I can just
-# register the turns centrally here...
-# If it were real time, I'd do the nodes...
-
 onready var _world_map = $ChunkViews/Current;
 onready var _message_log = $InterfaceLayer/Interface/Messages;
 onready var _entity_sprites = $EntitySprites;
@@ -93,99 +81,6 @@ func _ready():
 func _draw():
 	pass;
 
-# BFS search for now. Since it's the one I can do off the top of my head.
-# This is for a chunked path since there's not a good way to make this generic...
-# Thankfully I can just make a game one giant chunk and that would also let this work...
-const neighbor_vectors = [Vector2(-1, 0),
-						Vector2(1, 0),
-						Vector2(0, 1),
-						Vector2(0, -1),
-						Vector2(1, 1),
-						Vector2(-1, 1),
-						Vector2(1, -1),
-						Vector2(-1, -1), ];
-func neighbors(chunks, point):
-	var valid_neighbors = [];
-	for neighbor in neighbor_vectors:
-		var new_point = point + neighbor;
-		if chunks.get_chunk_at(new_point) and not chunks.is_solid_tile(new_point):
-			valid_neighbors.push_back(new_point);
-	return valid_neighbors;
-
-func trace_path(start, origins):
-	var current = start;
-	var final_path = [];
-	while current in origins:
-		final_path.push_front(current);
-		current = origins[current];
-	final_path.push_front(current);
-	return final_path;
-
-func request_path_from_to(chunks, start, end):
-	var frontier = [start];
-	var visited = {};
-	var origins = {};
-
-	while len(frontier):
-		var current = frontier.pop_front();
-		if chunks.get_chunk_at(current):
-			for neighbor in neighbors(chunks, current):
-				if not (neighbor in visited):
-					visited[neighbor] = true;
-					origins[neighbor] = current;
-					frontier.push_back(neighbor);
-
-		visited[current] = true;
-		if current == end:
-			return trace_path(current, origins);
-	return null;
-
-# This is an example of how I should use the distance field.
-# only accounts for solid blocks.
-func distance_field_next_best_position(chunks, distance_field, from):
-	if from in distance_field:
-		var result_position = from;
-		var minimum_neighbor = distance_field[from];
-		for neighbor in neighbors(chunks, from):
-			var neighbor_cell = distance_field[neighbor]; 
-			if not minimum_neighbor or neighbor_cell < minimum_neighbor:
-				minimum_neighbor = neighbor_cell;
-				result_position = neighbor;
-		return result_position;
-	return null;
-	
-func distance_field_map_from(chunks, start):
-	var frontier = [start];
-	var visited = {};
-	var distance_scores = {};
-	distance_scores[start] = 0;
-
-	while len(frontier):
-		var current = frontier.pop_front();
-		if chunks.get_chunk_at(current):
-			for neighbor in neighbors(chunks, current):
-				var current_score;
-				var neighbor_score;
-				if current in distance_scores:
-					current_score = distance_scores[current];
-				else:
-					current_score = 0;
-
-				if neighbor in distance_scores:
-					neighbor_score = distance_scores[neighbor];
-				else:
-					neighbor_score = 0;
-
-				var movement_distance = current_score + neighbor_score + 1 + start.distance_to(neighbor);
-				if not (neighbor in visited) or movement_distance < neighbor_score:
-					visited[neighbor] = true;
-					distance_scores[neighbor] = movement_distance;
-					frontier.push_back(neighbor);
-
-		visited[current] = true;
-	return distance_scores;
-
-
 func _process(_delta):
 	var current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 	if _last_known_current_chunk_position != current_chunk_position:
@@ -202,8 +97,8 @@ func _process(_delta):
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
 
-	var distance_field = distance_field_map_from($ChunkViews, $Entities.entities[0].position);
-	$Entities.entities[1].position = distance_field_next_best_position($ChunkViews, distance_field, Vector2(3, 3));
+	var distance_field = $ChunkViews.distance_field_map_from($ChunkViews, $Entities.entities[0].position);
+	$Entities.entities[1].position = $ChunkViews.distance_field_next_best_position($ChunkViews, distance_field, Vector2(3, 3));
 
 	if ($Entities.entities[0].is_dead()):
 		$InterfaceLayer/Interface/Death.show();

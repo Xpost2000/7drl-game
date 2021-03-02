@@ -137,6 +137,79 @@ func is_cell_visible(where):
 		return chunk.is_cell_visible(where.x, where.y);
 	return null;
 
+# BFS search for now. Since it's the one I can do off the top of my head.
+# This is for a chunked path since there's not a good way to make this generic...
+# Thankfully I can just make a game one giant chunk and that would also let this work...
+func neighbors(chunks, point):
+	var valid_neighbors = [];
+	for neighbor in neighbor_vectors:
+		var new_point = point + neighbor;
+		if chunks.get_chunk_at(new_point) and not chunks.is_solid_tile(new_point):
+			valid_neighbors.push_back(new_point);
+	return valid_neighbors;
+
+func trace_path(start, origins):
+	var current = start;
+	var final_path = [];
+	while current in origins:
+		final_path.push_front(current);
+		current = origins[current];
+	final_path.push_front(current);
+	return final_path;
+
+func request_path_from_to(chunks, start, end):
+	var frontier = [start];
+	var visited = {};
+	var origins = {};
+
+	while len(frontier):
+		var current = frontier.pop_front();
+		if chunks.get_chunk_at(current):
+			for neighbor in neighbors(chunks, current):
+				if not (neighbor in visited):
+					visited[neighbor] = true;
+					origins[neighbor] = current;
+					frontier.push_back(neighbor);
+
+		visited[current] = true;
+		if current == end:
+			return trace_path(current, origins);
+	return null;
+
+# This is an example of how I should use the distance field.
+# only accounts for solid blocks. Not entities in the way.
+func distance_field_next_best_position(chunks, distance_field, from):
+	if from in distance_field:
+		var result_position = from;
+		var minimum_neighbor = distance_field[from];
+		for neighbor in neighbors(chunks, from):
+			var neighbor_cell = distance_field[neighbor]; 
+			if not minimum_neighbor or neighbor_cell < minimum_neighbor:
+				minimum_neighbor = neighbor_cell;
+				result_position = neighbor;
+		return result_position;
+	return null;
+	
+func distance_field_map_from(chunks, start):
+	var frontier = [start];
+	var visited = {};
+	var distance_scores = {start: 0};
+
+	while len(frontier):
+		var current = frontier.pop_front();
+		if chunks.get_chunk_at(current):
+			for neighbor in neighbors(chunks, current):
+				var current_score = distance_scores[current] if current in distance_scores else 0;
+				var neighbor_score = distance_scores[neighbor] if neighbor in distance_scores else 0;
+				var movement_distance = current_score + neighbor_score + 1 + start.distance_to(neighbor);
+
+				if not (neighbor in visited) or movement_distance < neighbor_score:
+					visited[neighbor] = true;
+					distance_scores[neighbor] = movement_distance;
+					frontier.push_back(neighbor);
+		visited[current] = true;
+	return distance_scores;
+
 func _ready():
 	randomize();
 	world_chunks = [
