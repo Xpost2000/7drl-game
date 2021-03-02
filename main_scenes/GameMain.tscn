@@ -41,28 +41,28 @@ __meta__ = {
 }
 
 [node name="StatBar" type="HBoxContainer" parent="InterfaceLayer/Interface/Ingame"]
-margin_left = 564.0
-margin_right = 716.0
-margin_bottom = 16.0
+margin_left = 492.0
+margin_right = 788.0
+margin_bottom = 32.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Name" type="Label" parent="InterfaceLayer/Interface/Ingame/StatBar"]
-margin_right = 40.0
-margin_bottom = 16.0
+margin_right = 80.0
+margin_bottom = 32.0
 text = "Sean,"
 
 [node name="Level" type="Label" parent="InterfaceLayer/Interface/Ingame/StatBar"]
-margin_left = 44.0
-margin_right = 92.0
-margin_bottom = 16.0
+margin_left = 84.0
+margin_right = 180.0
+margin_bottom = 32.0
 text = "lvl 1,"
 
 [node name="Class" type="Label" parent="InterfaceLayer/Interface/Ingame/StatBar"]
-margin_left = 96.0
-margin_right = 152.0
-margin_bottom = 16.0
+margin_left = 184.0
+margin_right = 296.0
+margin_bottom = 32.0
 text = "Warrior"
 
 [node name="Death" type="Control" parent="InterfaceLayer/Interface"]

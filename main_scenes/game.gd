@@ -1,8 +1,9 @@
 extends Node2D
 
-onready var _world_map = $ChunkViews/Current;
+onready var _camera = $GameCamera;
+onready var _world = $ChunkViews;
+onready var _entities = $Entities;
 onready var _message_log = $InterfaceLayer/Interface/Messages;
-onready var _entity_sprites = $EntitySprites;
 
 func create_tween(node_to_tween, property, start, end, tween_fn, tween_ease, time=1.0, delay=0.0):
 	var new_tween = Tween.new();
@@ -36,7 +37,7 @@ func player_movement_direction():
 
 func update_player(player_entity):
 	if not player_entity.is_dead():
-		var move_result = $Entities.move_entity(player_entity, player_movement_direction());
+		var move_result = _entities.move_entity(player_entity, player_movement_direction());
 
 		if Input.is_action_just_pressed("ui_end"):
 			player_entity.health = 0;
@@ -67,41 +68,58 @@ func setup_ui():
 	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Quit.connect("pressed", self, "quit_game");
 
 func _ready():
-	$Entities.add_entity("Sean", Vector2.ZERO);
-	$Entities.entities[0].flags = 1;
-	$Entities.entities[0].position = Vector2(0, 0);
-	$Entities.add_entity("Martin", Vector2(3, 4));
-	$Entities.add_entity("Brandon", Vector2(3, 3));
-	$ChunkViews.set_cell(Vector2(1, 0), 8);
-	$ChunkViews.set_cell(Vector2(1, 1), 8);
-	$ChunkViews.set_cell(Vector2(3, 0), 8);
-	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
+	_entities.add_entity("Sean", Vector2.ZERO);
+	_entities.entities[0].flags = 1;
+	_entities.entities[0].position = Vector2(0, 0);
+	_entities.add_entity("Martin", Vector2(3, 4));
+	_entities.add_entity("Brandon", Vector2(3, 3));
+	_world.set_cell(Vector2(1, 0), 8);
+	_world.set_cell(Vector2(1, 1), 8);
+	_world.set_cell(Vector2(3, 0), 8);
+	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 	setup_ui();
 
 func _draw():
 	pass;
 
-func _process(_delta):
-	var current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
+func rerender_chunks():
+	var current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 	if _last_known_current_chunk_position != current_chunk_position:
-		for chunk_row in $ChunkViews.world_chunks:
+		for chunk_row in _world.world_chunks:
 			for chunk in chunk_row:
 				chunk.mark_all_dirty();
-		for chunk_view in $ChunkViews.get_children():
+		for chunk_view in _world.get_children():
 			chunk_view.clear();
-		$ChunkViews.inclusively_redraw_chunks_around(current_chunk_position);
-		$ChunkViews.repaint_animated_tiles(current_chunk_position);
+		_world.inclusively_redraw_chunks_around(current_chunk_position);
+		_world.repaint_animated_tiles(current_chunk_position);
+		_last_known_current_chunk_position = current_chunk_position;
 
-	$ChunkViews.inclusively_redraw_chunks_around(current_chunk_position);
+	_world.inclusively_redraw_chunks_around(current_chunk_position);
 
-	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
-	update_player($Entities.entities[0]);
-
-	if ($Entities.entities[0].is_dead()):
+func step(_delta):
+	if (_entities.entities[0].is_dead()):
 		$InterfaceLayer/Interface/Death.show();
 		$InterfaceLayer/Interface/Ingame.hide();
 
-	_last_known_current_chunk_position = current_chunk_position;
+func _process(_delta):
+	rerender_chunks();
+	$CameraTracer.position = _entities.entities[0].associated_sprite_node.global_position;
+	# update_player(_entities.entities[0]);
 
-func _physics_process(_delta):
-	pass;
+	if not turn_scheduler.finished():
+		var current_actor_turn_information = turn_scheduler.get_current_actor();
+		if current_actor_turn_information.turns_left > 0:
+			var actor = current_actor_turn_information.actor;
+			var actor_turn_action = actor.get_turn_action(self);
+			if actor_turn_action:
+				_entities.do_action(actor, actor_turn_action);
+				current_actor_turn_information.turns_left -= 1;
+		else:
+			step(_delta);
+			turn_scheduler.next_actor();
+	else:
+		for entity in _entities.entities:
+			if entity.wait_time <= 0:
+				turn_scheduler.push(entity, entity.speed);
+			else:
+				entity.wait_time -= 1;
