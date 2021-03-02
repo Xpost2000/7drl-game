@@ -66,9 +66,6 @@ func update_player(player_entity):
 			Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
 			Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
 			Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
-			Enumerations.COLLISION_NO_COLLISION: 
-				var distance_field = distance_field_map_from($ChunkViews, player_entity.position);
-				print(distance_field_next_best_position($ChunkViews, distance_field, Vector2(1, 1)));
 
 var _last_known_current_chunk_position;
 
@@ -86,9 +83,10 @@ func _ready():
 	$Entities.entities[0].flags = 1;
 	$Entities.entities[0].position = Vector2(0, 0);
 	$Entities.add_entity("Martin", Vector2(3, 4));
-	# $ChunkViews.set_cell(Vector2(1, 0), 8);
-	# $ChunkViews.set_cell(Vector2(1, 1), 8);
-	# $ChunkViews.set_cell(Vector2(3, 0), 8);
+	$Entities.add_entity("Brandon", Vector2(3, 3));
+	$ChunkViews.set_cell(Vector2(1, 0), 8);
+	$ChunkViews.set_cell(Vector2(1, 1), 8);
+	$ChunkViews.set_cell(Vector2(3, 0), 8);
 	_last_known_current_chunk_position = $ChunkViews.calculate_chunk_position($Entities.entities[0].position);
 	setup_ui();
 
@@ -146,8 +144,8 @@ func request_path_from_to(chunks, start, end):
 # only accounts for solid blocks.
 func distance_field_next_best_position(chunks, distance_field, from):
 	if from in distance_field:
-		var result_position = null;
-		var minimum_neighbor = null;
+		var result_position = from;
+		var minimum_neighbor = distance_field[from];
 		for neighbor in neighbors(chunks, from):
 			var neighbor_cell = distance_field[neighbor]; 
 			print(neighbor_cell, " ",  minimum_neighbor);
@@ -204,6 +202,9 @@ func _process(_delta):
 
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
+
+	var distance_field = distance_field_map_from($ChunkViews, $Entities.entities[0].position);
+	$Entities.entities[1].position = distance_field_next_best_position($ChunkViews, distance_field, Vector2(3, 3));
 
 	if ($Entities.entities[0].is_dead()):
 		$InterfaceLayer/Interface/Death.show();
