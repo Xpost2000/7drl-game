@@ -97,9 +97,6 @@ func _process(_delta):
 	$CameraTracer.position = $Entities.entities[0].associated_sprite_node.global_position;
 	update_player($Entities.entities[0]);
 
-	var distance_field = $ChunkViews.distance_field_map_from($ChunkViews, $Entities.entities[0].position);
-	$Entities.entities[1].position = $ChunkViews.distance_field_next_best_position($ChunkViews, distance_field, Vector2(3, 3));
-
 	if ($Entities.entities[0].is_dead()):
 		$InterfaceLayer/Interface/Death.show();
 		$InterfaceLayer/Interface/Ingame.hide();
