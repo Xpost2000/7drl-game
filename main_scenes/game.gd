@@ -8,24 +8,6 @@ onready var _world = $ChunkViews;
 onready var _entities = $Entities;
 onready var _message_log = $InterfaceLayer/Interface/Messages;
 
-func create_tween(node_to_tween, property, start, end, tween_fn, tween_ease, time=1.0, delay=0.0):
-	var new_tween = Tween.new();
-	new_tween.interpolate_property(node_to_tween, property, start, end, time, tween_fn, tween_ease, delay)
-	new_tween.connect("tween_all_completed", self, "remove_child", [new_tween]);
-	new_tween.connect("tween_all_completed", new_tween, "queue_free");
-	add_child(new_tween);
-	return new_tween;
-
-func movement_tween(node, start, end):
-	create_tween(node, "position", start, end, Tween.TRANS_LINEAR, Tween.EASE_IN, 0.25).start();
-
-func bump_tween(node, start, direction):
-	var first = create_tween(node, "position", start, start + direction * ($ChunkViews.TILE_SIZE/2), Tween.TRANS_LINEAR, Tween.EASE_IN, 0.25);
-	first.start();
-	var second = create_tween(node, "position", start + direction * ($ChunkViews.TILE_SIZE/2), start, Tween.TRANS_LINEAR, Tween.EASE_IN, 0.25);
-
-	first.connect("tween_all_completed", second, "start");
-
 func player_movement_direction():
 	if Input.is_action_just_pressed("ui_up"):
 		return Vector2(0, -1);
@@ -37,40 +19,6 @@ func player_movement_direction():
 		return Vector2(1, 0);
 
 	return Vector2.ZERO;
-
-class EntityPlayerBrain extends EntityBrain:
-	func get_turn_action(entity_self, game_state):
-		# var player_visibility_radius = 5;
-		# for y_distance in range(-player_visibility_radius, player_visibility_radius):
-		# 	for x_distance in range(-player_visibility_radius, player_visibility_radius):
-		# 		var cell_position = entity_self.position + Vector2(x_distance, y_distance);
-		# 		if cell_position.distance_squared_to(entity_self.position) <= player_visibility_radius*player_visibility_radius:
-		# 			if entity_self.can_see_from(game_state._world, cell_position):
-		# 				game_state._world.set_cell_visibility(cell_position, true);
-		# var move_result = game_state._entities.try_move(entity_self, );
-		var move_direction = game_state.player_movement_direction();
-		if move_direction != Vector2.ZERO:
-			return EntityBrain.MoveTurnAction.new(move_direction);
-		return null;
-
-func update_player_visibility(player_entity):
-	var player_visibility_radius = 5;
-	for y_distance in range(-player_visibility_radius, player_visibility_radius):
-		for x_distance in range(-player_visibility_radius, player_visibility_radius):
-			var cell_position = player_entity.position + Vector2(x_distance, y_distance);
-			if cell_position.distance_squared_to(player_entity.position) <= player_visibility_radius*player_visibility_radius:
-				if player_entity.can_see_from($ChunkViews, cell_position):
-					$ChunkViews.set_cell_visibility(cell_position, true);
-	# if not player_entity.is_dead():
-	# 	var move_result = _entities.move_entity(player_entity, player_movement_direction());
-
-	# 	if Input.is_action_just_pressed("ui_end"):
-	# 		player_entity.health = 0;
-	# 		_message_log.push_message("You have chosen to die.");
-	# 	match move_result:
-	# 		Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
-	# 		Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
-	# 		Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
 
 var _last_known_current_chunk_position;
 
@@ -106,11 +54,48 @@ class TurnScheduler:
 	var current_actor_index: int;
 	var actors: Array;
 
+var _player = null;
+class EntityPlayerBrain extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		var move_direction = game_state.player_movement_direction();
+		if move_direction != Vector2.ZERO:
+			return EntityBrain.MoveTurnAction.new(move_direction);
+		if Input.is_action_just_pressed("game_action_wait"):
+			return EntityBrain.WaitTurnAction.new();
+		return null;
+
+class EntityRandomWanderingBrain extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
+
+func update_player_visibility(entity, radius):
+	for y_distance in range(-radius, radius):
+		for x_distance in range(-radius, radius):
+			var cell_position = entity.position + Vector2(x_distance, y_distance);
+			if cell_position.distance_squared_to(entity.position) <= radius*radius:
+				if entity.can_see_from($ChunkViews, cell_position):
+					$ChunkViews.set_cell_visibility(cell_position, true);
+
+func present_entity_actions_as_messages(entity, action):
+	if entity == _player:
+		if action is EntityBrain.WaitTurnAction:
+			_message_log.push_message("Waiting turn...");
+		elif action is EntityBrain.MoveTurnAction:
+			var move_result = _entities.try_move(entity, action.direction);
+			match move_result:
+				Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
+				Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
+				Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
+
 func _ready():
+	# Always assume the player is entity 0 for now.
+	# Obviously this can always change but whatever.
 	_entities.add_entity("Sean", Vector2.ZERO, EntityPlayerBrain.new());
 	_entities.entities[0].flags = 1;
 	_entities.entities[0].position = Vector2(0, 0);
-	_entities.add_entity("Martin", Vector2(3, 4));
+	_player = _entities.entities[0];
+	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
+	_entities.add_entity("Martin", Vector2(3, 4), EntityRandomWanderingBrain.new());
 	_entities.add_entity("Brandon", Vector2(3, 3));
 	_world.set_cell(Vector2(1, 0), 8);
 	_world.set_cell(Vector2(1, 1), 8);
@@ -144,8 +129,8 @@ func step(_delta):
 
 func _process(_delta):
 	rerender_chunks();
-	$CameraTracer.position = _entities.entities[0].associated_sprite_node.global_position;
-	update_player_visibility(_entities.entities[0]);
+	$CameraTracer.position = _player.associated_sprite_node.global_position;
+	update_player_visibility(_player, 5);
 
 	if not _turn_scheduler.finished():
 		var current_actor_turn_information = _turn_scheduler.get_current_actor();

@@ -1,4 +1,6 @@
 extends Node
+signal _on_entity_do_action(entity, action);
+
 var _entity_sprites;
 var _chunk_views;
 
@@ -116,6 +118,7 @@ func move_entity(entity, direction):
 
 func do_action(entity_target, turn_action):
 	if turn_action:
+		emit_signal("_on_entity_do_action", entity_target, turn_action);
 		turn_action.do_action(self, entity_target);
 
 func _ready():
