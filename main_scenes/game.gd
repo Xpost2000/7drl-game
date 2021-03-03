@@ -1,8 +1,13 @@
 extends Node2D
 
-var _turn_scheduler;
-
 const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
+const TurnScheduler = preload("res://main_scenes/TurnScheduler.gd");
+
+var _passed_turns = 0;
+var _player = null;
+var _last_known_current_chunk_position;
+onready var _turn_scheduler = TurnScheduler.new();
+
 onready var _camera = $GameCamera;
 onready var _world = $ChunkViews;
 onready var _entities = $Entities;
@@ -20,8 +25,6 @@ func player_movement_direction():
 
 	return Vector2.ZERO;
 
-var _last_known_current_chunk_position;
-
 func quit_game():
 	get_tree().quit();
 func restart_game():
@@ -31,30 +34,6 @@ func setup_ui():
 	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Restart.connect("pressed", self, "restart_game");
 	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Quit.connect("pressed", self, "quit_game");
 
-class TurnSchedulerTurnInformation:
-	func _init(actor, turns):
-		self.actor = actor;
-		self.turns_left = turns;
-	var actor: Object;
-	var turns_left: int;
-class TurnScheduler:
-	# Does not do priority sorting yet.
-	func push(actor, priority):
-		actors.push_back(TurnSchedulerTurnInformation.new(actor, priority));
-	func finished():
-		return len(actors) == 0 or len(actors) == current_actor_index;
-	func next_actor():
-		self.current_actor_index += 1;
-	func get_current_actor():
-		if not finished():
-			return self.actors[self.current_actor_index];
-		else:
-			return null;
-
-	var current_actor_index: int;
-	var actors: Array;
-
-var _player = null;
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		var move_direction = game_state.player_movement_direction();
@@ -105,9 +84,6 @@ func _ready():
 	_turn_scheduler = TurnScheduler.new();
 	setup_ui();
 
-func _draw():
-	pass;
-
 func rerender_chunks():
 	var current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 	if _last_known_current_chunk_position != current_chunk_position:
@@ -126,6 +102,7 @@ func step(_delta):
 	if (_entities.entities[0].is_dead()):
 		$InterfaceLayer/Interface/Death.show();
 		$InterfaceLayer/Interface/Ingame.hide();
+		_passed_turns += 1;
 
 func _process(_delta):
 	rerender_chunks();
