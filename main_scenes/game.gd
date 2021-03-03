@@ -1,5 +1,7 @@
 extends Node2D
 
+var _turn_scheduler;
+
 onready var _camera = $GameCamera;
 onready var _world = $ChunkViews;
 onready var _entities = $Entities;
@@ -35,7 +37,7 @@ func player_movement_direction():
 
 	return Vector2.ZERO;
 
-func update_player(player_entity):
+func update_player_visibility(player_entity):
 	if not player_entity.is_dead():
 		var move_result = _entities.move_entity(player_entity, player_movement_direction());
 
@@ -67,6 +69,29 @@ func setup_ui():
 	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Restart.connect("pressed", self, "restart_game");
 	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Quit.connect("pressed", self, "quit_game");
 
+class TurnSchedulerTurnInformation:
+	func _init(actor, turns):
+		self.actor = actor;
+		self.turns_left = turns;
+	var actor: Object;
+	var turns_left: int;
+class TurnScheduler:
+	# Does not do priority sorting yet.
+	func push(actor, priority):
+		actors.push_back(TurnSchedulerTurnInformation.new(actor, priority));
+	func finished():
+		return len(actors) == 0 or len(actors) == current_actor_index;
+	func next_actor():
+		self.current_actor_index += 1;
+	func get_current_actor():
+		if not finished():
+			return self.actors[self.current_actor_index];
+		else:
+			return null;
+
+	var current_actor_index: int;
+	var actors: Array;
+
 func _ready():
 	_entities.add_entity("Sean", Vector2.ZERO);
 	_entities.entities[0].flags = 1;
@@ -77,6 +102,8 @@ func _ready():
 	_world.set_cell(Vector2(1, 1), 8);
 	_world.set_cell(Vector2(3, 0), 8);
 	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
+
+	_turn_scheduler = TurnScheduler.new();
 	setup_ui();
 
 func _draw():
@@ -106,8 +133,8 @@ func _process(_delta):
 	$CameraTracer.position = _entities.entities[0].associated_sprite_node.global_position;
 	# update_player(_entities.entities[0]);
 
-	if not turn_scheduler.finished():
-		var current_actor_turn_information = turn_scheduler.get_current_actor();
+	if not _turn_scheduler.finished():
+		var current_actor_turn_information = _turn_scheduler.get_current_actor();
 		if current_actor_turn_information.turns_left > 0:
 			var actor = current_actor_turn_information.actor;
 			var actor_turn_action = actor.get_turn_action(self);
@@ -116,10 +143,10 @@ func _process(_delta):
 				current_actor_turn_information.turns_left -= 1;
 		else:
 			step(_delta);
-			turn_scheduler.next_actor();
+			_turn_scheduler.next_actor();
 	else:
 		for entity in _entities.entities:
 			if entity.wait_time <= 0:
-				turn_scheduler.push(entity, entity.speed);
+				_turn_scheduler.push(entity, entity.turn_speed);
 			else:
 				entity.wait_time -= 1;

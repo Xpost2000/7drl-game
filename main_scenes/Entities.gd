@@ -4,10 +4,23 @@ var _chunk_views;
 
 var entities = [];
 const FLAG_DO_NOT_REMOVE_ON_DEATH = 1;
+
+class EntityTurnAction:
+	func do_action(entities, target):
+		pass;
+class EntityMoveTurnAction extends EntityTurnAction:
+	func _init(direction):
+		self.direction = direction;
+	func do_action(entities, target):
+		entities.move_entity(target, self.direction);
+	var direction: Vector2;
+
 class Entity:
 	func _init(sprite):
 		self.associated_sprite_node = sprite;
 		self.health = 20;
+		self.wait_time = 0;
+		self.turn_speed = 1;
 
 	func can_see_from(chunks, target_position):
 		var direction = (target_position - self.position).normalized();
@@ -23,11 +36,16 @@ class Entity:
 			step += 1;
 		return true;
 
+	func get_turn_action(game_state):
+		print("THINK! ", self.name);
+		return EntityMoveTurnAction.new(Vector2(1, 0));
+
 	func is_dead():
 		return (health <= 0);
 
 	var name: String;
 	var turn_speed: int;
+	var wait_time: int;
 
 	var health: int;
 	var position: Vector2;
@@ -100,6 +118,10 @@ func move_entity(entity, direction):
 			entity.position = new_position;
 		return result;
 	return Enumerations.NO_MOVE;
+
+func do_action(entity_target, turn_action):
+	if turn_action:
+		turn_action.do_action(self, entity_target);
 
 func _ready():
 	_entity_sprites = get_parent().get_node("Entities");
