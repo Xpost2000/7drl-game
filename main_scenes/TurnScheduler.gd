@@ -20,6 +20,9 @@ func next_actor():
     return self.actors.pop();
 func get_current_actor():
     if not finished():
-        return self.actors.peek();
+        var current =  self.actors.peek();
+        if current.is_dead():
+            next_actor();
+            return get_current_actor();
     else:
         return null;
