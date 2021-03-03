@@ -5,22 +5,15 @@ var _chunk_views;
 var entities = [];
 const FLAG_DO_NOT_REMOVE_ON_DEATH = 1;
 
-class EntityTurnAction:
-	func do_action(entities, target):
-		pass;
-class EntityMoveTurnAction extends EntityTurnAction:
-	func _init(direction):
-		self.direction = direction;
-	func do_action(entities, target):
-		entities.move_entity(target, self.direction);
-	var direction: Vector2;
-
+const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
 class Entity:
-	func _init(sprite):
+	const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
+	func _init(sprite, brain=EntityBrain.new()):
 		self.associated_sprite_node = sprite;
 		self.health = 20;
 		self.wait_time = 0;
 		self.turn_speed = 1;
+		self.brain = brain;
 
 	func can_see_from(chunks, target_position):
 		var direction = (target_position - self.position).normalized();
@@ -37,8 +30,9 @@ class Entity:
 		return true;
 
 	func get_turn_action(game_state):
-		print("THINK! ", self.name);
-		return EntityMoveTurnAction.new(Vector2(1, 0));
+		if self.brain:
+			return self.brain.get_turn_action(self, game_state);
+		return null;
 
 	func is_dead():
 		return (health <= 0);
@@ -51,6 +45,7 @@ class Entity:
 	var position: Vector2;
 	var associated_sprite_node: Sprite;
 	var flags: int;
+	var brain: EntityBrain;
 
 func remove_entity_at_index(index):
 	var sprite = entities[index].associated_sprite_node;
@@ -61,7 +56,7 @@ func remove_entity_at_index(index):
 func remove_entity(entity):
 	remove_entity_at_index(entities.find(entity));
 
-func add_entity(name, position):
+func add_entity(name, position, brain=EntityBrain.new()):
 	var sprite = Sprite.new();
 
 	var atlas_texture = AtlasTexture.new();
@@ -71,7 +66,7 @@ func add_entity(name, position):
 	sprite.texture = atlas_texture;
 	_entity_sprites.add_child(sprite);
 
-	var new_entity = Entity.new(sprite);
+	var new_entity = Entity.new(sprite, brain);
 	new_entity.name = name;
 	new_entity.position = position;
 

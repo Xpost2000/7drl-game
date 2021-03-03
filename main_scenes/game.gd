@@ -2,6 +2,7 @@ extends Node2D
 
 var _turn_scheduler;
 
+const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
 onready var _camera = $GameCamera;
 onready var _world = $ChunkViews;
 onready var _entities = $Entities;
@@ -37,26 +38,39 @@ func player_movement_direction():
 
 	return Vector2.ZERO;
 
+class EntityPlayerBrain extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		# var player_visibility_radius = 5;
+		# for y_distance in range(-player_visibility_radius, player_visibility_radius):
+		# 	for x_distance in range(-player_visibility_radius, player_visibility_radius):
+		# 		var cell_position = entity_self.position + Vector2(x_distance, y_distance);
+		# 		if cell_position.distance_squared_to(entity_self.position) <= player_visibility_radius*player_visibility_radius:
+		# 			if entity_self.can_see_from(game_state._world, cell_position):
+		# 				game_state._world.set_cell_visibility(cell_position, true);
+		# var move_result = game_state._entities.try_move(entity_self, );
+		var move_direction = game_state.player_movement_direction();
+		if move_direction != Vector2.ZERO:
+			return EntityBrain.MoveTurnAction.new(move_direction);
+		return null;
+
 func update_player_visibility(player_entity):
-	if not player_entity.is_dead():
-		var move_result = _entities.move_entity(player_entity, player_movement_direction());
+	var player_visibility_radius = 5;
+	for y_distance in range(-player_visibility_radius, player_visibility_radius):
+		for x_distance in range(-player_visibility_radius, player_visibility_radius):
+			var cell_position = player_entity.position + Vector2(x_distance, y_distance);
+			if cell_position.distance_squared_to(player_entity.position) <= player_visibility_radius*player_visibility_radius:
+				if player_entity.can_see_from($ChunkViews, cell_position):
+					$ChunkViews.set_cell_visibility(cell_position, true);
+	# if not player_entity.is_dead():
+	# 	var move_result = _entities.move_entity(player_entity, player_movement_direction());
 
-		if Input.is_action_just_pressed("ui_end"):
-			player_entity.health = 0;
-			_message_log.push_message("You have chosen to die.");
-
-		var player_visibility_radius = 5;
-		for y_distance in range(-player_visibility_radius, player_visibility_radius):
-			for x_distance in range(-player_visibility_radius, player_visibility_radius):
-				var cell_position = player_entity.position + Vector2(x_distance, y_distance);
-				if cell_position.distance_squared_to(player_entity.position) <= player_visibility_radius*player_visibility_radius:
-					if player_entity.can_see_from($ChunkViews, cell_position):
-						$ChunkViews.set_cell_visibility(cell_position, true);
-
-		match move_result:
-			Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
-			Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
-			Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
+	# 	if Input.is_action_just_pressed("ui_end"):
+	# 		player_entity.health = 0;
+	# 		_message_log.push_message("You have chosen to die.");
+	# 	match move_result:
+	# 		Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
+	# 		Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
+	# 		Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
 
 var _last_known_current_chunk_position;
 
@@ -93,7 +107,7 @@ class TurnScheduler:
 	var actors: Array;
 
 func _ready():
-	_entities.add_entity("Sean", Vector2.ZERO);
+	_entities.add_entity("Sean", Vector2.ZERO, EntityPlayerBrain.new());
 	_entities.entities[0].flags = 1;
 	_entities.entities[0].position = Vector2(0, 0);
 	_entities.add_entity("Martin", Vector2(3, 4));
@@ -131,7 +145,7 @@ func step(_delta):
 func _process(_delta):
 	rerender_chunks();
 	$CameraTracer.position = _entities.entities[0].associated_sprite_node.global_position;
-	# update_player(_entities.entities[0]);
+	update_player_visibility(_entities.entities[0]);
 
 	if not _turn_scheduler.finished():
 		var current_actor_turn_information = _turn_scheduler.get_current_actor();
@@ -146,7 +160,7 @@ func _process(_delta):
 			_turn_scheduler.next_actor();
 	else:
 		for entity in _entities.entities:
-			if entity.wait_time <= 0:
+			if not entity.is_dead() and entity.wait_time <= 0 :
 				_turn_scheduler.push(entity, entity.turn_speed);
 			else:
 				entity.wait_time -= 1;
