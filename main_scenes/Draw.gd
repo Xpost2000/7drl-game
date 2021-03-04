@@ -25,9 +25,6 @@ const neighbor_vectors = [Vector2(-1, 0),
 						  ];
 func _draw():
 	if world:
-		# var colors = [Color.red, Color.green, Color.blue];
-		# for i in range(300):
-		# 	draw_string(game_font, Vector2(0, i * FONT_HEIGHT), "Hello world", colors[i%3]);
 		var chunk_offsets = neighbor_vectors.duplicate();
 		chunk_offsets.push_back(Vector2(0, 0));
 		for neighbor_index in len(chunk_offsets):
@@ -39,24 +36,23 @@ func _draw():
 			if world.in_bounds(offset_position):
 				for y in range(world.CHUNK_MAX_SIZE):
 					for x in range(world.CHUNK_MAX_SIZE):
-						var tile_position = Vector2(x + (chunk_x * world.CHUNK_MAX_SIZE), y + (chunk_y * world.CHUNK_MAX_SIZE));
-
+						var tile_position = Vector2(x + (chunk_x * world.CHUNK_MAX_SIZE), (1+y) + (chunk_y * world.CHUNK_MAX_SIZE));
 						var cell_id;
 						var cell_symbol = "#" if world.is_solid_tile(tile_position) else ".";
 						var light_value = world.is_cell_visible(tile_position);
 						var cell_color = Color(1, 1, 1) if world.is_solid_tile(tile_position) else Color(0, 1, 0);
+
 						if world.is_cell_visible(tile_position):
 							draw_string(game_font, tile_position * Vector2((FONT_HEIGHT/2), FONT_HEIGHT), cell_symbol, Color(cell_color * light_value));
-						# tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
-						# _fog_of_war.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), 1 - chunk.is_cell_visible(x, y));
 	if entities:
 		# stupid boldness.
 		for entity in entities.entities:
 			var tile_position = entity.position;
 			if world.is_cell_visible(tile_position) == 1.0:
-				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*FONT_HEIGHT), "@", Color.red);
-				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)-0.25, tile_position.y*FONT_HEIGHT-0.25), "@", Color.red);
-				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)+0.25, tile_position.y*FONT_HEIGHT-0.25), "@", Color.red);
+				draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "@", Color.red);
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)-0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)+0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
 	pass;
 
 func _process(_delta):
