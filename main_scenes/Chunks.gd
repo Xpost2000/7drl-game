@@ -1,8 +1,9 @@
 # Should rename this later...
 extends Node2D
 const TILE_SIZE = 32;
-export var CHUNK_MAX_SIZE = 16;
+const PriorityQueue = preload("res://main_scenes/PriorityQueue.gd");
 
+export var CHUNK_MAX_SIZE = 16;
 onready var _fog_of_war = $FogOfWar;
 
 func in_bounds_of(position, chunk_x, chunk_y) -> bool:
@@ -178,6 +179,35 @@ func request_path_from_to(chunks, start, end):
 			return trace_path(current, origins);
 	return null;
 
+func manhattan_distance_heuristic(a, b):
+	return abs(a.x - b.x) + abs(a.y - b.y);
+
+func a_star_request_path_from_to(chunks, start, end):
+	var frontier = PriorityQueue.new();
+	frontier.push(start, 0);
+	var visited = {};
+	var origins = {};
+	var distance_scores = {start: 0};
+
+	while frontier.length():
+		var current = frontier.pop();
+		if chunks.get_chunk_at(current):
+			for neighbor in neighbors(chunks, current):
+				var current_score = distance_scores[current] if current in distance_scores else 0;
+				var neighbor_score = distance_scores[neighbor] if neighbor in distance_scores else 0;
+				var movement_distance = current_score + neighbor_score + 1 + start.distance_to(neighbor);
+
+				if not (neighbor in visited) or movement_distance < neighbor_score:
+					visited[neighbor] = true;
+					distance_scores[neighbor] = movement_distance;
+					origins[neighbor] = current;
+					frontier.push(neighbor, movement_distance + manhattan_distance_heuristic(current, neighbor));
+		visited[current] = true;
+
+		if current == end:
+			return trace_path(current, origins);
+	return null;
+
 # This is an example of how I should use the distance field.
 # only accounts for solid blocks. Not entities in the way.
 func distance_field_next_best_position(chunks, distance_field, from):
@@ -213,6 +243,7 @@ func distance_field_map_from(chunks, start):
 	return distance_scores;
 
 func _ready():
+	var test_queue = PriorityQueue.new();
 	randomize();
 	world_chunks = [
 		[WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE)],

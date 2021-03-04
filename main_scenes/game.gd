@@ -47,7 +47,7 @@ class EntityRandomWanderingBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 
-func update_player_visibility(entity, radius):
+func update_player_visibility(entity, radius):	
 	for other_entity in _entities.entities:
 		if other_entity != entity:
 			if not entity.can_see_from($ChunkViews, other_entity.position):
@@ -70,6 +70,8 @@ func present_entity_actions_as_messages(entity, action):
 			_message_log.push_message("Waiting turn...");
 		elif action is EntityBrain.MoveTurnAction:
 			var move_result = _entities.try_move(entity, action.direction);
+			# $ChunkViews.request_path_from_to($ChunkViews, entity.position, Vector2(4, 4));
+			# print($ChunkViews.a_star_request_path_from_to($ChunkViews, entity.position, Vector2(4, 4)));
 			match move_result:
 				Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
 				Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
