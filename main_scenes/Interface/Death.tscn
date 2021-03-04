@@ -54,17 +54,17 @@ __meta__ = {
 
 [node name="Restart" type="Button" parent="Holder/OptionsLayout"]
 margin_right = 252.0
-margin_bottom = 38.0
+margin_bottom = 32.0
 text = "Restart"
 
 [node name="Quit" type="Button" parent="Holder/OptionsLayout"]
-margin_top = 42.0
+margin_top = 36.0
 margin_right = 252.0
-margin_bottom = 80.0
+margin_bottom = 68.0
 text = "Quit"
 
 [node name="Exit" type="Button" parent="Holder/OptionsLayout"]
-margin_top = 84.0
+margin_top = 72.0
 margin_right = 252.0
-margin_bottom = 122.0
+margin_bottom = 104.0
 text = "Exit to Windows"
