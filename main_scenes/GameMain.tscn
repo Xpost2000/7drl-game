@@ -106,7 +106,7 @@ remote_path = NodePath("../GameCamera")
 
 [node name="EntitySprites" type="Node2D" parent="."]
 
-[node name="Draw" type="Node2D" parent="."]
+[node name="CharacterASCIIDraw" type="Node2D" parent="."]
 script = ExtResource( 8 )
 
 [node name="Fixed" type="CanvasLayer" parent="."]

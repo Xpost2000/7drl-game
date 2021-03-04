@@ -96,6 +96,11 @@ func _ready():
 
 func rerender_chunks():
 	var current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
+	$CharacterASCIIDraw.world = _world;
+	$CharacterASCIIDraw.entities = _entities;
+	$CharacterASCIIDraw.current_chunk_position = current_chunk_position;
+	$CharacterASCIIDraw.update();
+	print($CharacterASCIIDraw.current_chunk_position)
 	if _last_known_current_chunk_position != current_chunk_position:
 		for chunk_row in _world.world_chunks:
 			for chunk in chunk_row:
@@ -115,11 +120,11 @@ func step(_delta):
 		_passed_turns += 1;
 
 func _process(_delta):
+	# $CameraTracer.position = _player.associated_sprite_node.global_position;
+	$CameraTracer.position = _player.position * Vector2($CharacterASCIIDraw.FONT_HEIGHT/2, $CharacterASCIIDraw.FONT_HEIGHT);
 	rerender_chunks();
-	$Draw.update();
-	$Fixed/Draw.update();
-	$CameraTracer.position = _player.associated_sprite_node.global_position;
 	update_player_visibility(_player, 5);
+	$Fixed/Draw.update();
 
 	if not _turn_scheduler.finished():
 		var current_actor_turn_information = _turn_scheduler.get_current_actor();
