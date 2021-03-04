@@ -72,6 +72,7 @@ func present_entity_actions_as_messages(entity, action):
 		elif action is EntityBrain.MoveTurnAction:
 			var move_result = _entities.try_move(entity, action.direction);
 			# $ChunkViews.a_star_request_path_from_to(entity.position, Vector2(4, 4));
+			update_player_visibility(entity, 5);
 			match move_result:
 				Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
 				Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
@@ -92,16 +93,19 @@ func _ready():
 	_world.set_cell(Vector2(3, 0), 8);
 	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 
+	_ascii_renderer.world = _world;
+	_ascii_renderer.entities = _entities;
+	update_player_visibility(_player, 5);
+
+	_ascii_renderer.update();
 	_turn_scheduler = TurnScheduler.new();
 	setup_ui();
 
 func rerender_chunks():
 	var current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
-	_ascii_renderer.world = _world;
-	_ascii_renderer.entities = _entities;
 	_ascii_renderer.current_chunk_position = current_chunk_position;
-	_ascii_renderer.update();
 	if _last_known_current_chunk_position != current_chunk_position:
+		_ascii_renderer.update();
 		for chunk_row in _world.world_chunks:
 			for chunk in chunk_row:
 				chunk.mark_all_dirty();
@@ -121,7 +125,6 @@ func step(_delta):
 
 func _process(_delta):
 	rerender_chunks();
-	update_player_visibility(_player, 5);
 	$Fixed/Draw.update();
 
 	if Input.is_action_just_pressed("ui_end"):
@@ -145,6 +148,7 @@ func _process(_delta):
 			var actor_turn_action = actor.get_turn_action(self);
 			if actor_turn_action:
 				_entities.do_action(actor, actor_turn_action);
+				_ascii_renderer.update();
 				current_actor_turn_information.turns_left -= 1;
 		else:
 			step(_delta);
