@@ -116,6 +116,8 @@ func step(_delta):
 
 func _process(_delta):
 	rerender_chunks();
+	$Draw.update();
+	$Fixed/Draw.update();
 	$CameraTracer.position = _player.associated_sprite_node.global_position;
 	update_player_visibility(_player, 5);
 
