@@ -3,6 +3,8 @@ extends Node2D
 const TILE_SIZE = 32;
 export var CHUNK_MAX_SIZE = 16;
 
+onready var _fog_of_war = $FogOfWar;
+
 func in_bounds_of(position, chunk_x, chunk_y) -> bool:
 	return (position.x >= chunk_x*CHUNK_MAX_SIZE && position.x < (chunk_x + CHUNK_MAX_SIZE)) && (position.y >= chunk_y*CHUNK_MAX_SIZE && position.y < (chunk_y + CHUNK_MAX_SIZE));
 
@@ -41,7 +43,7 @@ class WorldChunk:
 			var visibility_row = [];
 			for x in range(size):
 				row.push_back(0);
-				visibility_row.push_back(false);
+				visibility_row.push_back(0);
 				# var probability = randf();
 				# if probability > 0.7:
 				# 	row.push_back(0);
@@ -249,11 +251,8 @@ func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
 	for dirty_cell in chunk.dirty_cells:
 		var x = dirty_cell.x;
 		var y = dirty_cell.y;
-		if chunk.is_cell_visible(x, y):
-			tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
-		else:
-			tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), 14);
-
+		tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
+		_fog_of_war.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), 1 - chunk.is_cell_visible(x, y));
 	chunk.clear_dirty();
 
 var _tick_time = 0;

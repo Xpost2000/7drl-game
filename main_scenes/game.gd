@@ -53,7 +53,10 @@ func update_player_visibility(entity, radius):
 			var cell_position = entity.position + Vector2(x_distance, y_distance);
 			if cell_position.distance_squared_to(entity.position) <= radius*radius:
 				if entity.can_see_from($ChunkViews, cell_position):
-					$ChunkViews.set_cell_visibility(cell_position, true);
+					$ChunkViews.set_cell_visibility(cell_position, 1);
+				else:
+					$ChunkViews.set_cell_visibility(cell_position, 0.5);
+
 
 func present_entity_actions_as_messages(entity, action):
 	if entity == _player:
