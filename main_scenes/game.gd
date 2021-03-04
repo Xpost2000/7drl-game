@@ -48,6 +48,13 @@ class EntityRandomWanderingBrain extends EntityBrain:
 		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 
 func update_player_visibility(entity, radius):
+	for other_entity in _entities.entities:
+		if other_entity != entity:
+			if not entity.can_see_from($ChunkViews, other_entity.position):
+				other_entity.associated_sprite_node.hide();
+			else:	
+				other_entity.associated_sprite_node.show();
+
 	for y_distance in range(-radius, radius):
 		for x_distance in range(-radius, radius):
 			var cell_position = entity.position + Vector2(x_distance, y_distance);
@@ -56,7 +63,6 @@ func update_player_visibility(entity, radius):
 					$ChunkViews.set_cell_visibility(cell_position, 1);
 				else:
 					$ChunkViews.set_cell_visibility(cell_position, 0.5);
-
 
 func present_entity_actions_as_messages(entity, action):
 	if entity == _player:
