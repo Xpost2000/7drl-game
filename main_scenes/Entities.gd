@@ -28,7 +28,7 @@ class Entity:
 			if chunks.is_solid_tile(last_ray_position):
 				return false;
 			last_ray_position = ray_position;
-			step += 1;
+			step += 0.5;
 		return true;
 
 	func get_turn_action(game_state):
