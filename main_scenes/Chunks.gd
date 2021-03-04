@@ -140,9 +140,7 @@ func is_cell_visible(where):
 		return chunk.is_cell_visible(where.x, where.y);
 	return null;
 
-# BFS search for now. Since it's the one I can do off the top of my head.
-# This is for a chunked path since there's not a good way to make this generic...
-# Thankfully I can just make a game one giant chunk and that would also let this work...
+# filter for visited tiles only. (fog of war needs to do things)
 func neighbors(chunks, point):
 	var valid_neighbors = [];
 	for neighbor in neighbor_vectors:
@@ -160,15 +158,15 @@ func trace_path(start, origins):
 	final_path.push_front(current);
 	return final_path;
 
-func request_path_from_to(chunks, start, end):
+func request_path_from_to(start, end):
 	var frontier = [start];
 	var visited = {};
 	var origins = {};
 
 	while len(frontier):
 		var current = frontier.pop_front();
-		if chunks.get_chunk_at(current):
-			for neighbor in neighbors(chunks, current):
+		if get_chunk_at(current):
+			for neighbor in neighbors(self, current):
 				if not (neighbor in visited):
 					visited[neighbor] = true;
 					origins[neighbor] = current;
@@ -182,7 +180,7 @@ func request_path_from_to(chunks, start, end):
 func manhattan_distance_heuristic(a, b):
 	return abs(a.x - b.x) + abs(a.y - b.y);
 
-func a_star_request_path_from_to(chunks, start, end):
+func a_star_request_path_from_to(start, end):
 	var frontier = PriorityQueue.new();
 	frontier.push(start, 0);
 	var visited = {};
@@ -191,17 +189,17 @@ func a_star_request_path_from_to(chunks, start, end):
 
 	while frontier.length():
 		var current = frontier.pop();
-		if chunks.get_chunk_at(current):
-			for neighbor in neighbors(chunks, current):
+		if get_chunk_at(current):
+			for neighbor in neighbors(self, current):
 				var current_score = distance_scores[current] if current in distance_scores else 0;
 				var neighbor_score = distance_scores[neighbor] if neighbor in distance_scores else 0;
-				var movement_distance = current_score + neighbor_score + 1 + start.distance_to(neighbor);
+				var movement_distance = current_score + neighbor_score + 1 + manhattan_distance_heuristic(neighbor, end);
 
 				if not (neighbor in visited) or movement_distance < neighbor_score:
 					visited[neighbor] = true;
 					distance_scores[neighbor] = movement_distance;
 					origins[neighbor] = current;
-					frontier.push(neighbor, movement_distance + manhattan_distance_heuristic(current, neighbor));
+					frontier.push(neighbor, movement_distance);
 		visited[current] = true;
 
 		if current == end:
@@ -210,11 +208,11 @@ func a_star_request_path_from_to(chunks, start, end):
 
 # This is an example of how I should use the distance field.
 # only accounts for solid blocks. Not entities in the way.
-func distance_field_next_best_position(chunks, distance_field, from):
+func distance_field_next_best_position(distance_field, from):
 	if from in distance_field:
 		var result_position = from;
 		var minimum_neighbor = distance_field[from];
-		for neighbor in neighbors(chunks, from):
+		for neighbor in neighbors(self, from):
 			var neighbor_cell = distance_field[neighbor]; 
 			if not minimum_neighbor or neighbor_cell < minimum_neighbor:
 				minimum_neighbor = neighbor_cell;
@@ -222,15 +220,15 @@ func distance_field_next_best_position(chunks, distance_field, from):
 		return result_position;
 	return null;
 	
-func distance_field_map_from(chunks, start):
+func distance_field_map_from(start):
 	var frontier = [start];
 	var visited = {};
 	var distance_scores = {start: 0};
 
 	while len(frontier):
 		var current = frontier.pop_front();
-		if chunks.get_chunk_at(current):
-			for neighbor in neighbors(chunks, current):
+		if get_chunk_at(current):
+			for neighbor in neighbors(self, current):
 				var current_score = distance_scores[current] if current in distance_scores else 0;
 				var neighbor_score = distance_scores[neighbor] if neighbor in distance_scores else 0;
 				var movement_distance = current_score + neighbor_score + 1 + start.distance_to(neighbor);
