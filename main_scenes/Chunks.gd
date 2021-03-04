@@ -243,7 +243,6 @@ func distance_field_map_from(chunks, start):
 	return distance_scores;
 
 func _ready():
-	var test_queue = PriorityQueue.new();
 	randomize();
 	world_chunks = [
 		[WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE), WorldChunk.new(CHUNK_MAX_SIZE)],

@@ -70,8 +70,6 @@ func present_entity_actions_as_messages(entity, action):
 			_message_log.push_message("Waiting turn...");
 		elif action is EntityBrain.MoveTurnAction:
 			var move_result = _entities.try_move(entity, action.direction);
-			# $ChunkViews.request_path_from_to($ChunkViews, entity.position, Vector2(4, 4));
-			# print($ChunkViews.a_star_request_path_from_to($ChunkViews, entity.position, Vector2(4, 4)));
 			match move_result:
 				Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
 				Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
