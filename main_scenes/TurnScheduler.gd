@@ -10,19 +10,21 @@ class TurnSchedulerTurnInformation:
 
 # Does not do priority sorting yet.
 func _init():
-    self.actors = PriorityQueue.new();
+	self.actors = PriorityQueue.new();
 func push(actor, priority):
-    actors.push(TurnSchedulerTurnInformation.new(actor, priority), priority);
+	actors.push(TurnSchedulerTurnInformation.new(actor, priority), priority);
 func finished():
-    return actors.length() == 0;
+	return actors.length() == 0;
 func next_actor():
-    # self.current_actor_index += 1;
-    return self.actors.pop();
+	# self.current_actor_index += 1;
+	return self.actors.pop();
 func get_current_actor():
-    if not finished():
-        var current =  self.actors.peek();
-        if current.is_dead():
-            next_actor();
-            return get_current_actor();
-    else:
-        return null;
+	if not finished():
+		var current =  self.actors.peek();
+		if current and current.actor.is_dead():
+			next_actor();
+			return get_current_actor();
+		else:
+			return current;
+	else:
+		return null;

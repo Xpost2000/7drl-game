@@ -17,10 +17,16 @@ func push(item, priority):
     return item;
 
 func peek():
-    var value = data[len(data)-1][0];
-    return value;
+    if data or len(data):
+        var value = data[len(data)-1][0];
+        return value;
+    else:
+        return null;
 
 func pop():
-    var value = data[len(data)-1][0];
-    data.pop_back();
-    return value;
+    if data or len(data):
+        var value = data[len(data)-1][0];
+        data.pop_back();
+        return value;
+    else:
+        return null;

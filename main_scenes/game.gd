@@ -111,7 +111,7 @@ func _process(_delta):
 
 	if not _turn_scheduler.finished():
 		var current_actor_turn_information = _turn_scheduler.get_current_actor();
-		if current_actor_turn_information.turns_left > 0:
+		if current_actor_turn_information and current_actor_turn_information.turns_left > 0:
 			var actor = current_actor_turn_information.actor;
 			var actor_turn_action = actor.get_turn_action(self);
 			if actor_turn_action:
