@@ -39,18 +39,21 @@ func _draw():
 			if world.in_bounds(offset_position):
 				for y in range(world.CHUNK_MAX_SIZE):
 					for x in range(world.CHUNK_MAX_SIZE):
+						var tile_position = Vector2(x + (chunk_x * world.CHUNK_MAX_SIZE), y + (chunk_y * world.CHUNK_MAX_SIZE));
+
 						var cell_id;
-						var cell_symbol;
-						var cell_color;
+						var cell_symbol = "#" if world.is_solid_tile(tile_position) else ".";
+						var cell_color = Color(1, 1, 1) if world.is_solid_tile(tile_position) else Color(0.2, 0.2, 0.2);
 						# if chunk.is_cell_visible(x, y):
-						draw_string(game_font, Vector2((x + (chunk_x * world.CHUNK_MAX_SIZE))*(FONT_HEIGHT/2),
-						 (y + (chunk_y * world.CHUNK_MAX_SIZE))*FONT_HEIGHT), "#", Color.blue);
+						draw_string(game_font, tile_position * Vector2((FONT_HEIGHT/2), FONT_HEIGHT), cell_symbol, cell_color);
 						# tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
 						# _fog_of_war.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), 1 - chunk.is_cell_visible(x, y));
-						# paint_chunk_to_tilemap(get_child(neighbor_index), world_chunks[offset_position.y][offset_position.x], offset_position.x, offset_position.y);
 	if entities:
+		# stupid boldness.
 		for entity in entities.entities:
 			draw_string(game_font, Vector2(entity.position.x*(FONT_HEIGHT/2), entity.position.y*FONT_HEIGHT), "@", Color.red);
+			draw_string(game_font, Vector2(entity.position.x*(FONT_HEIGHT/2)-0.25, entity.position.y*FONT_HEIGHT-0.25), "@", Color.red);
+			draw_string(game_font, Vector2(entity.position.x*(FONT_HEIGHT/2)+0.25, entity.position.y*FONT_HEIGHT-0.25), "@", Color.red);
 	pass;
 
 func _process(_delta):

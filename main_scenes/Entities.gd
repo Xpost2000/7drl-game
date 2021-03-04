@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 signal _on_entity_do_action(entity, action);
 
 var _entity_sprites;

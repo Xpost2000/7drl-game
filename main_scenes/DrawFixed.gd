@@ -11,7 +11,7 @@ func _init():
 	game_font.size = FONT_HEIGHT;
 
 func _draw():
-	draw_string(game_font, Vector2(0, FONT_HEIGHT), "Hello world");
+	# draw_string(game_font, Vector2(0, FONT_HEIGHT), "Hello world");
 	pass;
 
 func _process(_delta):
