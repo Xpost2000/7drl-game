@@ -16,7 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Minimal-Roguelike-Or-Tilebased-Game-Thing"
-run/main_scene="res://main_scenes/GameMain.tscn"
+run/main_scene="res://main_scenes/MainMenuUI.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -24,6 +24,7 @@ config/icon="res://icon.png"
 Enumerations="*res://main_scenes/Enumerations.gd"
 Utilities="*res://main_scenes/Utilities.gd"
 GamePreferences="*res://main_scenes/GamePreferences.gd"
+Globals="*res://main_scenes/Globals.gd"
 
 [display]
 

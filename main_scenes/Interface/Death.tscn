@@ -44,21 +44,27 @@ margin_bottom = 68.0
 text = "SCORE: 1234567889"
 
 [node name="OptionsLayout" type="VBoxContainer" parent="Holder"]
-margin_left = 25.0
-margin_top = 50.0
-margin_right = 129.0
-margin_bottom = 148.0
+margin_left = -58.9166
+margin_top = 82.758
+margin_right = 193.083
+margin_bottom = 264.758
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Restart" type="Button" parent="Holder/OptionsLayout"]
-margin_right = 124.0
+margin_right = 252.0
 margin_bottom = 38.0
 text = "Restart"
 
 [node name="Quit" type="Button" parent="Holder/OptionsLayout"]
 margin_top = 42.0
-margin_right = 124.0
+margin_right = 252.0
 margin_bottom = 80.0
 text = "Quit"
+
+[node name="Exit" type="Button" parent="Holder/OptionsLayout"]
+margin_top = 84.0
+margin_right = 252.0
+margin_bottom = 122.0
+text = "Exit to Windows"

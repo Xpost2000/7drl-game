@@ -26,14 +26,10 @@ func player_movement_direction():
 
 	return Vector2.ZERO;
 
-func quit_game():
-	get_tree().quit();
-func restart_game():
-	get_tree().reload_current_scene();
-
 func setup_ui():
-	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Restart.connect("pressed", self, "restart_game");
-	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Quit.connect("pressed", self, "quit_game");
+	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Restart.connect("pressed", get_tree(), "reload_current_scene");
+	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Quit.connect("pressed", get_tree(), "change_scene_to", [Globals.main_menu_scene]);
+	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Exit.connect("pressed", get_tree(), "quit");
 
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
