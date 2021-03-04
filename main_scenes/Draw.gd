@@ -43,17 +43,20 @@ func _draw():
 
 						var cell_id;
 						var cell_symbol = "#" if world.is_solid_tile(tile_position) else ".";
-						var cell_color = Color(1, 1, 1) if world.is_solid_tile(tile_position) else Color(0.2, 0.2, 0.2);
-						# if chunk.is_cell_visible(x, y):
-						draw_string(game_font, tile_position * Vector2((FONT_HEIGHT/2), FONT_HEIGHT), cell_symbol, cell_color);
+						var light_value = world.is_cell_visible(tile_position);
+						var cell_color = Color(1, 1, 1) if world.is_solid_tile(tile_position) else Color(0, 1, 0);
+						if world.is_cell_visible(tile_position):
+							draw_string(game_font, tile_position * Vector2((FONT_HEIGHT/2), FONT_HEIGHT), cell_symbol, Color(cell_color * light_value));
 						# tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
 						# _fog_of_war.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), 1 - chunk.is_cell_visible(x, y));
 	if entities:
 		# stupid boldness.
 		for entity in entities.entities:
-			draw_string(game_font, Vector2(entity.position.x*(FONT_HEIGHT/2), entity.position.y*FONT_HEIGHT), "@", Color.red);
-			draw_string(game_font, Vector2(entity.position.x*(FONT_HEIGHT/2)-0.25, entity.position.y*FONT_HEIGHT-0.25), "@", Color.red);
-			draw_string(game_font, Vector2(entity.position.x*(FONT_HEIGHT/2)+0.25, entity.position.y*FONT_HEIGHT-0.25), "@", Color.red);
+			var tile_position = entity.position;
+			if world.is_cell_visible(tile_position) == 1.0:
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*FONT_HEIGHT), "@", Color.red);
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)-0.25, tile_position.y*FONT_HEIGHT-0.25), "@", Color.red);
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)+0.25, tile_position.y*FONT_HEIGHT-0.25), "@", Color.red);
 	pass;
 
 func _process(_delta):
