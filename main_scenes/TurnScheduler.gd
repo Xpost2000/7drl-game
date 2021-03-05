@@ -17,6 +17,8 @@ func finished():
 	return actors.length() == 0;
 func next_actor():
 	# self.current_actor_index += 1;
+	var current_actor = self.actors.peek();
+	current_actor.actor.wait_time = current_actor.actor.wait_time_between_turns;
 	return self.actors.pop();
 func get_current_actor():
 	if not finished():

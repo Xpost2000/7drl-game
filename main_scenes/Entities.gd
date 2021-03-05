@@ -14,6 +14,7 @@ class Entity:
 		self.associated_sprite_node = sprite;
 		self.health = 20;
 		self.wait_time = 0;
+		self.wait_time_between_turns = 0;
 		self.turn_speed = 1;
 		self.brain = brain;
 
@@ -42,6 +43,8 @@ class Entity:
 	var name: String;
 	var turn_speed: int;
 	var wait_time: int;
+
+	var wait_time_between_turns: int;
 
 	var health: int;
 	var position: Vector2;

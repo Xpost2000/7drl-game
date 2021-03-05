@@ -34,11 +34,11 @@ __meta__ = {
 
 [node name="Start" type="Button" parent="Buttons"]
 margin_right = 235.0
-margin_bottom = 38.0
+margin_bottom = 32.0
 text = "Start Game"
 
 [node name="Quit" type="Button" parent="Buttons"]
-margin_top = 42.0
+margin_top = 36.0
 margin_right = 235.0
-margin_bottom = 80.0
+margin_bottom = 68.0
 text = "Quit Game"

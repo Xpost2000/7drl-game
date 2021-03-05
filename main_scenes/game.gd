@@ -15,7 +15,7 @@ onready var _interface = $InterfaceLayer/Interface;
 onready var _ascii_renderer = $CharacterASCIIDraw;
 
 func player_movement_direction():
-	if Globals.is_action_pressed_with_delay("ui_up"):
+	if Globals.is_action_pressed_with_delay("Gui_up"):
 		return Vector2(0, -1);
 	elif Globals.is_action_pressed_with_delay("ui_down"):
 		return Vector2(0, 1);
@@ -80,9 +80,9 @@ func _ready():
 	# Always assume the player is entity 0 for now.
 	# Obviously this can always change but whatever.
 	_entities.add_entity("Sean", Vector2.ZERO, EntityPlayerBrain.new());
-	_entities.entities[0].flags = 1;
-	_entities.entities[0].position = Vector2(0, 0);
 	_player = _entities.entities[0];
+	_player.flags = 1;
+	_player.position = Vector2(0, 0);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 	_entities.add_entity("Martin", Vector2(3, 4), EntityRandomWanderingBrain.new());
 	_entities.add_entity("Brandon", Vector2(3, 3));
