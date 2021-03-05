@@ -23,6 +23,14 @@ func player_movement_direction():
 		return Vector2(-1, 0);
 	elif Globals.is_action_pressed_with_delay("ui_right"):
 		return Vector2(1, 0);
+	elif Globals.is_action_pressed_with_delay("game_move_diagonal_top_right"):
+		return Vector2(1, -1);
+	elif Globals.is_action_pressed_with_delay("game_move_diagonal_bottom_right"):
+		return Vector2(1, 1);
+	elif Globals.is_action_pressed_with_delay("game_move_diagonal_top_left"):
+		return Vector2(-1, -1);
+	elif Globals.is_action_pressed_with_delay("game_move_diagonal_bottom_left"):
+		return Vector2(-1, 1);
 	return Vector2.ZERO;
 
 class EntityPlayerBrain extends EntityBrain:
@@ -120,6 +128,14 @@ func _process(_delta):
 		GamePreferences.ascii_mode = !GamePreferences.ascii_mode;
 		_player.health = 0;
 
+	if Input.is_action_just_pressed("game_pause"):
+		if not Globals.paused:
+			_interface.state = _interface.PAUSE_STATE;
+			Globals.paused = true;
+		else:
+			_interface.state = _interface.previous_state;
+			Globals.paused = false;
+
 	if GamePreferences.ascii_mode:
 		$CameraTracer.position = _player.position * Vector2(_ascii_renderer.FONT_HEIGHT/2, _ascii_renderer.FONT_HEIGHT);
 		_ascii_renderer.show();
@@ -131,21 +147,22 @@ func _process(_delta):
 		_world.show();
 		_entities.show();
 
-	if not _turn_scheduler.finished():
-		var current_actor_turn_information = _turn_scheduler.get_current_actor();
-		if current_actor_turn_information and current_actor_turn_information.turns_left > 0:
-			var actor = current_actor_turn_information.actor;
-			var actor_turn_action = actor.get_turn_action(self);
-			if actor_turn_action:
-				_entities.do_action(actor, actor_turn_action);
-				_ascii_renderer.update();
-				current_actor_turn_information.turns_left -= 1;
-		else:
-			step(_delta);
-			_turn_scheduler.next_actor();
-	else:
-		for entity in _entities.entities:
-			if not entity.is_dead() and entity.wait_time <= 0 :
-				_turn_scheduler.push(entity, entity.turn_speed);
+	if not Globals.paused:
+		if not _turn_scheduler.finished():
+			var current_actor_turn_information = _turn_scheduler.get_current_actor();
+			if current_actor_turn_information and current_actor_turn_information.turns_left > 0:
+				var actor = current_actor_turn_information.actor;
+				var actor_turn_action = actor.get_turn_action(self);
+				if actor_turn_action:
+					_entities.do_action(actor, actor_turn_action);
+					_ascii_renderer.update();
+					current_actor_turn_information.turns_left -= 1;
 			else:
-				entity.wait_time -= 1;
+				step(_delta);
+				_turn_scheduler.next_actor();
+		else:
+			for entity in _entities.entities:
+				if not entity.is_dead() and entity.wait_time <= 0 :
+					_turn_scheduler.push(entity, entity.turn_speed);
+				else:
+					entity.wait_time -= 1;

@@ -136,7 +136,6 @@ __meta__ = {
 MESSAGE_LIFETIME_MAX = 1.0
 
 [node name="Ingame" type="CenterContainer" parent="InterfaceLayer/Interface"]
-visible = false
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -640.0
@@ -173,7 +172,20 @@ margin_bottom = 32.0
 text = "Warrior"
 
 [node name="Death" parent="InterfaceLayer/Interface" instance=ExtResource( 10 )]
-visible = false
+
+[node name="Pause" type="Control" parent="InterfaceLayer/Interface"]
+margin_right = 1280.0
+margin_bottom = 720.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="InterfaceLayer/Interface/Pause"]
+margin_right = 1279.0
+margin_bottom = 718.0
+text = "GAME PAUSED"
+align = 1
+valign = 1
 
 [node name="Entities" type="Node2D" parent="."]
 script = ExtResource( 6 )
