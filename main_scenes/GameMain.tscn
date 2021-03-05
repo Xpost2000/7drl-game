@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://main_scenes/Chunks.gd" type="Script" id=1]
 [ext_resource path="res://main_scenes/Game.gd" type="Script" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://main_scenes/Draw.gd" type="Script" id=8]
 [ext_resource path="res://main_scenes/DrawFixed.gd" type="Script" id=9]
 [ext_resource path="res://main_scenes/Interface/Death.tscn" type="PackedScene" id=10]
+[ext_resource path="res://main_scenes/Interface/Main.gd" type="Script" id=11]
 
 [node name="GameMain" type="Node2D"]
 z_as_relative = false
@@ -119,6 +120,7 @@ script = ExtResource( 9 )
 margin_right = 1280.0
 margin_bottom = 720.0
 theme = ExtResource( 3 )
+script = ExtResource( 11 )
 __meta__ = {
 "_edit_use_anchors_": false,
 "_editor_description_": "Expand on this thing to provide GameUI"
@@ -134,6 +136,7 @@ __meta__ = {
 MESSAGE_LIFETIME_MAX = 1.0
 
 [node name="Ingame" type="CenterContainer" parent="InterfaceLayer/Interface"]
+visible = false
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -640.0
@@ -170,6 +173,7 @@ margin_bottom = 32.0
 text = "Warrior"
 
 [node name="Death" parent="InterfaceLayer/Interface" instance=ExtResource( 10 )]
+visible = false
 
 [node name="Entities" type="Node2D" parent="."]
 script = ExtResource( 6 )

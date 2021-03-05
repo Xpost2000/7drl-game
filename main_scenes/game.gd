@@ -11,7 +11,7 @@ onready var _turn_scheduler = TurnScheduler.new();
 onready var _camera = $GameCamera;
 onready var _world = $ChunkViews;
 onready var _entities = $Entities;
-onready var _message_log = $InterfaceLayer/Interface/Messages;
+onready var _interface = $InterfaceLayer/Interface;
 onready var _ascii_renderer = $CharacterASCIIDraw;
 
 func player_movement_direction():
@@ -25,11 +25,6 @@ func player_movement_direction():
 		return Vector2(1, 0);
 
 	return Vector2.ZERO;
-
-func setup_ui():
-	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Restart.connect("pressed", get_tree(), "reload_current_scene");
-	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Quit.connect("pressed", get_tree(), "change_scene_to", [Globals.main_menu_scene]);
-	$InterfaceLayer/Interface/Death/Holder/OptionsLayout/Exit.connect("pressed", get_tree(), "quit");
 
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
@@ -64,15 +59,15 @@ func update_player_visibility(entity, radius):
 func present_entity_actions_as_messages(entity, action):
 	if entity == _player:
 		if action is EntityBrain.WaitTurnAction:
-			_message_log.push_message("Waiting turn...");
+			_interface.message("Waiting turn...");
 		elif action is EntityBrain.MoveTurnAction:
 			var move_result = _entities.try_move(entity, action.direction);
 			# $ChunkViews.a_star_request_path_from_to(entity.position, Vector2(4, 4));
 			update_player_visibility(entity, 5);
 			match move_result:
-				Enumerations.COLLISION_HIT_WALL: _message_log.push_message("You bumped into a wall.");
-				Enumerations.COLLISION_HIT_WORLD_EDGE: _message_log.push_message("You hit the edge of the world.");
-				Enumerations.COLLISION_HIT_ENTITY: _message_log.push_message("You bumped into someone");
+				Enumerations.COLLISION_HIT_WALL: _interface.message("You bumped into a wall.");
+				Enumerations.COLLISION_HIT_WORLD_EDGE: _interface.message("You hit the edge of the world.");
+				Enumerations.COLLISION_HIT_ENTITY: _interface.message("You bumped into someone");
 
 func _ready():
 	# Always assume the player is entity 0 for now.
@@ -95,7 +90,6 @@ func _ready():
 
 	_ascii_renderer.update();
 	_turn_scheduler = TurnScheduler.new();
-	setup_ui();
 
 func rerender_chunks():
 	var current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
@@ -115,9 +109,9 @@ func rerender_chunks():
 
 func step(_delta):
 	if (_entities.entities[0].is_dead()):
-		$InterfaceLayer/Interface/Death.show();
-		$InterfaceLayer/Interface/Ingame.hide();
-		_passed_turns += 1;
+		_interface.state = _interface.DEATH_STATE;
+
+	_passed_turns += 1;
 
 func _process(_delta):
 	rerender_chunks();
@@ -125,6 +119,7 @@ func _process(_delta):
 
 	if Input.is_action_just_pressed("ui_end"):
 		GamePreferences.ascii_mode = !GamePreferences.ascii_mode;
+		_player.health = 0;
 
 	if GamePreferences.ascii_mode:
 		$CameraTracer.position = _player.position * Vector2(_ascii_renderer.FONT_HEIGHT/2, _ascii_renderer.FONT_HEIGHT);

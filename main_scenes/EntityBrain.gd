@@ -14,7 +14,9 @@ class MoveTurnAction extends TurnAction:
 	func do_action(entities, target):
 		entities.move_entity(target, self.direction);
 	var direction: Vector2;
+class AttackTurnAction extends TurnAction:
+	# Game specific.
+	pass
 
 func get_turn_action(entity_self, game_state):
-    print("Dumb dumb normal waity brain ", entity_self.name);
     return WaitTurnAction.new();
