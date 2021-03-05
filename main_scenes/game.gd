@@ -15,15 +15,14 @@ onready var _interface = $InterfaceLayer/Interface;
 onready var _ascii_renderer = $CharacterASCIIDraw;
 
 func player_movement_direction():
-	if Input.is_action_just_pressed("ui_up"):
+	if Globals.is_action_pressed_with_delay("ui_up"):
 		return Vector2(0, -1);
-	elif Input.is_action_just_pressed("ui_down"):
+	elif Globals.is_action_pressed_with_delay("ui_down"):
 		return Vector2(0, 1);
-	elif Input.is_action_just_pressed("ui_left"):
+	elif Globals.is_action_pressed_with_delay("ui_left"):
 		return Vector2(-1, 0);
-	elif Input.is_action_just_pressed("ui_right"):
+	elif Globals.is_action_pressed_with_delay("ui_right"):
 		return Vector2(1, 0);
-
 	return Vector2.ZERO;
 
 class EntityPlayerBrain extends EntityBrain:
