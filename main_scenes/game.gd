@@ -15,7 +15,7 @@ onready var _interface = $InterfaceLayer/Interface;
 onready var _ascii_renderer = $CharacterASCIIDraw;
 
 func player_movement_direction():
-	if Globals.is_action_pressed_with_delay("Gui_up"):
+	if Globals.is_action_pressed_with_delay("ui_up"):
 		return Vector2(0, -1);
 	elif Globals.is_action_pressed_with_delay("ui_down"):
 		return Vector2(0, 1);
