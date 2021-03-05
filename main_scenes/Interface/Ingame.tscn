@@ -1,0 +1,37 @@
+[gd_scene format=2]
+
+[node name="Ingame" type="CenterContainer"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -640.0
+margin_right = 640.0
+margin_bottom = 16.0
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="StatBar" type="HBoxContainer" parent="."]
+margin_left = 492.0
+margin_right = 788.0
+margin_bottom = 32.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Name" type="Label" parent="StatBar"]
+margin_right = 80.0
+margin_bottom = 32.0
+text = "Sean,"
+
+[node name="Level" type="Label" parent="StatBar"]
+margin_left = 84.0
+margin_right = 180.0
+margin_bottom = 32.0
+text = "lvl 1,"
+
+[node name="Class" type="Label" parent="StatBar"]
+margin_left = 184.0
+margin_right = 296.0
+margin_bottom = 32.0
+text = "Warrior"
