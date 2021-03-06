@@ -222,7 +222,7 @@ func distance_field_next_best_position(distance_field, from, entities=null):
 				minimum_neighbor = neighbor_cell;
 				result_position = neighbor;
 		return result_position;
-	return null;
+	return from;
 	
 func distance_field_map_from(start):
 	var frontier = [start];

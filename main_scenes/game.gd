@@ -8,7 +8,7 @@ var _player = null;
 var _last_known_current_chunk_position;
 
 var _survivor_distance_field = null;
-const MAX_REGENERATE_FIELD_TURN_TIME = 4;
+const MAX_REGENERATE_FIELD_TURN_TIME = 3;
 var _survivor_distance_field_regenerate_timer = 0;
 
 onready var _turn_scheduler = TurnScheduler.new();
@@ -157,8 +157,8 @@ func _ready():
 	# Obviously this can always change but whatever.
 	_entities.add_entity("Bill", Vector2.ZERO, EntityPlayerBrain.new());
 	_player = _entities.entities[0];
-	_player.health = 99999;
-	_player.turn_speed = 2;
+	_player.health = 100;
+	_player.turn_speed = 1;
 	_player.flags = 1;
 	_player.position = Vector2(0, 0);
 	_player.add_item(Globals.Medkit.new());
@@ -169,7 +169,7 @@ func _ready():
 	gun.current_capacity = 30;
 	_player.add_item(gun);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	for i in range (25):
+	for i in range (30):
 		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
 		zombie.visual_info.symbol = "Z";
 		zombie.visual_info.foreground = Color.gray;
