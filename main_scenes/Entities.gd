@@ -10,9 +10,20 @@ const FLAG_DO_NOT_REMOVE_ON_DEATH = 1;
 const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
 
 class Entity:
+	class VisualInfo:
+		func _init(symbol='@', foreground=Color.red, background=Color.black):
+			self.symbol = symbol;
+			self.foreground = foreground;
+			self.background = background;
+		var symbol: String;
+		var foreground: Color;
+		var background: Color;
+
 	const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
+	var visual_info: VisualInfo;
 	func _init(sprite, brain=EntityBrain.new()):
 		self.associated_sprite_node = sprite;
+		self.visual_info = VisualInfo.new();
 		self.max_health = 100;
 		self.health = self.max_health;
 		self.wait_time = 0;

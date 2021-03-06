@@ -141,12 +141,16 @@ func is_cell_visible(where):
 	return null;
 
 # filter for visited tiles only. (fog of war needs to do things)
-func neighbors(chunks, point):
+func neighbors(chunks, point, entities=null):
 	var valid_neighbors = [];
 	for neighbor in neighbor_vectors:
 		var new_point = point + neighbor;
 		if chunks.get_chunk_at(new_point) and not chunks.is_solid_tile(new_point):
-			valid_neighbors.push_back(new_point);
+			if entities:
+				if not entities.get_entity_at_position(new_point):
+					valid_neighbors.push_back(new_point);
+			else:
+				valid_neighbors.push_back(new_point);
 	return valid_neighbors;
 
 func trace_path(start, origins):
@@ -208,11 +212,11 @@ func a_star_request_path_from_to(start, end):
 
 # This is an example of how I should use the distance field.
 # only accounts for solid blocks. Not entities in the way.
-func distance_field_next_best_position(distance_field, from):
+func distance_field_next_best_position(distance_field, from, entities=null):
 	if from in distance_field:
 		var result_position = from;
 		var minimum_neighbor = distance_field[from];
-		for neighbor in neighbors(self, from):
+		for neighbor in neighbors(self, from, entities):
 			var neighbor_cell = distance_field[neighbor]; 
 			if not minimum_neighbor or neighbor_cell < minimum_neighbor:
 				minimum_neighbor = neighbor_cell;
