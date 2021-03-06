@@ -125,7 +125,6 @@ func _process(_delta):
 	$Fixed/Draw.update();
 
 	if Input.is_action_just_pressed("ui_end"):
-		GamePreferences.ascii_mode = !GamePreferences.ascii_mode;
 		_player.health = 0;
 
 	if Input.is_action_just_pressed("game_pause"):
