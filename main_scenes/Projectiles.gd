@@ -12,10 +12,12 @@ class Projectile:
 		pass;
 class BulletProjectile extends Projectile:
 	var lifetime: int;
+	var penetration_health: int;
 	func _init(position, direction):
 		self.position = position;
 		self.direction = direction;
 		self.lifetime = 10;
+		self.penetration_health = 0;
 		self.dead = false;
 	func tick(game_state):
 		if self.lifetime < 0:
@@ -26,6 +28,13 @@ class BulletProjectile extends Projectile:
 
 			if game_state._world.is_solid_tile(self.position):
 				self.dead = true;
+			for entity in game_state._entities.entities:
+				if entity.position == self.position.round():
+					entity.health -= 40;
+					self.penetration_health -= 1;
+					if self.penetration_health < 0:
+						self.dead = true;
+						break;
 
 func remove_projectile_at_index(index):
 	projectiles.remove(index);
