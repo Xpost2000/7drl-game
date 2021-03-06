@@ -25,10 +25,10 @@ class HealingAction:
 			target.current_medkit.uses_left -= 1;
 			target.use_medkit_timer -= 1;
 			var damaged_amount = target.max_health - target.health;
-			target.health += (damaged_amount * 0.85); 
+			target.health += (damaged_amount * 0.9235/Globals.HEALING_MEDKIT_TURNS); 
 class AttackTurnAction extends TurnAction:
 	# Game specific.
 	pass
 
 func get_turn_action(entity_self, game_state):
-    return WaitTurnAction.new();
+	return WaitTurnAction.new();
