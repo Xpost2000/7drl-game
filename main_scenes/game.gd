@@ -159,7 +159,10 @@ func step(_delta):
 func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
+
 	_interface.report_inventory(_player);
+	_interface.report_player_health(_player);
+
 	var healing_display = _interface.get_node("Ingame/HealingDisplay");
 	if _player.current_medkit:
 		healing_display.show();
@@ -172,7 +175,7 @@ func _process(_delta):
 		_interface.get_node("Ingame/ItemPrompt").hide();
 
 	if Input.is_action_just_pressed("ui_end"):
-		_player.health = 0;
+		_player.health -= 15;
 
 	if Input.is_action_just_pressed("game_pause"):
 		if not Globals.paused:

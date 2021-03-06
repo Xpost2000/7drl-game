@@ -1,6 +1,12 @@
 extends Control
 
 onready var _message_log = $Messages;
+
+onready var _other_health_bars = $Ingame/Healthbars/Others;
+onready var _self_health_bar = $Ingame/Healthbars/SelfHealth;
+
+const health_card_prefab = preload("res://main_scenes/Interface/HealthDisplayBar.tscn");
+
 const UNDEFINED = -999;
 const DEATH_STATE = 0;
 const INGAME_STATE = 1;
@@ -25,6 +31,9 @@ func set_state(new_state):
 
 func message(string):
 	_message_log.push_message(string);
+
+func report_player_health(entity):
+	_self_health_bar.update_from(entity);
 
 func report_inventory(inventory_list):
 	# dummy

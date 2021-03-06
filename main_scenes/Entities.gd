@@ -21,6 +21,8 @@ class Entity:
 		self.brain = brain;
 		self.inventory = [];
 
+	func health_percentage():
+		return float(self.health) / float(self.max_health);
 	# do not duplicate items like guns.
 	# that's a todo
 	func add_item(item):
