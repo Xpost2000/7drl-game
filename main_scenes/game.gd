@@ -14,6 +14,8 @@ onready var _entities = $Entities;
 onready var _interface = $InterfaceLayer/Interface;
 onready var _ascii_renderer = $CharacterASCIIDraw;
 
+var prompting_item_use = false;
+
 func player_movement_direction():
 	if Globals.is_action_pressed_with_delay("ui_up"):
 		return Vector2(0, -1);
@@ -35,11 +37,21 @@ func player_movement_direction():
 
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		var move_direction = game_state.player_movement_direction();
-		if move_direction != Vector2.ZERO:
-			return EntityBrain.MoveTurnAction.new(move_direction);
-		if Input.is_action_just_pressed("game_action_wait"):
-			return EntityBrain.WaitTurnAction.new();
+		print(Globals.any_key_pressed());
+		if game_state.prompting_item_use:
+			var pressed_key = Globals.any_key_pressed();
+			if pressed_key:
+				print(pressed_key);
+			else:
+				print("nothing");
+		else:
+			var move_direction = game_state.player_movement_direction();
+			if move_direction != Vector2.ZERO:
+				return EntityBrain.MoveTurnAction.new(move_direction);
+			if Input.is_action_just_pressed("game_action_wait"):
+				return EntityBrain.WaitTurnAction.new();
+			if Input.is_action_just_pressed("game_use_item"):
+				game_state.prompting_item_use = true;
 		return null;
 
 class EntityRandomWanderingBrain extends EntityBrain:
@@ -83,6 +95,7 @@ func _ready():
 	_player = _entities.entities[0];
 	_player.flags = 1;
 	_player.position = Vector2(0, 0);
+	_player.add_item(Globals.Medkit.new());
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 	_entities.add_entity("Martin", Vector2(3, 4), EntityRandomWanderingBrain.new());
 	_entities.add_entity("Brandon", Vector2(3, 3));

@@ -8,16 +8,23 @@ var entities = [];
 const FLAG_DO_NOT_REMOVE_ON_DEATH = 1;
 
 const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
+
 class Entity:
 	const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
 	func _init(sprite, brain=EntityBrain.new()):
 		self.associated_sprite_node = sprite;
-		self.health = 20;
+		self.max_health = 100;
+		self.health = self.max_health;
 		self.wait_time = 0;
 		self.wait_time_between_turns = 0;
 		self.turn_speed = 1;
 		self.brain = brain;
-		self.inventory = ["Molotov", "Assault Rifle", "Medpack"];
+		self.inventory = [];
+
+	# do not duplicate items like guns.
+	# that's a todo
+	func add_item(item):
+		self.inventory.append(item);
 
 	func can_see_from(chunks, target_position):
 		var direction = (target_position - self.position).normalized();
@@ -48,11 +55,17 @@ class Entity:
 
 	var wait_time_between_turns: int;
 
+	var max_health: int;
 	var health: int;
+
 	var position: Vector2;
 	var associated_sprite_node: Sprite;
 	var flags: int;
 	var brain: EntityBrain;
+
+	# item related state cause this is faster to do
+	var trying_to_use_medkit: bool;
+	var use_medkit_timer: int;
 
 func remove_entity_at_index(index):
 	var sprite = entities[index].associated_sprite_node;
@@ -125,6 +138,13 @@ func do_action(entity_target, turn_action):
 	if turn_action:
 		emit_signal("_on_entity_do_action", entity_target, turn_action);
 		turn_action.do_action(self, entity_target);
+	if entity_target.trying_to_use_medkit and entity_target.use_medkit_timer > 0:
+		# emit_signal("_on_entity_do_action", entity_target, turn_action);
+		print("Healing!");
+		entity_target.use_medkit_timer -= 1;
+		var damaged_amount = entity_target.max_health - entity_target.health;
+		entity_target.health += (damaged_amount * 0.85); 
+
 
 func _ready():
 	_entity_sprites = get_parent().get_node("Entities");

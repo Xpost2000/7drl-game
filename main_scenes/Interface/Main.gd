@@ -34,7 +34,7 @@ func report_inventory(inventory_list):
 		inventory_item_list.remove_child(child);
 	
 	for item_index in len(inventory_list):
-		var item = inventory_list[item_index];
+		var item = inventory_list[item_index].as_string();
 		var string_display = alphabet[item_index] + ". " + item;
 		var new_label = Label.new();
 		new_label.text = string_display;
