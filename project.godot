@@ -15,7 +15,10 @@ _global_script_class_icons={
 
 [application]
 
-config/name="Minimal-Roguelike-Or-Tilebased-Game-Thing"
+config/name="L4DRL 7DRL"
+config/description="A 7 Day Roguelike(leaning on roguelite) demake of Left 4 Dead. Sort of inspired by DOOMRL. Since this is a seven day roguelike this aims to recreate some of L4D's gameplay with some roguelike elements.
+
+Mostly based of L4D2's gameplay and not L4D1."
 run/main_scene="res://main_scenes/MainMenuUI.tscn"
 config/icon="res://icon.png"
 
