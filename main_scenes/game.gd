@@ -8,7 +8,7 @@ var _player = null;
 var _last_known_current_chunk_position;
 
 var _survivor_distance_field = null;
-const MAX_REGENERATE_FIELD_TURN_TIME = 6;
+const MAX_REGENERATE_FIELD_TURN_TIME = 4;
 var _survivor_distance_field_regenerate_timer = 0;
 
 onready var _turn_scheduler = TurnScheduler.new();
@@ -108,7 +108,8 @@ class EntityCommonInfectedChaserBrain extends EntityBrain:
 		if entity_self.position.distance_to(game_state._player.position) <= 1.414:
 			return EntityBrain.AttackTurnAction.new(game_state._player, 5);
 		else:
-			var next_position = game_state._world.distance_field_next_best_position(game_state._survivor_distance_field, entity_self.position, game_state._entities);
+			var next_position = game_state._world.distance_field_next_best_position(
+				game_state._survivor_distance_field, entity_self.position, game_state._entities);
 			var direction = next_position - entity_self.position;
 			return EntityBrain.MoveTurnAction.new(direction);
 
@@ -156,6 +157,8 @@ func _ready():
 	# Obviously this can always change but whatever.
 	_entities.add_entity("Bill", Vector2.ZERO, EntityPlayerBrain.new());
 	_player = _entities.entities[0];
+	_player.health = 99999;
+	_player.turn_speed = 2;
 	_player.flags = 1;
 	_player.position = Vector2(0, 0);
 	_player.add_item(Globals.Medkit.new());
@@ -170,6 +173,9 @@ func _ready():
 		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
 		zombie.visual_info.symbol = "Z";
 		zombie.visual_info.foreground = Color.gray;
+
+	for i in range (5):
+		_world.set_cell(Vector2(8+i, 9), 8);
 	# _world.set_cell(Vector2(1, 0), 8);
 	# _world.set_cell(Vector2(1, 1), 8);
 	# _world.set_cell(Vector2(3, 0), 8);
@@ -204,12 +210,15 @@ func step(_delta):
 	if (_player.is_dead()):
 		_interface.state = _interface.DEATH_STATE;
 	else:
+		_passed_turns += 1;
+
+func step_round(_delta):
+	if (not _player.is_dead()):
 		if _survivor_distance_field_regenerate_timer <= 0:
 			_survivor_distance_field = _world.distance_field_map_from(_player.position);
 			_survivor_distance_field_regenerate_timer = MAX_REGENERATE_FIELD_TURN_TIME;
 		else:
 			_survivor_distance_field_regenerate_timer -= 1;
-		_passed_turns += 1;
 
 func _process(_delta):
 	rerender_chunks();
@@ -274,14 +283,14 @@ func _process(_delta):
 					if actor_turn_action:
 						_entities.do_action(self, actor, actor_turn_action);
 						current_actor_turn_information.turns_left -= 1;
+						_ascii_renderer.update();
 					else:
 						break;
 				else:
-					_ascii_renderer.update();
 					step(_delta);
 					_turn_scheduler.next_actor();
-			# else:
 			if _turn_scheduler.finished():
+				step_round(_delta);
 				for entity in _entities.entities:
 					if not entity.is_dead() and entity.adrenaline_active_timer > 0:
 						entity.adrenaline_active_timer -= 1;
