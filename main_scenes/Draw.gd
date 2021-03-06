@@ -50,9 +50,9 @@ func _draw():
 		# stupid boldness.
 		for entity in entities.entities:
 			var tile_position = entity.position;
-			if world.is_cell_visible(tile_position) == 1.0:
+			if world.is_cell_visible(tile_position) > 0.0:
 				draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
-				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "@", Color.red);
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "@", Color.red*world.is_cell_visible(tile_position));
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)-0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)+0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
 	for entity in game_state._projectiles.projectiles:

@@ -76,7 +76,18 @@ class EntityPlayerBrain extends EntityBrain:
 				if entity_self.currently_equipped_weapon and entity_self.currently_equipped_weapon is Globals.Gun:
 					game_state.prompting_firing_target = true;
 					# in reality I want to autotarget the nearest visible entity like DoomRL does.
-					game_state.firing_target_cursor_location = entity_self.position;
+					var closest_entity = null;
+					var closest_distance = INF;
+					for entity in game_state._entities.entities:
+						if entity != entity_self and game_state._world.is_cell_visible(entity.position) and entity_self.can_see_from(game_state._world, entity.position):
+							var distance = entity_self.position.distance_to(entity.position);
+							if distance < closest_distance:
+								closest_distance = distance;
+								closest_entity = entity;
+					if closest_entity:
+						game_state.firing_target_cursor_location = closest_entity.position;
+					else:
+						game_state._interface.message("No visible target.");
 				else:
 					game_state._interface.message("No gun or projectile equipped");
 		return null;
