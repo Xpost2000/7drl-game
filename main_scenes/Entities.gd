@@ -21,6 +21,17 @@ class Entity:
 		self.brain = brain;
 		self.inventory = [];
 
+	func find_closest_entity(game_state, account_for_visibility_map=false):
+		var closest_entity = null;
+		var closest_distance = INF;
+		for entity in game_state._entities.entities:
+			if entity != self and game_state._world.is_cell_visible(entity.position) and (self.can_see_from(game_state._world, entity.position) or (not account_for_visibility_map)):
+				var distance = self.position.distance_to(entity.position);
+				if distance < closest_distance:
+					closest_distance = distance;
+					closest_entity = entity;
+		return closest_entity;
+
 	func health_percentage():
 		return float(self.health) / float(self.max_health);
 	# do not duplicate items like guns.
@@ -98,11 +109,15 @@ func add_entity(name, position, brain=EntityBrain.new()):
 	entities.push_back(new_entity);
 	return new_entity;
 
-func find_any_entity_collisions(position):
+
+func get_entity_at_position(position):
 	for other_entity in entities:
 		if other_entity.position.x == position.x && other_entity.position.y == position.y:
-			return true;
-	return false;
+			return other_entity;
+	return null;
+
+func find_any_entity_collisions(position):
+	return get_entity_at_position(position) != null;
 
 func try_move(entity, direction):
 	if direction != Vector2.ZERO:

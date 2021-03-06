@@ -42,8 +42,10 @@ func player_movement_direction():
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		if game_state.prompting_firing_target:
+			if Input.is_action_just_pressed("game_pause"):
+				game_state.prompting_firing_target = false;
+
 			if Input.is_action_just_pressed("game_fire_weapon"):
-				print("pew pew pew");
 				game_state.prompting_firing_target = false;
 				if game_state.firing_target_cursor_location != game_state._player.position:
 					return EntityBrain.FireWeaponTurnAction.new(game_state.firing_target_cursor_location);
@@ -51,6 +53,9 @@ class EntityPlayerBrain extends EntityBrain:
 					game_state._interface.message("You cannot shoot yourself.");
 		elif game_state.prompting_item_use:
 				var pressed_key = Globals.any_key_pressed();
+				if Input.is_action_just_pressed("game_pause"):
+					game_state.prompting_item_use = false;
+
 				if pressed_key and pressed_key != "Shift" and pressed_key != "Ctrl" and pressed_key != "Alt":
 					game_state.prompting_item_use = false;
 					# this is kind of stupid.
@@ -75,15 +80,7 @@ class EntityPlayerBrain extends EntityBrain:
 			if Input.is_action_just_pressed("game_fire_weapon"):
 				if entity_self.currently_equipped_weapon and entity_self.currently_equipped_weapon is Globals.Gun:
 					game_state.prompting_firing_target = true;
-					# in reality I want to autotarget the nearest visible entity like DoomRL does.
-					var closest_entity = null;
-					var closest_distance = INF;
-					for entity in game_state._entities.entities:
-						if entity != entity_self and game_state._world.is_cell_visible(entity.position) and entity_self.can_see_from(game_state._world, entity.position):
-							var distance = entity_self.position.distance_to(entity.position);
-							if distance < closest_distance:
-								closest_distance = distance;
-								closest_entity = entity;
+					var closest_entity = entity_self.find_closest_entity(game_state, true);
 					if closest_entity:
 						game_state.firing_target_cursor_location = closest_entity.position;
 					else:
@@ -199,11 +196,20 @@ func _process(_delta):
 		healing_display.hide();
 
 	if prompting_firing_target:
+		_interface.get_node("Ingame/TargettingInfo").show();
 		var move_direction = player_movement_direction();
 		firing_target_cursor_location += move_direction;
 		# we could still selectively update screen at certain points.
 		# also do bounds checking for the cursor.
 		_ascii_renderer.update();
+		var target_information_label = _interface.get_node("Ingame/TargettingInfo/Info");
+		var entity_at = _entities.get_entity_at_position(firing_target_cursor_location);
+		if entity_at:
+			target_information_label.text = entity_at.name;
+		else:
+			target_information_label.text = "Air";
+	else:
+		_interface.get_node("Ingame/TargettingInfo").hide();
 
 	if prompting_item_use:
 		_interface.get_node("Ingame/ItemPrompt").show();
@@ -213,7 +219,7 @@ func _process(_delta):
 	if Input.is_action_just_pressed("ui_end"):
 		_player.health -= 15;
 
-	if Input.is_action_just_pressed("game_pause"):
+	if Input.is_action_just_pressed("game_pause") and not prompting_firing_target and not prompting_item_use:
 		if not Globals.paused:
 			_interface.state = _interface.PAUSE_STATE;
 			Globals.paused = true;
@@ -253,7 +259,6 @@ func _process(_delta):
 					else:
 						entity.wait_time -= 1;
 		else:
-			print("Something is here!");
 			for projectile in _projectiles.projectiles:
 				projectile.tick(self);
 			_ascii_renderer.update();

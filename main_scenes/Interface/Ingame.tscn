@@ -95,3 +95,29 @@ margin_left = 1020.16
 margin_top = 649.048
 margin_right = 1270.16
 margin_bottom = 710.048
+
+[node name="TargettingInfo" type="VBoxContainer" parent="."]
+margin_right = 1280.0
+margin_bottom = 89.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Prompt" type="Label" parent="TargettingInfo"]
+margin_right = 1280.0
+margin_bottom = 28.0
+text = "Select target to shoot"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Info" type="Label" parent="TargettingInfo"]
+margin_top = 32.0
+margin_right = 1280.0
+margin_bottom = 60.0
+text = "Tank (HP: 500)"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
