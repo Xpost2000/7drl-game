@@ -26,7 +26,6 @@ func set_state(new_state):
 func message(string):
 	_message_log.push_message(string);
 
-const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 func report_inventory(inventory_list):
 	var inventory_item_list = $Ingame.get_node("InventoryDisplay/InventoryContents");
 
@@ -35,7 +34,7 @@ func report_inventory(inventory_list):
 	
 	for item_index in len(inventory_list):
 		var item = inventory_list[item_index].as_string();
-		var string_display = alphabet[item_index] + ". " + item;
+		var string_display = Globals.alphabet[item_index] + ". " + item;
 		var new_label = Label.new();
 		new_label.text = string_display;
 		inventory_item_list.add_child(new_label);

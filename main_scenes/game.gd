@@ -37,13 +37,22 @@ func player_movement_direction():
 
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		print(Globals.any_key_pressed());
 		if game_state.prompting_item_use:
 			var pressed_key = Globals.any_key_pressed();
-			if pressed_key:
-				print(pressed_key);
+			if pressed_key and pressed_key != "Shift" and pressed_key != "Ctrl" and pressed_key != "Alt":
+				game_state.prompting_item_use = false;
+				# this is kind of stupid.
+				if pressed_key.find("Shift+") == -1:
+					pressed_key = pressed_key.to_lower();
+				else:
+					pressed_key = pressed_key.substr(6);
+				var letter_index = Globals.alphabet.find(pressed_key);
+				if letter_index != -1:
+					if letter_index < len(entity_self.inventory):
+						var item_picked = entity_self.inventory[letter_index];
+						print(item_picked.as_string());
 			else:
-				print("nothing");
+				pass;
 		else:
 			var move_direction = game_state.player_movement_direction();
 			if move_direction != Vector2.ZERO:
@@ -52,6 +61,7 @@ class EntityPlayerBrain extends EntityBrain:
 				return EntityBrain.WaitTurnAction.new();
 			if Input.is_action_just_pressed("game_use_item"):
 				game_state.prompting_item_use = true;
+				Globals.any_key_pressed();
 		return null;
 
 class EntityRandomWanderingBrain extends EntityBrain:
@@ -136,6 +146,10 @@ func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
 	_interface.report_inventory(_player.inventory);
+	if prompting_item_use:
+		_interface.get_node("Ingame/ItemPrompt").show();
+	else:
+		_interface.get_node("Ingame/ItemPrompt").hide();
 
 	if Input.is_action_just_pressed("ui_end"):
 		_player.health = 0;

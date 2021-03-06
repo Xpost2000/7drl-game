@@ -6,6 +6,8 @@ onready var main_menu_scene = preload("res://main_scenes/MainMenuUI.tscn");
 onready var paused = false;
 onready var _key_delay_timer = 0.0;
 
+const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
 # define items here
 class Item:
 	var name: String;
@@ -35,7 +37,9 @@ func _input(event):
 	_global_event = event;
 func any_key_pressed():
 	if _global_event is InputEventKey and _global_event.pressed:
-		return OS.get_scancode_string(_global_event.scancode);
+		var result = OS.get_scancode_string(_global_event.get_scancode_with_modifiers());
+		_global_event = null;
+		return result;
 	return null;
 
 func is_action_pressed_with_delay(action):
