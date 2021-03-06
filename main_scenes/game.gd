@@ -141,6 +141,8 @@ func _ready():
 	_player.position = Vector2(0, 0);
 	_player.add_item(Globals.Medkit.new());
 	var gun = Globals.Gun.new("Assault Rifle");
+	_player.add_item(Globals.AdrenalineShot.new());
+	_player.add_item(Globals.PillBottle.new());
 	gun.capacity = 120;
 	gun.current_capacity = 30;
 	_player.add_item(gun);
@@ -180,6 +182,9 @@ func rerender_chunks():
 func step(_delta):
 	if (_player.is_dead()):
 		_interface.state = _interface.DEATH_STATE;
+	for entity in _entities.entities:
+		if not entity.is_dead() and entity.adrenaline_active_timer > 0:
+			entity.adrenaline_active_timer -= 1;
 	_passed_turns += 1;
 
 func _process(_delta):
@@ -255,7 +260,7 @@ func _process(_delta):
 			else:
 				for entity in _entities.entities:
 					if not entity.is_dead() and entity.wait_time <= 0 :
-						_turn_scheduler.push(entity, entity.turn_speed);
+						_turn_scheduler.push(entity, entity.get_turn_speed());
 					else:
 						entity.wait_time -= 1;
 		else:

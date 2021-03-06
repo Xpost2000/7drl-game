@@ -20,6 +20,7 @@ class Entity:
 		self.turn_speed = 1;
 		self.brain = brain;
 		self.inventory = [];
+		self.adrenaline_active_timer = 0;
 
 	func find_closest_entity(game_state, account_for_visibility_map=false):
 		var closest_entity = null;
@@ -53,6 +54,12 @@ class Entity:
 			step += 0.5;
 		return true;
 
+	func get_turn_speed():
+		if self.adrenaline_active_timer > 0:
+			return self.turn_speed * 2;
+		else:
+			return self.turn_speed;
+
 	func get_turn_action(game_state):
 		if self.brain:
 			return self.brain.get_turn_action(self, game_state);
@@ -70,6 +77,7 @@ class Entity:
 
 	var max_health: int;
 	var health: int;
+	var adrenaline_active_timer: int;
 
 	var position: Vector2;
 	var associated_sprite_node: Sprite;

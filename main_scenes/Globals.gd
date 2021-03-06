@@ -49,6 +49,27 @@ class Medkit extends Item:
 		if self.uses_left:
 			target.current_medkit = self;
 			target.use_medkit_timer = self.uses_left;
+
+class PillBottle extends Item:
+	func as_string():
+		return self.name;
+	func _init():
+		self.name = "Pills";
+	func on_use(game_state, target):
+		# TODO clamp health gain.
+		game_state._interface.message(target.name + " used pills");
+		target.health += 30;
+
+class AdrenalineShot extends Item:
+	func as_string():
+		return self.name;
+	func _init():
+		self.name = "Adrenaline";
+	func on_use(game_state, target):
+		# TODO clamp health gain.
+		game_state._interface.message(target.name + " injected adrenaline");
+		target.health += 15;
+		target.adrenaline_active_timer = 5;
 # end of item definitions;
 var _global_event = null;
 func _input(event):
