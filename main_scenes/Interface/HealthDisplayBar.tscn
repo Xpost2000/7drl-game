@@ -26,6 +26,17 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="StatusEffectLayout" type="HBoxContainer" parent="."]
+margin_left = 168.0
+margin_top = 43.0
+margin_right = 249.0
+margin_bottom = 60.0
+grow_horizontal = 0
+alignment = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Layout" type="VBoxContainer" parent="."]
 margin_left = 9.0
 margin_top = 1.0
@@ -60,8 +71,12 @@ __meta__ = {
 "
 }
 
-[node name="Name" type="Label" parent="Layout"]
+[node name="Layout" type="HBoxContainer" parent="Layout"]
 margin_top = 42.0
 margin_right = 233.0
 margin_bottom = 56.0
+
+[node name="Name" type="Label" parent="Layout/Layout"]
+margin_right = 21.0
+margin_bottom = 14.0
 text = "Bill"
