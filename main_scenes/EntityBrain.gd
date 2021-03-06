@@ -41,9 +41,16 @@ class FireWeaponTurnAction extends TurnAction:
 	func do_action(game_state, user):
 		if user.currently_equipped_weapon:
 			user.currently_equipped_weapon.on_fire(game_state, user, (target_location - user.position).normalized());
+
 class AttackTurnAction extends TurnAction:
-	# Game specific.
-	pass
+	var target: Object;
+	var damage: int;
+	func _init(target, damage):
+		self.target = target;
+		self.damage = damage;
+	func do_action(game_state, user):
+		if self.target:
+			self.target.health -= self.damage;
 
 func get_turn_action(entity_self, game_state):
 	return WaitTurnAction.new();

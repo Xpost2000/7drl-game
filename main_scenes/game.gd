@@ -6,6 +6,11 @@ const TurnScheduler = preload("res://main_scenes/TurnScheduler.gd");
 var _passed_turns = 0;
 var _player = null;
 var _last_known_current_chunk_position;
+
+var _survivor_distance_field = null;
+const MAX_REGENERATE_FIELD_TURN_TIME = 6;
+var _survivor_distance_field_regenerate_timer = 0;
+
 onready var _turn_scheduler = TurnScheduler.new();
 
 onready var _camera = $GameCamera;
@@ -98,6 +103,16 @@ class EntityRandomWanderingBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 
+class EntityCommonInfectedChaserBrain extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		if entity_self.position.distance_to(game_state._player.position) <= 1.414:
+			print("ATTACKU");
+			return EntityBrain.AttackTurnAction.new(game_state._player, 5);
+		else:
+			var next_position = game_state._world.distance_field_next_best_position(game_state._survivor_distance_field, entity_self.position);
+			var direction = next_position - entity_self.position;
+			return EntityBrain.MoveTurnAction.new(direction);
+
 func update_player_visibility(entity, radius):	
 	# wtf is this indentation?
 	for other_entity in _entities.entities:
@@ -140,7 +155,7 @@ func present_entity_actions_as_messages(entity, action):
 func _ready():
 	# Always assume the player is entity 0 for now.
 	# Obviously this can always change but whatever.
-	_entities.add_entity("Sean", Vector2.ZERO, EntityPlayerBrain.new());
+	_entities.add_entity("Bill", Vector2.ZERO, EntityPlayerBrain.new());
 	_player = _entities.entities[0];
 	_player.flags = 1;
 	_player.position = Vector2(0, 0);
@@ -152,11 +167,12 @@ func _ready():
 	gun.current_capacity = 30;
 	_player.add_item(gun);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	_entities.add_entity("Martin", Vector2(3, 4), EntityRandomWanderingBrain.new());
-	_entities.add_entity("Brandon", Vector2(3, 3));
-	_world.set_cell(Vector2(1, 0), 8);
-	_world.set_cell(Vector2(1, 1), 8);
-	_world.set_cell(Vector2(3, 0), 8);
+	for i in range (15):
+		_entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
+		# _entities.add_entity("Zombie", Vector2(3, 3), EntityCommonInfectedChaserBrain.new());
+	# _world.set_cell(Vector2(1, 0), 8);
+	# _world.set_cell(Vector2(1, 1), 8);
+	# _world.set_cell(Vector2(3, 0), 8);
 	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 
 	_ascii_renderer.world = _world;
@@ -187,6 +203,11 @@ func rerender_chunks():
 func step(_delta):
 	if (_player.is_dead()):
 		_interface.state = _interface.DEATH_STATE;
+	if _survivor_distance_field_regenerate_timer <= 0:
+		_survivor_distance_field = _world.distance_field_map_from(_player.position);
+		_survivor_distance_field_regenerate_timer = MAX_REGENERATE_FIELD_TURN_TIME;
+	else:
+		_survivor_distance_field_regenerate_timer -= 1;
 	_passed_turns += 1;
 
 func _process(_delta):
@@ -254,9 +275,9 @@ func _process(_delta):
 					var actor_turn_action = actor.get_turn_action(self);
 					if actor_turn_action:
 						_entities.do_action(self, actor, actor_turn_action);
-						_ascii_renderer.update();
 						current_actor_turn_information.turns_left -= 1;
 				else:
+					_ascii_renderer.update();
 					step(_delta);
 					_turn_scheduler.next_actor();
 			else:

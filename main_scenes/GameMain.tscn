@@ -29,7 +29,7 @@ smoothing_speed = 10.0
 remote_path = NodePath("../GameCamera")
 
 [node name="ChunkViews" type="Node2D" parent="."]
-position = Vector2( 1, 3 )
+position = Vector2( 1, 4 )
 script = ExtResource( 1 )
 
 [node name="Current" type="TileMap" parent="ChunkViews"]
