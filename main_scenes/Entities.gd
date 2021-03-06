@@ -17,6 +17,7 @@ class Entity:
 		self.wait_time_between_turns = 0;
 		self.turn_speed = 1;
 		self.brain = brain;
+		self.inventory = ["Molotov", "Assault Rifle", "Medpack"];
 
 	func can_see_from(chunks, target_position):
 		var direction = (target_position - self.position).normalized();
@@ -43,6 +44,7 @@ class Entity:
 	var name: String;
 	var turn_speed: int;
 	var wait_time: int;
+	var inventory: Array;
 
 	var wait_time_between_turns: int;
 

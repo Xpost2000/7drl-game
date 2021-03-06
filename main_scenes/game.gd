@@ -115,14 +115,14 @@ func rerender_chunks():
 	_world.inclusively_redraw_chunks_around(current_chunk_position);
 
 func step(_delta):
-	if (_entities.entities[0].is_dead()):
+	if (_player.is_dead()):
 		_interface.state = _interface.DEATH_STATE;
-
 	_passed_turns += 1;
 
 func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
+	_interface.report_inventory(_player.inventory);
 
 	if Input.is_action_just_pressed("ui_end"):
 		_player.health = 0;
