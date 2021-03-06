@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://main_scenes/Chunks.gd" type="Script" id=1]
 [ext_resource path="res://main_scenes/Game.gd" type="Script" id=2]
@@ -13,6 +13,7 @@
 [ext_resource path="res://main_scenes/Interface/Main.gd" type="Script" id=11]
 [ext_resource path="res://main_scenes/Interface/Ingame.tscn" type="PackedScene" id=12]
 [ext_resource path="res://main_scenes/Interface/Pause.tscn" type="PackedScene" id=13]
+[ext_resource path="res://main_scenes/Projectiles.gd" type="Script" id=14]
 
 [node name="GameMain" type="Node2D"]
 z_as_relative = false
@@ -145,3 +146,6 @@ MESSAGE_LIFETIME_MAX = 1.0
 
 [node name="Entities" type="Node2D" parent="."]
 script = ExtResource( 6 )
+
+[node name="Projectiles" type="Node2D" parent="."]
+script = ExtResource( 14 )

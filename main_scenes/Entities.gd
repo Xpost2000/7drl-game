@@ -138,17 +138,17 @@ func move_entity(entity, direction):
 		return result;
 	return Enumerations.NO_MOVE;
 
-func do_action(entity_target, turn_action):
+func do_action(game_state, entity_target, turn_action):
 	# only allow healing for passive actions like wait turn
 	# basically it's a state.
 	if turn_action is EntityBrain.WaitTurnAction and entity_target.current_medkit and entity_target.use_medkit_timer >= 0:
 		var healing_action = EntityBrain.HealingAction.new();
 		emit_signal("_on_entity_do_action", entity_target, healing_action);
-		healing_action.do_action(self, entity_target);
+		healing_action.do_action(game_state, entity_target);
 
 	if turn_action:
 		emit_signal("_on_entity_do_action", entity_target, turn_action);
-		turn_action.do_action(self, entity_target);
+		turn_action.do_action(game_state, entity_target);
 		if not (turn_action is EntityBrain.WaitTurnAction):
 			entity_target.current_medkit = null;
 

@@ -11,6 +11,7 @@ onready var _turn_scheduler = TurnScheduler.new();
 onready var _camera = $GameCamera;
 onready var _world = $ChunkViews;
 onready var _entities = $Entities;
+onready var _projectiles = $Projectiles;
 onready var _interface = $InterfaceLayer/Interface;
 onready var _ascii_renderer = $CharacterASCIIDraw;
 
@@ -44,7 +45,10 @@ class EntityPlayerBrain extends EntityBrain:
 			if Input.is_action_just_pressed("game_fire_weapon"):
 				print("pew pew pew");
 				game_state.prompting_firing_target = false;
-				return EntityBrain.WaitTurnAction.new();
+				if game_state.firing_target_cursor_location != game_state._player.position:
+					return EntityBrain.FireWeaponTurnAction.new(game_state.firing_target_cursor_location);
+				else:
+					game_state._interface.message("You cannot shoot yourself.");
 		elif game_state.prompting_item_use:
 				var pressed_key = Globals.any_key_pressed();
 				if pressed_key and pressed_key != "Shift" and pressed_key != "Ctrl" and pressed_key != "Alt":
@@ -71,6 +75,7 @@ class EntityPlayerBrain extends EntityBrain:
 			if Input.is_action_just_pressed("game_fire_weapon"):
 				if entity_self.currently_equipped_weapon and entity_self.currently_equipped_weapon is Globals.Gun:
 					game_state.prompting_firing_target = true;
+					# in reality I want to autotarget the nearest visible entity like DoomRL does.
 					game_state.firing_target_cursor_location = entity_self.position;
 				else:
 					game_state._interface.message("No gun or projectile equipped");
@@ -217,21 +222,27 @@ func _process(_delta):
 		_entities.show();
 
 	if not Globals.paused:
-		if not _turn_scheduler.finished():
-			var current_actor_turn_information = _turn_scheduler.get_current_actor();
-			if current_actor_turn_information and current_actor_turn_information.turns_left > 0:
-				var actor = current_actor_turn_information.actor;
-				var actor_turn_action = actor.get_turn_action(self);
-				if actor_turn_action:
-					_entities.do_action(actor, actor_turn_action);
-					_ascii_renderer.update();
-					current_actor_turn_information.turns_left -= 1;
-			else:
-				step(_delta);
-				_turn_scheduler.next_actor();
-		else:
-			for entity in _entities.entities:
-				if not entity.is_dead() and entity.wait_time <= 0 :
-					_turn_scheduler.push(entity, entity.turn_speed);
+		if _projectiles.projectiles.empty():
+			if not _turn_scheduler.finished():
+				var current_actor_turn_information = _turn_scheduler.get_current_actor();
+				if current_actor_turn_information and current_actor_turn_information.turns_left > 0:
+					var actor = current_actor_turn_information.actor;
+					var actor_turn_action = actor.get_turn_action(self);
+					if actor_turn_action:
+						_entities.do_action(self, actor, actor_turn_action);
+						_ascii_renderer.update();
+						current_actor_turn_information.turns_left -= 1;
 				else:
-					entity.wait_time -= 1;
+					step(_delta);
+					_turn_scheduler.next_actor();
+			else:
+				for entity in _entities.entities:
+					if not entity.is_dead() and entity.wait_time <= 0 :
+						_turn_scheduler.push(entity, entity.turn_speed);
+					else:
+						entity.wait_time -= 1;
+		else:
+			print("Something is here!");
+			for projectile in _projectiles.projectiles:
+				projectile.tick(self);
+			_ascii_renderer.update();

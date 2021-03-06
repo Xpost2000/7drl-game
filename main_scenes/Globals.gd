@@ -21,6 +21,7 @@ class Item:
 		pass;
 
 class Gun extends Item:
+	const Projectiles = preload("res://main_scenes/Projectiles.gd");
 	var capacity: int;
 	var current_capacity: int;
 
@@ -30,6 +31,9 @@ class Gun extends Item:
 		self.name = name;
 	func on_use(game_state, target):
 		target.currently_equipped_weapon = self;
+	func on_fire(game_state, user, direction):
+		var new_bullet = Projectiles.BulletProjectile.new(user.position, direction);
+		game_state._projectiles.add_projectile(new_bullet);
 
 const HEALING_MEDKIT_TURNS = 3;
 # glorified state setter.
