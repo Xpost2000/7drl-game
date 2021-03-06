@@ -27,14 +27,19 @@ func message(string):
 	_message_log.push_message(string);
 
 func report_inventory(inventory_list):
+	# dummy
+	var entity = inventory_list;
+	inventory_list = inventory_list.inventory;
 	var inventory_item_list = $Ingame.get_node("InventoryDisplay/InventoryContents");
 
 	for child in inventory_item_list.get_children():
 		inventory_item_list.remove_child(child);
 	
 	for item_index in len(inventory_list):
-		var item = inventory_list[item_index].as_string();
-		var string_display = Globals.alphabet[item_index] + ". " + item;
+		var item = inventory_list[item_index];
+		var string_display = Globals.alphabet[item_index] + ". " + item.as_string();
+		if item == entity.currently_equipped_weapon:
+			string_display += "(EQ)";
 		var new_label = Label.new();
 		new_label.text = string_display;
 		inventory_item_list.add_child(new_label);

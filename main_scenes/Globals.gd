@@ -20,6 +20,17 @@ class Item:
 	func on_fire(game_state, user, direction):
 		pass;
 
+class Gun extends Item:
+	var capacity: int;
+	var current_capacity: int;
+
+	func as_string():
+		return self.name + " (" + str(self.current_capacity) + "/" + str(self.capacity) + ")";
+	func _init(name):
+		self.name = name;
+	func on_use(game_state, target):
+		target.currently_equipped_weapon = self;
+
 const HEALING_MEDKIT_TURNS = 3;
 # glorified state setter.
 # this is really bad already.

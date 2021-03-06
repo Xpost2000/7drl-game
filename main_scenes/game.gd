@@ -116,6 +116,10 @@ func _ready():
 	_player.flags = 1;
 	_player.position = Vector2(0, 0);
 	_player.add_item(Globals.Medkit.new());
+	var gun = Globals.Gun.new("Assault Rifle");
+	gun.capacity = 120;
+	gun.current_capacity = 30;
+	_player.add_item(gun);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 	_entities.add_entity("Martin", Vector2(3, 4), EntityRandomWanderingBrain.new());
 	_entities.add_entity("Brandon", Vector2(3, 3));
@@ -155,7 +159,7 @@ func step(_delta):
 func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
-	_interface.report_inventory(_player.inventory);
+	_interface.report_inventory(_player);
 	var healing_display = _interface.get_node("Ingame/HealingDisplay");
 	if _player.current_medkit:
 		healing_display.show();

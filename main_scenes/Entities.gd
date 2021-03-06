@@ -67,6 +67,8 @@ class Entity:
 	var current_medkit: Object;
 	var use_medkit_timer: int;
 
+	var currently_equipped_weapon: Object;
+
 func remove_entity_at_index(index):
 	var sprite = entities[index].associated_sprite_node;
 	entities.remove(index);
