@@ -182,9 +182,6 @@ func rerender_chunks():
 func step(_delta):
 	if (_player.is_dead()):
 		_interface.state = _interface.DEATH_STATE;
-	for entity in _entities.entities:
-		if not entity.is_dead() and entity.adrenaline_active_timer > 0:
-			entity.adrenaline_active_timer -= 1;
 	_passed_turns += 1;
 
 func _process(_delta):
@@ -259,6 +256,9 @@ func _process(_delta):
 					_turn_scheduler.next_actor();
 			else:
 				for entity in _entities.entities:
+					if not entity.is_dead() and entity.adrenaline_active_timer > 0:
+						entity.adrenaline_active_timer -= 1;
+
 					if not entity.is_dead() and entity.wait_time <= 0 :
 						_turn_scheduler.push(entity, entity.get_turn_speed());
 					else:
