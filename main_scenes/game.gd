@@ -15,6 +15,9 @@ onready var _interface = $InterfaceLayer/Interface;
 onready var _ascii_renderer = $CharacterASCIIDraw;
 
 var prompting_item_use = false;
+var prompting_firing_target = false;
+
+var firing_target_cursor_location = Vector2(0,0);
 
 func player_movement_direction():
 	if Globals.is_action_pressed_with_delay("ui_up"):
@@ -37,23 +40,25 @@ func player_movement_direction():
 
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		if game_state.prompting_item_use:
-			var pressed_key = Globals.any_key_pressed();
-			if pressed_key and pressed_key != "Shift" and pressed_key != "Ctrl" and pressed_key != "Alt":
-				game_state.prompting_item_use = false;
-				# this is kind of stupid.
-				if pressed_key.find("Shift+") == -1:
-					pressed_key = pressed_key.to_lower();
-				else:
-					pressed_key = pressed_key.substr(6);
-				var letter_index = Globals.alphabet.find(pressed_key);
-				if letter_index != -1:
-					if letter_index < len(entity_self.inventory):
-						var item_picked = entity_self.inventory[letter_index];
-						item_picked.on_use(game_state, entity_self);
-						print("using " + item_picked.as_string());
-			else:
-				pass;
+		if game_state.prompting_firing_target:
+			if Input.is_action_just_pressed("game_fire_weapon"):
+				print("pew pew pew");
+				game_state.prompting_firing_target = false;
+				return EntityBrain.WaitTurnAction.new();
+		elif game_state.prompting_item_use:
+				var pressed_key = Globals.any_key_pressed();
+				if pressed_key and pressed_key != "Shift" and pressed_key != "Ctrl" and pressed_key != "Alt":
+					game_state.prompting_item_use = false;
+					# this is kind of stupid.
+					if pressed_key.find("Shift+") == -1:
+						pressed_key = pressed_key.to_lower();
+					else:
+						pressed_key = pressed_key.substr(6);
+					var letter_index = Globals.alphabet.find(pressed_key);
+					if letter_index != -1:
+						if letter_index < len(entity_self.inventory):
+							var item_picked = entity_self.inventory[letter_index];
+							item_picked.on_use(game_state, entity_self);
 		else:
 			var move_direction = game_state.player_movement_direction();
 			if move_direction != Vector2.ZERO:
@@ -63,6 +68,12 @@ class EntityPlayerBrain extends EntityBrain:
 			if Input.is_action_just_pressed("game_use_item"):
 				game_state.prompting_item_use = true;
 				Globals.any_key_pressed();
+			if Input.is_action_just_pressed("game_fire_weapon"):
+				if entity_self.currently_equipped_weapon and entity_self.currently_equipped_weapon is Globals.Gun:
+					game_state.prompting_firing_target = true;
+					game_state.firing_target_cursor_location = entity_self.position;
+				else:
+					game_state._interface.message("No gun or projectile equipped");
 		return null;
 
 class EntityRandomWanderingBrain extends EntityBrain:
@@ -130,6 +141,8 @@ func _ready():
 
 	_ascii_renderer.world = _world;
 	_ascii_renderer.entities = _entities;
+	# todo remove world and entities...
+	_ascii_renderer.game_state = self;
 	update_player_visibility(_player, 5);
 
 	_ascii_renderer.update();
@@ -168,6 +181,13 @@ func _process(_delta):
 		healing_display.show();
 	else:
 		healing_display.hide();
+
+	if prompting_firing_target:
+		var move_direction = player_movement_direction();
+		firing_target_cursor_location += move_direction;
+		# we could still selectively update screen at certain points.
+		# also do bounds checking for the cursor.
+		_ascii_renderer.update();
 
 	if prompting_item_use:
 		_interface.get_node("Ingame/ItemPrompt").show();

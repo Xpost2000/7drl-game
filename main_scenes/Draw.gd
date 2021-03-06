@@ -6,6 +6,8 @@ extends Node2D
 var game_font;
 var world;
 var entities;
+
+var game_state;
 onready var current_chunk_position = Vector2(0, 0);
 
 const FONT_HEIGHT = 32;
@@ -53,6 +55,9 @@ func _draw():
 				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "@", Color.red);
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)-0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)+0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
+	if game_state.prompting_firing_target:
+			var tile_position = game_state.firing_target_cursor_location;
+			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color(0.3, 0.5, 0.3, 0.2));
 	pass;
 
 func _process(_delta):

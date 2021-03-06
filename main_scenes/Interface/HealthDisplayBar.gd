@@ -15,7 +15,6 @@ func update_from(entity):
 	var health_percentage = entity.health_percentage();
 	var foreground_style = health_bar.get("custom_styles/fg");
 
-	print(health_percentage);
 	if health_percentage >= 0.6:
 		foreground_style.bg_color = (HEALTH_HEALTHY);
 	elif health_percentage < 0.6 and health_percentage > 0.3:
