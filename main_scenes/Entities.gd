@@ -64,7 +64,7 @@ class Entity:
 	var brain: EntityBrain;
 
 	# item related state cause this is faster to do
-	var trying_to_use_medkit: bool;
+	var current_medkit: Object;
 	var use_medkit_timer: int;
 
 func remove_entity_at_index(index):
@@ -135,16 +135,18 @@ func move_entity(entity, direction):
 	return Enumerations.NO_MOVE;
 
 func do_action(entity_target, turn_action):
+	# only allow healing for passive actions like wait turn
+	# basically it's a state.
+	if turn_action is EntityBrain.WaitTurnAction and entity_target.current_medkit and entity_target.use_medkit_timer >= 0:
+		var healing_action = EntityBrain.HealingAction.new();
+		emit_signal("_on_entity_do_action", entity_target, healing_action);
+		healing_action.do_action(self, entity_target);
+
 	if turn_action:
 		emit_signal("_on_entity_do_action", entity_target, turn_action);
 		turn_action.do_action(self, entity_target);
-	if entity_target.trying_to_use_medkit and entity_target.use_medkit_timer > 0:
-		# emit_signal("_on_entity_do_action", entity_target, turn_action);
-		print("Healing!");
-		entity_target.use_medkit_timer -= 1;
-		var damaged_amount = entity_target.max_health - entity_target.health;
-		entity_target.health += (damaged_amount * 0.85); 
-
+		if not (turn_action is EntityBrain.WaitTurnAction):
+			entity_target.current_medkit = null;
 
 func _ready():
 	_entity_sprites = get_parent().get_node("Entities");

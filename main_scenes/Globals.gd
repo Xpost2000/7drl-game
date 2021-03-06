@@ -21,6 +21,8 @@ class Item:
 		pass;
 
 const HEALING_MEDKIT_TURNS = 3;
+# glorified state setter.
+# this is really bad already.
 class Medkit extends Item:
 	var uses_left: int;
 	func as_string():
@@ -29,8 +31,9 @@ class Medkit extends Item:
 		self.name = "Medkit";
 		self.uses_left = HEALING_MEDKIT_TURNS;
 	func on_use(game_state, target):
-		target.trying_to_use_medkit = true;
-		target.use_medkit_timer = uses_left;
+		if self.uses_left:
+			target.current_medkit = self;
+			target.use_medkit_timer = self.uses_left;
 # end of item definitions;
 var _global_event = null;
 func _input(event):

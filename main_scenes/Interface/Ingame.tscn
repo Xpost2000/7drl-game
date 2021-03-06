@@ -43,3 +43,26 @@ margin_bottom = 718.0
 text = "Use what item? (a-z)"
 align = 1
 valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HealingDisplay" type="VBoxContainer" parent="."]
+margin_left = 228.956
+margin_top = 311.047
+margin_right = 1057.96
+margin_bottom = 372.047
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="HealingDisplay"]
+margin_right = 829.0
+margin_bottom = 14.0
+text = "Using medkit, (Interrupt by moving, wait turn to heal)."
+align = 1
+
+[node name="HealingProgressBar" type="ProgressBar" parent="HealingDisplay"]
+margin_top = 18.0
+margin_right = 829.0
+margin_bottom = 32.0

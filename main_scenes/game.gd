@@ -50,7 +50,8 @@ class EntityPlayerBrain extends EntityBrain:
 				if letter_index != -1:
 					if letter_index < len(entity_self.inventory):
 						var item_picked = entity_self.inventory[letter_index];
-						print(item_picked.as_string());
+						item_picked.on_use(game_state, entity_self);
+						print("using " + item_picked.as_string());
 			else:
 				pass;
 		else:
@@ -69,6 +70,7 @@ class EntityRandomWanderingBrain extends EntityBrain:
 		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 
 func update_player_visibility(entity, radius):	
+	# wtf is this indentation?
 	for other_entity in _entities.entities:
 		if other_entity != entity:
 			if not entity.can_see_from($ChunkViews, other_entity.position):
@@ -87,6 +89,7 @@ func update_player_visibility(entity, radius):
 
 func present_entity_actions_as_messages(entity, action):
 	if entity == _player:
+		var healing_progress_bar = _interface.get_node("Ingame/HealingDisplay/HealingProgressBar");
 		if action is EntityBrain.WaitTurnAction:
 			_interface.message("Waiting turn...");
 		elif action is EntityBrain.MoveTurnAction:
@@ -97,6 +100,13 @@ func present_entity_actions_as_messages(entity, action):
 				Enumerations.COLLISION_HIT_WALL: _interface.message("You bumped into a wall.");
 				Enumerations.COLLISION_HIT_WORLD_EDGE: _interface.message("You hit the edge of the world.");
 				Enumerations.COLLISION_HIT_ENTITY: _interface.message("You bumped into someone");
+		elif action is EntityBrain.HealingAction:
+			if entity.use_medkit_timer > 0:
+				healing_progress_bar.max_value = (Globals.HEALING_MEDKIT_TURNS);
+				healing_progress_bar.value = (Globals.HEALING_MEDKIT_TURNS+1) - (entity.use_medkit_timer);
+				_interface.message(entity.name + " is healing themselves.");
+			else:
+				_interface.message(entity.name + " finished using a medkit.");
 
 func _ready():
 	# Always assume the player is entity 0 for now.
@@ -146,6 +156,12 @@ func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
 	_interface.report_inventory(_player.inventory);
+	var healing_display = _interface.get_node("Ingame/HealingDisplay");
+	if _player.current_medkit:
+		healing_display.show();
+	else:
+		healing_display.hide();
+
 	if prompting_item_use:
 		_interface.get_node("Ingame/ItemPrompt").show();
 	else:
