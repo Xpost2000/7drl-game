@@ -39,6 +39,8 @@ class Entity:
 	# that's a todo
 	func add_item(item):
 		self.inventory.append(item);
+	func remove_item(item):
+		self.inventory.erase(item);
 
 	func can_see_from(chunks, target_position):
 		var direction = (target_position - self.position).normalized();

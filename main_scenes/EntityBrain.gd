@@ -14,13 +14,22 @@ class MoveTurnAction extends TurnAction:
 	func do_action(game_state, target):
 		game_state._entities.move_entity(target, self.direction);
 	var direction: Vector2;
-class HealingAction:
+
+class UseItemAction:
+	var item_picked: Object;
+	func _init(item):
+		self.item_picked = item;
+
+	func do_action(game_state, target):
+		item_picked.on_use(game_state, target);
+
+class HealingAction extends TurnAction:
 	func do_action(game_state, target):
 		target.current_medkit.uses_left -= 1;
 		target.use_medkit_timer -= 1;
 		var damaged_amount = target.max_health - target.health;
 		if target.current_medkit.uses_left <= 0:
-			target.inventory.erase(target.current_medkit);
+			target.remove_item(target.current_medkit);
 			target.current_medkit = null;
 			target.use_medkit_timer = 0;
 		else:

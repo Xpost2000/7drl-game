@@ -67,7 +67,12 @@ class EntityPlayerBrain extends EntityBrain:
 					if letter_index != -1:
 						if letter_index < len(entity_self.inventory):
 							var item_picked = entity_self.inventory[letter_index];
-							item_picked.on_use(game_state, entity_self);
+							# special casing medkits. They work the most differently of all items...
+							# I might fix this tonight
+							if item_picked is Globals.Medkit:
+								item_picked.on_use(game_state, entity_self);
+							else:
+								return EntityBrain.UseItemAction.new(item_picked);
 		else:
 			var move_direction = game_state.player_movement_direction();
 			if move_direction != Vector2.ZERO:
