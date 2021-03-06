@@ -10,6 +10,12 @@ class Projectile:
 	var dead: bool;
 	func tick(game_state):
 		pass;
+class PipebombProjectile extends Projectile:
+	pass
+class MolotovProjectile extends Projectile:
+	pass
+class BoomerBileProjectile extends Projectile:
+	pass
 class BulletProjectile extends Projectile:
 	var lifetime: int;
 	var penetration_health: int;

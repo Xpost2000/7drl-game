@@ -99,6 +99,7 @@ class EntityPlayerBrain extends EntityBrain:
 					game_state._interface.message("No gun or projectile equipped");
 		return null;
 
+#################################### Infected
 class EntityRandomWanderingBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
@@ -112,6 +113,35 @@ class EntityCommonInfectedChaserBrain extends EntityBrain:
 				game_state._survivor_distance_field, entity_self.position, game_state._entities);
 			var direction = next_position - entity_self.position;
 			return EntityBrain.MoveTurnAction.new(direction);
+
+class EntitySpecialInfectedTank extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		pass;
+
+class EntitySpecialInfectedHunter extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		pass;
+
+class EntitySpecialInfectedWitch extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		pass;
+
+class EntitySpecialInfectedBoomer extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		pass;
+
+class EntitySpecialInfectedJockey extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		pass;
+
+class EntitySpecialInfectedSmoker extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		pass;
+
+class EntitySpecialInfectedSpitter extends EntityBrain:
+	func get_turn_action(entity_self, game_state):
+		pass;
+#################################### Infected
 
 func update_player_visibility(entity, radius):	
 	# wtf is this indentation?

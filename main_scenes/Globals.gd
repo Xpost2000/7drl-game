@@ -72,6 +72,33 @@ class AdrenalineShot extends Item:
 		target.health += 15;
 		target.adrenaline_active_timer = 5;
 		target.remove_item(self);
+
+class BoomerBileItem extends Item:
+	func as_string():
+		return self.name;
+	func _init():
+		self.name = "Boomer Bile";
+	func on_use(game_state, target):
+		pass;
+class MolotovCocktailItem extends Item:
+	func as_string():
+		return self.name;
+	func _init():
+		self.name = "Molotov Cocktail";
+	func on_use(game_state, target):
+		pass;
+class PipebombItem extends Item:
+	func as_string():
+		return self.name;
+	func _init():
+		self.name = "Pipebomb";
+	func on_use(game_state, target):
+		pass;
+		# TODO clamp health gain.
+		# game_state._interface.message(target.name + " injected adrenaline");
+		# target.health += 15;
+		# target.adrenaline_active_timer = 5;
+		# target.remove_item(self);
 # end of item definitions;
 var _global_event = null;
 func _input(event):
