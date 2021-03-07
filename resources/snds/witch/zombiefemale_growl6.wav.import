@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/zombiefemale_growl6.wav-0443fd72b4959b3008110faedea4c399.sample"
+
+[deps]
+
+source_file="res://resources/snds/witch/zombiefemale_growl6.wav"
+dest_files=[ "res://.import/zombiefemale_growl6.wav-0443fd72b4959b3008110faedea4c399.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

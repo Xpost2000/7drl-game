@@ -190,15 +190,43 @@ class EntitySpecialInfectedWitch extends EntityBrain:
 	var impending_victims: Array;
 	var victim: Object;
 	var bitch_timer: int;
-	func on_hit(game_state, entity_self, from_entity):
+	func _init():
+		self.impending_victims = [];
+	func target_victim(game_state, entity_self, victim):
 		if self.victim == null or self.victim.is_dead():
-			self.victim = from_entity;
+			self.victim = victim;
+			AudioGlobal.play_sound("resources/snds/witch/female_ls_d_madscream01.wav");
 		else:
-			if not impending_victims.has(from_entity):
-				impending_victims.push_back(from_entity);
+			if not impending_victims.has(victim):
+				impending_victims.push_back(victim);
+	func on_hit(game_state, entity_self, from_entity):
+		target_victim(game_state, entity_self, from_entity);
+		
+	# TODO pop from victims list
 	func get_turn_action(entity_self, game_state):
-		return EntityBrain.WaitTurnAction.new();
-		pass;
+		if self.victim:
+			var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
+		
+			if nearest_survivor and entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
+				return EntityBrain.AttackTurnAction.new(nearest_survivor, 20);
+			else:
+				var next_position = game_state._world.distance_field_next_best_position(
+					game_state._survivor_distance_field, entity_self.position, game_state._entities);
+				var direction = next_position - entity_self.position;
+				return EntityBrain.MoveTurnAction.new(direction);
+		else:
+			# TODO make this a queued sound.
+			if randf() < 0.15:
+				AudioGlobal.play_sound(
+					Utilities.random_nth(
+					[
+						"resources/snds/witch/female_cry_1.wav",
+						"resources/snds/witch/female_cry_2.wav",
+						"resources/snds/witch/female_cry_3.wav",
+					]	
+					)
+				);
+			return EntityBrain.WaitTurnAction.new();
 
 class EntitySpecialInfectedBoomer extends EntityBrain:
 	func get_turn_action(entity_self, game_state):

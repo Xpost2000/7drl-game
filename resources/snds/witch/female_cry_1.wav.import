@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/female_cry_1.wav-d0557f064782819eb2e83eaf797c9c35.sample"
+
+[deps]
+
+source_file="res://resources/snds/witch/female_cry_1.wav"
+dest_files=[ "res://.import/female_cry_1.wav-d0557f064782819eb2e83eaf797c9c35.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

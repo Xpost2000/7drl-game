@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/female_ls_d_madscream01.wav-5e5d0acaea55650cabd37a79c569033a.sample"
+
+[deps]
+
+source_file="res://resources/snds/witch/female_ls_d_madscream01.wav"
+dest_files=[ "res://.import/female_ls_d_madscream01.wav-5e5d0acaea55650cabd37a79c569033a.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0
