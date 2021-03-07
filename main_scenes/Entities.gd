@@ -7,6 +7,24 @@ var _chunk_views;
 var entities = [];
 const FLAG_DO_NOT_REMOVE_ON_DEATH = 1;
 
+class ItemPickup:
+	class VisualInfo:
+		func _init(symbol='?', foreground=Color.lightskyblue, background=Color.gold):
+			self.symbol = symbol;
+			self.foreground = foreground;
+			self.background = background;
+		var symbol: String;
+		var foreground: Color;
+		var background: Color;
+	var visual_info: VisualInfo;
+	var position: Vector2;
+	func _init(item):
+		self.position = Vector2.ZERO;
+		self.visual_info = VisualInfo.new();
+		self.item = item;
+
+
+var item_pickups = []; # I will probably move this later
 const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
 
 class Entity:
@@ -108,9 +126,19 @@ func remove_entity_at_index(index):
 	entities.remove(index);
 	_entity_sprites.remove_child(sprite);
 	sprite.queue_free();
+func remove_item_pickup_at_index(index):
+	item_pickups.remove(index);
 
 func remove_entity(entity):
 	remove_entity_at_index(entities.find(entity));
+func remove_item_pickup(item_pickup):
+	remove_item_pickup_at_index(item_pickups.find(item_pickup));
+
+func add_item_pickup(position, item):
+	var new_pickup = ItemPickup.new(item);
+	new_pickup.position = position;
+	item_pickups.push_back(new_pickup);
+	return new_pickup;
 
 func add_entity(name, position, brain=EntityBrain.new()):
 	var sprite = Sprite.new();
@@ -129,11 +157,16 @@ func add_entity(name, position, brain=EntityBrain.new()):
 	entities.push_back(new_entity);
 	return new_entity;
 
-
 func get_entity_at_position(position):
 	for other_entity in entities:
 		if other_entity.position.x == position.x && other_entity.position.y == position.y:
 			return other_entity;
+	return null;
+
+func get_item_pickup_at_position(position):
+	for item_pickup in item_pickups:
+		if item_pickup.position.x == position.x && item_pickup.position.y == position.y:
+			return item_pickup;
 	return null;
 
 func find_any_entity_collisions(position):

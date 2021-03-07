@@ -69,6 +69,11 @@ func _draw():
 				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), entity_visual.symbol, entity_visual.foreground*world.is_cell_visible(tile_position));
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)-0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)+0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
+		for item_pickup in entities.item_pickups:
+			var tile_position = item_pickup.position;
+			if world.is_cell_visible(tile_position) == 1.0:
+				draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "X", Color.white);
 	for entity in game_state._projectiles.projectiles:
 		var tile_position = entity.position;
 		if world.is_cell_visible(tile_position) == 1.0:
