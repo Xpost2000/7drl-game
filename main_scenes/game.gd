@@ -295,6 +295,7 @@ func _process(_delta):
 		healing_display.show();
 	else:
 		healing_display.hide();
+		healing_display.find_node("HealingProgressBar").value = 0;
 
 	if prompting_firing_target:
 		_interface.get_node("Ingame/TargettingInfo").show();
