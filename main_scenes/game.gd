@@ -214,10 +214,10 @@ func _ready():
 	gun.current_capacity = 30;
 	_player.add_item(gun);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	# for i in range (3):
-	# 	var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
-	# 	zombie.visual_info.symbol = "Z";
-	# 	zombie.visual_info.foreground = Color.gray;
+	for i in range (10):
+		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
+		zombie.visual_info.symbol = "Z";
+		zombie.visual_info.foreground = Color.gray;
 
 	for i in range (5):
 		_world.set_cell(Vector2(8+i, 9), 8);
@@ -358,7 +358,7 @@ func _process(_delta):
 					if explosion.animation_timer == (1):
 						for entity in _entities.entities:
 							if explosion.position.distance_squared_to(entity.position) <= explosion.radius * explosion.radius:
-								entity.health -= 90;
+								entity.health -= 100;
 
 					if explosion.animation_timer >= EXPLOSION_MAX_ANIMATION_FRAMES:
 						deletion_list.push_back(explosion);

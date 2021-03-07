@@ -110,8 +110,7 @@ func remove_entity_at_index(index):
 	sprite.queue_free();
 
 func remove_entity(entity):
-	call_deferred("remove_entity_at_index", entities.find(entity));
-	# remove_entity_at_index(entities.find(entity));
+	remove_entity_at_index(entities.find(entity));
 
 func add_entity(name, position, brain=EntityBrain.new()):
 	var sprite = Sprite.new();
