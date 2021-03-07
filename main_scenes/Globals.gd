@@ -39,7 +39,7 @@ class Gun extends Item:
 	func on_use(game_state, target):
 		target.currently_equipped_weapon = self;
 	func reload():
-		if self.current_capacity < self.current_capacity_limit:
+		if self.capacity > 0 and self.current_capacity < self.current_capacity_limit:
 			if self.capacity - self.current_capacity_limit > 0:
 				self.capacity -= self.current_capacity_limit;
 				self.current_capacity = self.current_capacity_limit;

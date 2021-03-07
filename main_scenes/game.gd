@@ -76,7 +76,7 @@ class EntityPlayerBrain extends EntityBrain:
 			if Input.is_action_just_pressed("game_fire_weapon"):
 				game_state.prompting_firing_target = false;
 				if game_state.firing_target_cursor_location != game_state._player.position:
-					if entity_self.currently_equipped_weapon.rounds_per_shot > 1:
+					if entity_self.currently_equipped_weapon is Globals.Gun and entity_self.currently_equipped_weapon.rounds_per_shot > 1:
 						entity_self.rounds_left_in_burst = entity_self.currently_equipped_weapon.rounds_per_shot-1;
 					return EntityBrain.FireWeaponTurnAction.new(game_state.firing_target_cursor_location);
 				else:
@@ -233,9 +233,9 @@ func make_pistol():
 
 func make_rifle():
 	var gun = Globals.Gun.new("Assault Rifle");
-	gun.capacity = 50;
-	gun.current_capacity = 8;
-	gun.current_capacity_limit = 8;
+	gun.capacity = 150;
+	gun.current_capacity = 30;
+	gun.current_capacity_limit = 30;
 	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
 	gun.reload_sound_string = "resources/snds/guns/rifle_clip_in_1.wav";
 	gun.rounds_per_shot = 3;
