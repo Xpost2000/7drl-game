@@ -5,7 +5,7 @@
 class TurnAction:
 	func do_action(game_state, target):
 		pass;
-class WaitTurnAction:
+class WaitTurnAction extends TurnAction:
 	func do_action(game_state, target):
 		pass;
 class MoveTurnAction extends TurnAction:
@@ -15,7 +15,14 @@ class MoveTurnAction extends TurnAction:
 		game_state._entities.move_entity(target, self.direction);
 	var direction: Vector2;
 
-class UseItemAction:
+class PickupItemTurnAction extends TurnAction:
+	var item: Object;
+	func _init(item):
+		self.item = item;
+	func do_action(game_state, target):
+		target.add_item(self.item.item);
+		game_state._entities.remove_item_pickup(self.item);
+class UseItemAction extends TurnAction:
 	var item_picked: Object;
 	func _init(item):
 		self.item_picked = item;

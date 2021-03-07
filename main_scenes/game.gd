@@ -44,6 +44,7 @@ onready var _ascii_renderer = $CharacterASCIIDraw;
 
 var prompting_item_use = false;
 var prompting_firing_target = false;
+var item_occupying_current_space = null;
 
 var firing_target_cursor_location = Vector2(0,0);
 
@@ -94,6 +95,9 @@ class EntityPlayerBrain extends EntityBrain:
 								return EntityBrain.UseItemAction.new(item_picked);
 		else:
 			var move_direction = game_state.player_movement_direction();
+			game_state.item_occupying_current_space = game_state._entities.get_item_pickup_at_position(entity_self.position);
+			if Input.is_action_just_pressed("game_action_pickup_item"):
+				return EntityBrain.PickupItemTurnAction.new(game_state.item_occupying_current_space);
 			if Input.is_action_just_pressed("game_action_wait"):
 				return EntityBrain.WaitTurnAction.new();
 			if Input.is_action_just_pressed("game_use_item"):
@@ -221,11 +225,12 @@ func _ready():
 	gun.current_capacity = 30;
 	_player.add_item(gun);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	for i in range (10):
-		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
-		zombie.visual_info.symbol = "Z";
-		zombie.visual_info.foreground = Color.gray;
+	# for i in range (10):
+	# 	var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
+	# 	zombie.visual_info.symbol = "Z";
+	# 	zombie.visual_info.foreground = Color.gray;
 
+	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):
 		_world.set_cell(Vector2(8+i, 9), 8);
 	# _world.set_cell(Vector2(1, 0), 8);
@@ -278,6 +283,12 @@ func _process(_delta):
 
 	_interface.report_inventory(_player);
 	_interface.report_player_health(_player);
+
+	var item_pickup_prompt = _interface.get_node("Ingame/PickupItemPrompt");
+	if item_occupying_current_space:
+		item_pickup_prompt.show();
+	else:
+		item_pickup_prompt.hide();
 
 	var healing_display = _interface.get_node("Ingame/HealingDisplay");
 	if _player.current_medkit:

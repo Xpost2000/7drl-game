@@ -60,6 +60,12 @@ func _draw():
 							draw_string(game_font, (tile_position+Vector2(0, 1)) * Vector2((FONT_HEIGHT/2), FONT_HEIGHT), cell_symbol, Color(cell_color * light_value));
 	if entities:
 		# stupid boldness.
+		for item_pickup in entities.item_pickups:
+			var tile_position = item_pickup.position;
+			if world.is_cell_visible(tile_position) == 1.0:
+				var item_pickup_visual_info = item_pickup.visual_info;
+				draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), item_pickup_visual_info.background);
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), item_pickup_visual_info.symbol, item_pickup_visual_info.foreground*world.is_cell_visible(tile_position));
 		for entity in entities.entities:
 			var tile_position = entity.position;
 			var cell = world.is_cell_visible(tile_position);
@@ -69,11 +75,6 @@ func _draw():
 				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), entity_visual.symbol, entity_visual.foreground*world.is_cell_visible(tile_position));
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)-0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)+0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
-		for item_pickup in entities.item_pickups:
-			var tile_position = item_pickup.position;
-			if world.is_cell_visible(tile_position) == 1.0:
-				draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
-				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "X", Color.white);
 	for entity in game_state._projectiles.projectiles:
 		var tile_position = entity.position;
 		if world.is_cell_visible(tile_position) == 1.0:

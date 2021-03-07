@@ -121,3 +121,9 @@ align = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="PickupItemPrompt" type="Label" parent="."]
+margin_right = 1282.0
+margin_bottom = 65.0
+text = "Press g to pickup item."
+align = 1

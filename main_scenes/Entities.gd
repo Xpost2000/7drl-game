@@ -18,6 +18,7 @@ class ItemPickup:
 		var background: Color;
 	var visual_info: VisualInfo;
 	var position: Vector2;
+	var item: Object;
 	func _init(item):
 		self.position = Vector2.ZERO;
 		self.visual_info = VisualInfo.new();
@@ -214,6 +215,8 @@ func do_action(game_state, entity_target, turn_action):
 		var healing_action = EntityBrain.HealingAction.new();
 		emit_signal("_on_entity_do_action", entity_target, healing_action);
 		healing_action.do_action(game_state, entity_target);
+		if game_state._player == entity_target:
+			AudioGlobal.play_sound("resources/snds/bandaging_1.wav");
 
 	if turn_action:
 		emit_signal("_on_entity_do_action", entity_target, turn_action);
