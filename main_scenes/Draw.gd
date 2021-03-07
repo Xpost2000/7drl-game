@@ -63,7 +63,7 @@ func _draw():
 			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "O", Color.white);
 	if game_state.prompting_firing_target:
 			var tile_position = game_state.firing_target_cursor_location;
-			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color(0.3, 0.5, 0.3, 0.2));
+			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color(0.3, 0.5, 0.3, 0.6));
 	pass;
 
 func _process(_delta):

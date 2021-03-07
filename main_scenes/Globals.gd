@@ -88,17 +88,18 @@ class MolotovCocktailItem extends Item:
 	func on_use(game_state, target):
 		pass;
 class PipebombItem extends Item:
+	const Projectiles = preload("res://main_scenes/Projectiles.gd");
 	func as_string():
 		return self.name;
 	func _init():
 		self.name = "Pipebomb";
 	func on_use(game_state, target):
-		pass;
-		# TODO clamp health gain.
-		# game_state._interface.message(target.name + " injected adrenaline");
-		# target.health += 15;
-		# target.adrenaline_active_timer = 5;
-		# target.remove_item(self);
+		target.currently_equipped_weapon = self;
+	func on_fire(game_state, user, direction):
+		user.currently_equipped_weapon = null;
+		user.remove_item(user.currently_equipped_weapon);
+		var new_bullet = Projectiles.PipeBombProjectile.new(user.position, direction);
+		game_state._projectiles.add_projectile(new_bullet);
 # end of item definitions;
 var _global_event = null;
 func _input(event):

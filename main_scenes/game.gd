@@ -34,14 +34,14 @@ func player_movement_direction():
 		return Vector2(-1, 0);
 	elif Globals.is_action_pressed_with_delay("ui_right"):
 		return Vector2(1, 0);
-	elif Globals.is_action_pressed_with_delay("game_move_diagonal_top_right"):
-		return Vector2(1, -1);
-	elif Globals.is_action_pressed_with_delay("game_move_diagonal_bottom_right"):
-		return Vector2(1, 1);
-	elif Globals.is_action_pressed_with_delay("game_move_diagonal_top_left"):
-		return Vector2(-1, -1);
-	elif Globals.is_action_pressed_with_delay("game_move_diagonal_bottom_left"):
-		return Vector2(-1, 1);
+	# elif Globals.is_action_pressed_with_delay("game_move_diagonal_top_right"):
+	# 	return Vector2(1, -1);
+	# elif Globals.is_action_pressed_with_delay("game_move_diagonal_bottom_right"):
+	# 	return Vector2(1, 1);
+	# elif Globals.is_action_pressed_with_delay("game_move_diagonal_top_left"):
+	# 	return Vector2(-1, -1);
+	# elif Globals.is_action_pressed_with_delay("game_move_diagonal_bottom_left"):
+	# 	return Vector2(-1, 1);
 	return Vector2.ZERO;
 
 class EntityPlayerBrain extends EntityBrain:
@@ -86,7 +86,7 @@ class EntityPlayerBrain extends EntityBrain:
 				game_state.prompting_item_use = true;
 				Globals.any_key_pressed();
 			if Input.is_action_just_pressed("game_fire_weapon"):
-				if entity_self.currently_equipped_weapon and entity_self.currently_equipped_weapon is Globals.Gun:
+				if entity_self.currently_equipped_weapon:# and entity_self.currently_equipped_weapon is Globals.Gun:
 					game_state.prompting_firing_target = true;
 					var closest_entity = entity_self.find_closest_entity(game_state, true);
 					if closest_entity:
@@ -316,6 +316,7 @@ func _process(_delta):
 						# this is important for the player as it doesn't allow
 						# them to burn through all their turns
 						if actor == _player: 
+							print("HALT");
 							_ascii_renderer.update();
 							break;
 					else: 
