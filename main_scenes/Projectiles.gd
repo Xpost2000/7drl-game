@@ -51,9 +51,39 @@ class PipebombProjectile extends Projectile:
 			bomb.visual_info.symbol = "P";
 			bomb.visual_info.foreground = Color(1, 1, 1, 1);
 class MolotovProjectile extends Projectile:
-	pass
+	func _init(position, direction):
+		self.position = position;
+		self.direction = direction;
+		self.dead = false;
+	func tick(game_state):
+		var old_position = self.position;
+		self.position += self.direction;
+
+		if game_state._world.is_solid_tile(self.position):
+			self.dead = true;
+		for entity in game_state._entities.entities:
+			if entity.position == self.position.round():
+				entity.health -= 10;
+				self.dead = true;
+		if self.dead:
+			game_state.add_explosion(self.position, 2, 15, Enumerations.EXPLOSION_TYPE_FIRE);
 class BoomerBileProjectile extends Projectile:
-	pass
+	func _init(position, direction):
+		self.position = position;
+		self.direction = direction;
+		self.dead = false;
+	func tick(game_state):
+		var old_position = self.position;
+		self.position += self.direction;
+
+		if game_state._world.is_solid_tile(self.position):
+			self.dead = true;
+		for entity in game_state._entities.entities:
+			if entity.position == self.position.round():
+				entity.health -= 10;
+				self.dead = true;
+		if self.dead:
+			game_state.add_explosion(self.position, 2, 0, Enumerations.EXPLOSION_TYPE_BOOMERBILE);
 class BulletProjectile extends Projectile:
 	var lifetime: int;
 	var penetration_health: int;

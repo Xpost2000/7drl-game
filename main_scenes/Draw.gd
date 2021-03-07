@@ -82,7 +82,14 @@ func _draw():
 			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "x", Color.white);
 	for explosion in game_state._explosions:
 		var start_position = explosion.position;
-		blit_explosion(start_position, explosion.radius, explosion.animation_timer/float(game_state.EXPLOSION_MAX_ANIMATION_FRAMES), [Color.yellow, Color.orange, Color.red]);
+		var color_palette;
+		match explosion.type:
+			Enumerations.EXPLOSION_TYPE_ACID: color_palette = [Color.yellow, Color.orange, Color.red];
+			Enumerations.EXPLOSION_TYPE_FIRE: color_palette = [Color.blue, Color.yellow, Color.orange, Color.orangered];
+			Enumerations.EXPLOSION_TYPE_BOOMERBILE: color_palette = [Color.white, Color.lightgreen, Color.green, Color.greenyellow];
+			Enumerations.EXPLOSION_TYPE_NORMAL: color_palette = [Color.yellow, Color.orange, Color.red];
+				
+		blit_explosion(start_position, explosion.radius, explosion.animation_timer/float(game_state.EXPLOSION_MAX_ANIMATION_FRAMES), color_palette);
 	if game_state.prompting_firing_target:
 			var tile_position = game_state.firing_target_cursor_location;
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color(0.3, 0.5, 0.3, 0.6));

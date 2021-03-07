@@ -61,7 +61,6 @@ func player_movement_direction():
 
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		print(entity_self.rounds_left_in_burst)
 		if entity_self.currently_equipped_weapon and (entity_self.rounds_left_in_burst > 0) and entity_self.currently_equipped_weapon is Globals.Gun:
 			entity_self.rounds_left_in_burst -= 1;
 			if entity_self.currently_equipped_weapon.current_capacity:
@@ -272,13 +271,15 @@ func _ready():
 	_player.add_item(Globals.Medkit.new());
 	_player.add_item(Globals.AdrenalineShot.new());
 	_player.add_item(Globals.PipebombItem.new());
+	_player.add_item(Globals.MolotovCocktailItem.new());
+	_player.add_item(Globals.BoomerBileItem.new());
 	_player.add_item(Globals.PillBottle.new());
 	_player.add_item(make_rifle());
 	_player.add_item(make_pistol());
 	_player.add_item(make_shotgun());
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	for i in range (1):
-		make_common_infected_chaser(Vector2(5, 5+i));
+#	for i in range (1):
+#		make_common_infected_chaser(Vector2(5, 5+i));
 
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):
@@ -387,7 +388,7 @@ func _process(_delta):
 		_world.show();
 		_entities.show();
 
-	if not Globals.paused and not _player.is_dead():
+	if not Globals.paused:
 		if _projectiles.projectiles.empty() and _explosions.empty():
 			while not _turn_scheduler.finished():
 				var current_actor_turn_information = _turn_scheduler.get_current_actor();
@@ -400,7 +401,7 @@ func _process(_delta):
 							current_actor_turn_information.turns_left -= 1;
 						# this is important for the player as it doesn't allow
 						# them to burn through all their turns
-						if actor == _player: 
+						if actor == _player and not _player.is_dead(): 
 							_ascii_renderer.update();
 							break;
 					else: 
@@ -426,10 +427,21 @@ func _process(_delta):
 				for explosion in _explosions:
 					# To survivors any explosion should deal 10% of their normal amount.
 					if explosion.animation_timer == (1):
-						AudioGlobal.play_sound("resources/snds/pipebomb/explode.wav");
-						for entity in _entities.entities:
-							if explosion.position.distance_squared_to(entity.position) <= explosion.radius * explosion.radius:
-								entity.health -= 100;
+						match explosion.type:
+							Enumerations.EXPLOSION_TYPE_ACID:
+								pass;
+							Enumerations.EXPLOSION_TYPE_BOOMERBILE:
+								AudioGlobal.play_sound("resources/snds/ceda_jar_explode.wav");
+								pass;
+							Enumerations.EXPLOSION_TYPE_FIRE:
+								AudioGlobal.play_sound("resources/snds/ceda_jar_explode.wav");
+								pass;
+							Enumerations.EXPLOSION_TYPE_NORMAL:
+								AudioGlobal.play_sound("resources/snds/pipebomb/explode.wav");
+								for entity in _entities.entities:
+									if explosion.position.distance_squared_to(entity.position) <= explosion.radius * explosion.radius:
+										entity.health -= 100;
+								pass;
 
 					if explosion.animation_timer >= EXPLOSION_MAX_ANIMATION_FRAMES:
 						deletion_list.push_back(explosion);

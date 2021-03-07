@@ -118,19 +118,34 @@ class AdrenalineShot extends Item:
 		target.remove_item(self);
 
 class BoomerBileItem extends Item:
+	const Projectiles = preload("res://main_scenes/Projectiles.gd");
 	func as_string():
 		return self.name;
 	func _init():
-		self.name = "Boomer Bile";
+		self.name = "Boomerbile";
 	func on_use(game_state, target):
-		pass;
+		target.currently_equipped_weapon = self;
+	func on_fire(game_state, user, direction):
+		user.remove_item(user.currently_equipped_weapon);
+		user.currently_equipped_weapon = null;
+		var new_bullet = Projectiles.BoomerBileProjectile.new(user.position, direction);
+		game_state._projectiles.add_projectile(new_bullet);
 class MolotovCocktailItem extends Item:
+	const Projectiles = preload("res://main_scenes/Projectiles.gd");
 	func as_string():
 		return self.name;
 	func _init():
-		self.name = "Molotov Cocktail";
+		self.name = "Molotov";
 	func on_use(game_state, target):
-		pass;
+		AudioGlobal.play_sound("resources/snds/pipebomb/beep.wav");
+		target.currently_equipped_weapon = self;
+	func on_fire(game_state, user, direction):
+		user.remove_item(user.currently_equipped_weapon);
+		user.currently_equipped_weapon = null;
+		var new_bullet = Projectiles.MolotovProjectile.new(user.position, direction);
+		game_state._projectiles.add_projectile(new_bullet);
+		AudioGlobal.play_sound("resources/snds/pipebomb/beep.wav");
+
 class PipebombItem extends Item:
 	const Projectiles = preload("res://main_scenes/Projectiles.gd");
 	func as_string():
