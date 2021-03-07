@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/rifle_fire_1.wav-2f7fa67ceb4d8527263c79a731ff04fc.sample"
+
+[deps]
+
+source_file="res://resources/snds/guns/rifle_fire_1.wav"
+dest_files=[ "res://.import/rifle_fire_1.wav-2f7fa67ceb4d8527263c79a731ff04fc.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

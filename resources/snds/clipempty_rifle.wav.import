@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/clipempty_rifle.wav-aeb7169b9c1f1f848703829b230dd729.sample"
+
+[deps]
+
+source_file="res://resources/snds/clipempty_rifle.wav"
+dest_files=[ "res://.import/clipempty_rifle.wav-aeb7169b9c1f1f848703829b230dd729.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

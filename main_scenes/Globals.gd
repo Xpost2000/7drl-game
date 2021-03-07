@@ -23,7 +23,10 @@ class Item:
 class Gun extends Item:
 	const Projectiles = preload("res://main_scenes/Projectiles.gd");
 	var capacity: int;
+	var current_capacity_limit: int;
 	var current_capacity: int;
+	
+	var firing_sound_string: String;
 
 	func as_string():
 		return self.name + " (" + str(self.current_capacity) + "/" + str(self.capacity) + ")";
@@ -31,9 +34,27 @@ class Gun extends Item:
 		self.name = name;
 	func on_use(game_state, target):
 		target.currently_equipped_weapon = self;
+	func reload():
+		if self.current_capacity < self.current_capacity_limit:
+			if self.capacity - self.current_capacity_limit > 0:
+				self.capacity -= self.current_capacity_limit;
+				self.current_capacity = self.current_capacity_limit;
+			else:
+				self.current_capacity = self.capacity;
+				self.capacity = 0;
+		else:
+			AudioGlobal.play_sound("resources/snds/clipempty_rifle.wav");
+			
 	func on_fire(game_state, user, direction):
-		var new_bullet = Projectiles.BulletProjectile.new(user.position, direction);
-		game_state._projectiles.add_projectile(new_bullet);
+		if self.current_capacity > 0:
+			var new_bullet = Projectiles.BulletProjectile.new(user.position, direction);
+			game_state._projectiles.add_projectile(new_bullet);
+			self.current_capacity -= 1;
+			if not self.firing_sound_string.empty():
+				AudioGlobal.play_sound(self.firing_sound_string);
+		else:
+			AudioGlobal.play_sound("resources/snds/clipempty_rifle.wav");
+
 
 const HEALING_MEDKIT_TURNS = 3;
 # glorified state setter.

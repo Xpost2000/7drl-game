@@ -64,7 +64,6 @@ class EntityPlayerBrain extends EntityBrain:
 		if game_state.prompting_firing_target:
 			if Input.is_action_just_pressed("game_pause"):
 				game_state.prompting_firing_target = false;
-
 			if Input.is_action_just_pressed("game_fire_weapon"):
 				game_state.prompting_firing_target = false;
 				if game_state.firing_target_cursor_location != game_state._player.position:
@@ -103,8 +102,13 @@ class EntityPlayerBrain extends EntityBrain:
 			if Input.is_action_just_pressed("game_use_item"):
 				game_state.prompting_item_use = true;
 				Globals.any_key_pressed();
-			if Input.is_action_just_pressed("game_fire_weapon"):
-				if entity_self.currently_equipped_weapon:# and entity_self.currently_equipped_weapon is Globals.Gun:
+			if Input.is_action_just_pressed("game_reload_weapon"):
+				if entity_self.currently_equipped_weapon and entity_self.currently_equipped_weapon is Globals.Gun:
+					return EntityBrain.ReloadWeaponTurnAction.new();
+				else:
+					game_state._interface.message("You can only reload a gun");
+			elif Input.is_action_just_pressed("game_fire_weapon"):
+				if entity_self.currently_equipped_weapon:
 					game_state.prompting_firing_target = true;
 					var closest_entity = entity_self.find_closest_entity(game_state, true);
 					if closest_entity:
@@ -217,18 +221,26 @@ func _ready():
 	_player.flags = 1;
 	_player.position = Vector2(0, 0);
 	_player.add_item(Globals.Medkit.new());
-	var gun = Globals.Gun.new("Assault Rifle");
 	_player.add_item(Globals.AdrenalineShot.new());
 	_player.add_item(Globals.PipebombItem.new());
 	_player.add_item(Globals.PillBottle.new());
-	gun.capacity = 120;
-	gun.current_capacity = 30;
+	var gun = Globals.Gun.new("Assault Rifle");
+	gun.capacity = 50;
+	gun.current_capacity = 8;
+	gun.current_capacity_limit = 8;
+	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
 	_player.add_item(gun);
+	var pistol = Globals.Gun.new("Pistol");
+	pistol.capacity = 30;
+	pistol.current_capacity = 4;
+	pistol.current_capacity_limit = 4;
+	pistol.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
+	_player.add_item(pistol);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	# for i in range (10):
-	# 	var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
-	# 	zombie.visual_info.symbol = "Z";
-	# 	zombie.visual_info.foreground = Color.gray;
+	for i in range (10):
+		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
+		zombie.visual_info.symbol = "Z";
+		zombie.visual_info.foreground = Color.gray;
 
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):

@@ -14,7 +14,6 @@ class MoveTurnAction extends TurnAction:
 	func do_action(game_state, target):
 		game_state._entities.move_entity(target, self.direction);
 	var direction: Vector2;
-
 class PickupItemTurnAction extends TurnAction:
 	var item: Object;
 	func _init(item):
@@ -49,7 +48,12 @@ class FireWeaponTurnAction extends TurnAction:
 	func do_action(game_state, user):
 		if user.currently_equipped_weapon:
 			user.currently_equipped_weapon.on_fire(game_state, user, (target_location - user.position).normalized());
-
+class ReloadWeaponTurnAction extends TurnAction:
+	func _init():
+		pass;
+	func do_action(game_state, user):
+		if user.currently_equipped_weapon:
+			user.currently_equipped_weapon.reload();
 class AttackTurnAction extends TurnAction:
 	var target: Object;
 	var damage: int;
