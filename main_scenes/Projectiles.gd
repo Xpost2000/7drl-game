@@ -41,7 +41,7 @@ class PipebombProjectile extends Projectile:
 			self.position += self.direction;
 			self.lifetime -= 1;
 
-			if game_state._world.is_solid_tile(self.position.round()):
+			if game_state._world.is_solid_tile(self.position.round()) or not game_state._world.in_bounds(self.position.round()):
 				self.dead = true;
 			for entity in game_state._entities.entities:
 				if entity.position == self.position.round():
@@ -63,7 +63,7 @@ class MolotovProjectile extends Projectile:
 		var old_position = self.position;
 		self.position += self.direction;
 
-		if game_state._world.is_solid_tile(self.position.round()):
+		if game_state._world.is_solid_tile(self.position.round()) or not game_state._world.in_bounds(self.position.round()):
 			self.dead = true;
 		for entity in game_state._entities.entities:
 			if entity.position == self.position.round():
@@ -83,7 +83,7 @@ class BoomerBileProjectile extends Projectile:
 		var old_position = self.position;
 		self.position += self.direction;
 
-		if game_state._world.is_solid_tile(self.position.round()):
+		if game_state._world.is_solid_tile(self.position.round()) or not game_state._world.in_bounds(self.position.round()):
 			self.dead = true;
 		for entity in game_state._entities.entities:
 			if entity.position == self.position.round():
@@ -110,7 +110,7 @@ class BulletProjectile extends Projectile:
 			self.position += self.direction;
 			self.lifetime -= 1;
 
-			if game_state._world.is_solid_tile(self.position):
+			if game_state._world.is_solid_tile(self.position.round()) or not game_state._world.in_bounds(self.position.round()):
 				self.dead = true;
 			for entity in game_state._entities.entities:
 				if entity.position == self.position.round():

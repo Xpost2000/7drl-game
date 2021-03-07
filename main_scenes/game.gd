@@ -179,8 +179,34 @@ class EntityCommonInfectedChaserBrain extends EntityBrain:
 			return EntityBrain.MoveTurnAction.new(direction);
 
 class EntitySpecialInfectedTank extends EntityBrain:
+	var victim: Object;
 	func get_turn_action(entity_self, game_state):
-		pass;
+		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
+		if self.victim == null or self.victim.is_dead() and entity_self.can_see_from(game_state._world, nearest_survivor.position):
+			self.victim = nearest_survivor;
+		if self.victim and not self.victim.is_dead():
+			if entity_self.position.distance_squared_to(self.victim.position) <= 2:
+				var direction = self.victim.position.direction_to(entity_self.position).normalized();
+				if direction.x > 0:
+					direction.x = -1;
+				elif direction.x < 0:
+					direction.x = 1;
+				
+				if direction.y > 0:
+					direction.y = -1;
+				elif direction.y < 0:
+					direction.y = 1;
+					
+				if randf() < 0.35:
+					AudioGlobal.play_sound("resources/snds/tank/tank_yell_04.wav");
+				return EntityBrain.TankPunchTurnAction.new(direction, self.victim);
+			else:
+				var next_position = game_state._world.distance_field_next_best_position(
+					game_state._survivor_distance_field, entity_self.position, game_state._entities);
+				var direction = next_position - entity_self.position;
+				return EntityBrain.MoveTurnAction.new(direction);
+		else:
+			return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 
 class EntitySpecialInfectedHunter extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
@@ -324,6 +350,14 @@ func make_witch(position):
 	zombie.health = 350;
 	zombie.turn_speed = 3;
 	return zombie;
+	
+func make_tank(position):
+	var zombie = _entities.add_entity("Tank", position, EntitySpecialInfectedTank.new());
+	zombie.visual_info.symbol = "T";
+	zombie.visual_info.foreground = Color.gray;
+	zombie.health = 400;
+	zombie.turn_speed = 2;
+	return zombie;
 
 func initialize_survivors():
 	# Always assume the player is entity 0 for now.
@@ -333,7 +367,7 @@ func initialize_survivors():
 	_player.health = 100;
 	_player.turn_speed = 1;
 	_player.flags = 1;
-	_player.position = Vector2(0, 0);
+	_player.position = Vector2(4, 5);
 	_player.add_item(Globals.Medkit.new());
 	_player.add_item(Globals.AdrenalineShot.new());
 	_player.add_item(Globals.PipebombItem.new());
@@ -371,7 +405,7 @@ func initialize_survivors():
 func _ready():
 	initialize_survivors();
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	make_witch(Vector2(3, 3));
+	make_tank(Vector2(3, 3));
 #	for i in range (1):
 #		make_common_infected_chaser(Vector2(5, 5+i));
 

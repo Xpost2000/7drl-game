@@ -50,6 +50,30 @@ class ShoveTurnAction extends TurnAction:
 				who.health *= 0.8;
 				who.health -= 5;
 			AudioGlobal.play_sound("resources/snds/rifle_swing_hit_infected12.wav");
+class TankPunchTurnAction extends TurnAction:
+	var direction: Vector2;
+	var target: Object;
+	func _init(direction, target):
+		self.direction = direction;
+		self.target = target;
+	func do_action(game_state, target):
+		var who = self.target;
+		who.on_hit(game_state, target);
+		if who:
+			var move_result_first = game_state._entities.try_move(who, self.direction);
+			if move_result_first == Enumerations.COLLISION_NO_COLLISION:
+				who.position += self.direction;
+				var move_result_second = game_state._entities.try_move(who, self.direction);
+				if move_result_second:
+					who.position += self.direction;
+				else:
+					who.health -= 25;
+			else:
+				who.health -= 35;
+			who.health -= 25;
+			AudioGlobal.play_sound("resources/snds/tank/tank_attack_04.wav");
+			AudioGlobal.play_sound("resources/snds/tank/hulk_punch_1.wav");
+			AudioGlobal.play_sound("resources/snds/rifle_swing_hit_infected12.wav");
 class HealingAction extends TurnAction:
 	func do_action(game_state, target):
 		target.current_medkit.uses_left -= 1;
