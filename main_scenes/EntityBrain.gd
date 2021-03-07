@@ -35,6 +35,7 @@ class ShoveTurnAction extends TurnAction:
 		self.direction = direction;
 	func do_action(game_state, target):
 		var who = game_state._entities.get_entity_at_position(target.position + self.direction);
+		who.on_hit(game_state, target);
 		if who:
 			var move_result_first = game_state._entities.try_move(who, self.direction);
 			if move_result_first == Enumerations.COLLISION_NO_COLLISION:
@@ -84,6 +85,9 @@ class AttackTurnAction extends TurnAction:
 	func do_action(game_state, user):
 		if self.target:
 			self.target.health -= self.damage;
+			self.target.on_hit(game_state, user);
 
+func on_hit(game_state, self_entity, from):
+	pass;
 func get_turn_action(entity_self, game_state):
 	return WaitTurnAction.new();

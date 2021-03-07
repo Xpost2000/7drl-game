@@ -57,6 +57,7 @@ class Gun extends Item:
 		if self.current_capacity > 0:
 			if not self.shotgun:
 				var new_bullet = Projectiles.BulletProjectile.new(user.position, direction);
+				new_bullet.owner = user;
 				game_state._projectiles.add_projectile(new_bullet);
 				self.current_capacity -= 1;
 				if not self.firing_sound_string.empty():
@@ -70,6 +71,7 @@ class Gun extends Item:
 					var angle = ((90.0/(float(pellet_count)))*i + (base_angle*(180/PI)) - 40.0) * (PI/180.0);
 					var new_direction = Vector2(cos(angle), sin(angle));
 					var new_pellet = Projectiles.BulletProjectile.new(user.position, new_direction);
+					new_pellet.owner = user;
 					pellets.push_back(new_pellet);
 				for pellet in pellets:
 					game_state._projectiles.add_projectile(pellet);
@@ -129,6 +131,7 @@ class BoomerBileItem extends Item:
 		user.remove_item(user.currently_equipped_weapon);
 		user.currently_equipped_weapon = null;
 		var new_bullet = Projectiles.BoomerBileProjectile.new(user.position, direction);
+		new_bullet.owner = user;
 		game_state._projectiles.add_projectile(new_bullet);
 class MolotovCocktailItem extends Item:
 	const Projectiles = preload("res://main_scenes/Projectiles.gd");
@@ -143,6 +146,7 @@ class MolotovCocktailItem extends Item:
 		user.remove_item(user.currently_equipped_weapon);
 		user.currently_equipped_weapon = null;
 		var new_bullet = Projectiles.MolotovProjectile.new(user.position, direction);
+		new_bullet.owner = user;
 		game_state._projectiles.add_projectile(new_bullet);
 		AudioGlobal.play_sound("resources/snds/pipebomb/beep.wav");
 
@@ -159,6 +163,7 @@ class PipebombItem extends Item:
 		user.remove_item(user.currently_equipped_weapon);
 		user.currently_equipped_weapon = null;
 		var new_bullet = Projectiles.PipebombProjectile.new(user.position, direction);
+		new_bullet.owner = user;
 		game_state._projectiles.add_projectile(new_bullet);
 		AudioGlobal.play_sound("resources/snds/pipebomb/beep.wav");
 # end of item definitions;

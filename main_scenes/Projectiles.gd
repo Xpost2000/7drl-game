@@ -8,6 +8,7 @@ class Projectile:
 	var position: Vector2;
 	var direction: Vector2;
 	var dead: bool;
+	var owner: Object;
 	func tick(game_state):
 		pass;
 class PipebombProjectile extends Projectile:
@@ -46,6 +47,8 @@ class PipebombProjectile extends Projectile:
 				if entity.position == self.position.round():
 					entity.health -= 10;
 					self.dead = true;
+					entity.on_hit(game_state, self.owner);
+					break;
 		if self.dead:
 			var bomb = game_state._entities.add_entity("Pipebomb", old_position.round(), EntityPipebombBrain.new());
 			bomb.visual_info.symbol = "P";
@@ -66,6 +69,8 @@ class MolotovProjectile extends Projectile:
 			if entity.position == self.position.round():
 				entity.health -= 10;
 				self.dead = true;
+				entity.on_hit(game_state, self.owner);
+				break;
 		if self.dead:
 			self.position = self.position.round();
 			game_state.add_explosion(self.position, 2, 15, Enumerations.EXPLOSION_TYPE_FIRE);
@@ -84,6 +89,8 @@ class BoomerBileProjectile extends Projectile:
 			if entity.position == self.position.round():
 				entity.health -= 10;
 				self.dead = true;
+				entity.on_hit(game_state, self.owner);
+				break;
 		if self.dead:
 			self.position = self.position.round();
 			game_state.add_explosion(self.position, 2, 0, Enumerations.EXPLOSION_TYPE_BOOMERBILE);
@@ -109,6 +116,7 @@ class BulletProjectile extends Projectile:
 				if entity.position == self.position.round():
 					entity.health -= 40;
 					self.penetration_health -= 1;
+					entity.on_hit(game_state, self.owner);
 					if self.penetration_health < 0:
 						self.dead = true;
 						break;

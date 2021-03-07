@@ -187,7 +187,17 @@ class EntitySpecialInfectedHunter extends EntityBrain:
 		pass;
 
 class EntitySpecialInfectedWitch extends EntityBrain:
+	var impending_victims: Array;
+	var victim: Object;
+	var bitch_timer: int;
+	func on_hit(game_state, entity_self, from_entity):
+		if self.victim == null or self.victim.is_dead():
+			self.victim = from_entity;
+		else:
+			if not impending_victims.has(from_entity):
+				impending_victims.push_back(from_entity);
 	func get_turn_action(entity_self, game_state):
+		return EntityBrain.WaitTurnAction.new();
 		pass;
 
 class EntitySpecialInfectedBoomer extends EntityBrain:
@@ -278,6 +288,14 @@ func make_common_infected_chaser(position):
 	zombie.visual_info.symbol = "Z";
 	zombie.visual_info.foreground = Color.gray;
 	return zombie;
+	
+func make_witch(position):
+	var zombie = _entities.add_entity("Witch", position, EntitySpecialInfectedWitch.new());
+	zombie.visual_info.symbol = "W";
+	zombie.visual_info.foreground = Color.white;
+	zombie.health = 350;
+	zombie.turn_speed = 3;
+	return zombie;
 
 func initialize_survivors():
 	# Always assume the player is entity 0 for now.
@@ -325,8 +343,9 @@ func initialize_survivors():
 func _ready():
 	initialize_survivors();
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	for i in range (1):
-		make_common_infected_chaser(Vector2(5, 5+i));
+	make_witch(Vector2(3, 3));
+#	for i in range (1):
+#		make_common_infected_chaser(Vector2(5, 5+i));
 
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):

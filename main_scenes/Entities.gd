@@ -99,6 +99,9 @@ class Entity:
 
 	func is_dead():
 		return (health <= 0);
+		
+	func on_hit(game_state, from):
+		self.brain.on_hit(game_state, self, from);
 
 	var name: String;
 	var turn_speed: int;
