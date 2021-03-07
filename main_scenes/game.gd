@@ -1,3 +1,5 @@
+# TODO differentiate solid and non-solid entities
+# so things like bombs and items don't count as collidable!
 extends Node2D
 
 const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
@@ -10,6 +12,26 @@ var _last_known_current_chunk_position;
 var _survivor_distance_field = null;
 const MAX_REGENERATE_FIELD_TURN_TIME = 4;
 var _survivor_distance_field_regenerate_timer = 0;
+
+var _explosions = [];
+# man I love how inconsistent my usage of class is.
+const EXPLOSION_MAX_ANIMATION_FRAMES = 12;
+const EXPLOSION_ANIMATION_FPS = 46;
+var _global_explosion_animation_timer = 0.0;
+class Explosion:
+	var position: Vector2;
+	var radius: int;
+	var damage: int;
+	var type: int;
+	var animation_timer: int;
+	func _init(where, radius, damage, type):
+		self.position = where;
+		self.radius = radius;
+		self.damage = damage;
+		self.type = type;
+		self.animation_timer = 0;
+func add_explosion(where, radius, damage, type):
+	_explosions.push_back(Explosion.new(where, radius, damage, type));
 
 onready var _turn_scheduler = TurnScheduler.new();
 
@@ -34,14 +56,6 @@ func player_movement_direction():
 		return Vector2(-1, 0);
 	elif Globals.is_action_pressed_with_delay("ui_right"):
 		return Vector2(1, 0);
-	# elif Globals.is_action_pressed_with_delay("game_move_diagonal_top_right"):
-	# 	return Vector2(1, -1);
-	# elif Globals.is_action_pressed_with_delay("game_move_diagonal_bottom_right"):
-	# 	return Vector2(1, 1);
-	# elif Globals.is_action_pressed_with_delay("game_move_diagonal_top_left"):
-	# 	return Vector2(-1, -1);
-	# elif Globals.is_action_pressed_with_delay("game_move_diagonal_bottom_left"):
-	# 	return Vector2(-1, 1);
 	return Vector2.ZERO;
 
 class EntityPlayerBrain extends EntityBrain:
@@ -199,10 +213,10 @@ func _ready():
 	gun.current_capacity = 30;
 	_player.add_item(gun);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	for i in range (3):
-		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
-		zombie.visual_info.symbol = "Z";
-		zombie.visual_info.foreground = Color.gray;
+	# for i in range (3):
+	# 	var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
+	# 	zombie.visual_info.symbol = "Z";
+	# 	zombie.visual_info.foreground = Color.gray;
 
 	for i in range (5):
 		_world.set_cell(Vector2(8+i, 9), 8);
@@ -304,7 +318,7 @@ func _process(_delta):
 		_entities.show();
 
 	if not Globals.paused and not _player.is_dead():
-		if _projectiles.projectiles.empty():
+		if _projectiles.projectiles.empty() and _explosions.empty():
 			while not _turn_scheduler.finished():
 				var current_actor_turn_information = _turn_scheduler.get_current_actor();
 				if current_actor_turn_information and current_actor_turn_information.turns_left > 0:
@@ -316,7 +330,6 @@ func _process(_delta):
 						# this is important for the player as it doesn't allow
 						# them to burn through all their turns
 						if actor == _player: 
-							print("HALT");
 							_ascii_renderer.update();
 							break;
 					else: 
@@ -335,7 +348,25 @@ func _process(_delta):
 						_turn_scheduler.push(entity, entity.get_turn_speed());
 					else:
 						entity.wait_time -= 1;
-		else:
+
+		if not _explosions.empty():
+			var deletion_list = [];
+			if _global_explosion_animation_timer <= 0.0:
+				for explosion in _explosions:
+					if explosion.animation_timer == (EXPLOSION_MAX_ANIMATION_FRAMES/2):
+						print("DAMAGE FRAME");
+
+					if explosion.animation_timer >= EXPLOSION_MAX_ANIMATION_FRAMES:
+						deletion_list.push_back(explosion);
+					else:
+						explosion.animation_timer += 1;
+				_global_explosion_animation_timer = 1.0 / EXPLOSION_ANIMATION_FPS;
+				for item in deletion_list:
+					_explosions.erase(item);
+			else:
+				_global_explosion_animation_timer -= _delta;
+			_ascii_renderer.update();
+		if not _projectiles.projectiles.empty():
 			for projectile in _projectiles.projectiles:
 				projectile.tick(self);
 			_ascii_renderer.update();

@@ -98,7 +98,7 @@ class PipebombItem extends Item:
 	func on_fire(game_state, user, direction):
 		user.currently_equipped_weapon = null;
 		user.remove_item(user.currently_equipped_weapon);
-		var new_bullet = Projectiles.PipeBombProjectile.new(user.position, direction);
+		var new_bullet = Projectiles.PipebombProjectile.new(user.position, direction);
 		game_state._projectiles.add_projectile(new_bullet);
 # end of item definitions;
 var _global_event = null;

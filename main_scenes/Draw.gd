@@ -50,7 +50,8 @@ func _draw():
 		# stupid boldness.
 		for entity in entities.entities:
 			var tile_position = entity.position;
-			if world.is_cell_visible(tile_position) > 0.0:
+			var cell = world.is_cell_visible(tile_position);
+			if cell and cell > 0.0:
 				var entity_visual = entity.visual_info;
 				draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), entity_visual.background);
 				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), entity_visual.symbol, entity_visual.foreground*world.is_cell_visible(tile_position));
@@ -61,6 +62,14 @@ func _draw():
 		if world.is_cell_visible(tile_position) == 1.0:
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
 			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "O", Color.white);
+	for explosion in game_state._explosions:
+		var start_position = explosion.position;
+		var current_radius = ceil(((cos(explosion.animation_timer+PI)+1)/2.0) * explosion.radius);
+		for y in range(start_position.y - current_radius, start_position.y + current_radius):
+			for x in range(start_position.x - current_radius, start_position.x + current_radius):
+				if start_position.distance_squared_to(Vector2(x, y)) <= current_radius*current_radius:
+					draw_rect(Rect2(x*(FONT_HEIGHT/2), y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
+					draw_string(game_font, Vector2(x*(FONT_HEIGHT/2), (1+y)*FONT_HEIGHT), "O", Color.orange);
 	if game_state.prompting_firing_target:
 			var tile_position = game_state.firing_target_cursor_location;
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color(0.3, 0.5, 0.3, 0.6));

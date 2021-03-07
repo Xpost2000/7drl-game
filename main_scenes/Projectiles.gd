@@ -11,7 +11,44 @@ class Projectile:
 	func tick(game_state):
 		pass;
 class PipebombProjectile extends Projectile:
-	pass
+	const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
+	class EntityPipebombBrain  extends EntityBrain:
+		var timer: int;
+		func _init():
+			self.timer = 4;
+		func get_turn_action(entity_self, game_state):
+			if self.timer <= 0:
+				entity_self.health = -999;
+				game_state.add_explosion(entity_self.position, 4, 90, Enumerations.EXPLOSION_TYPE_NORMAL);
+				print("explode");
+			else:
+				self.timer -= 1;
+			return EntityBrain.WaitTurnAction.new();
+
+	var lifetime: int;
+	func _init(position, direction):
+		self.position = position;
+		self.direction = direction;
+		self.lifetime = 8;
+		self.dead = false;
+	func tick(game_state):
+		var old_position = self.position;
+		if self.lifetime < 0:
+			self.dead = true;
+		else:
+			self.position += self.direction;
+			self.lifetime -= 1;
+
+			if game_state._world.is_solid_tile(self.position):
+				self.dead = true;
+			for entity in game_state._entities.entities:
+				if entity.position == self.position.round():
+					entity.health -= 10;
+					self.dead = true;
+		if self.dead:
+			var bomb = game_state._entities.add_entity("Pipebomb", old_position.round(), EntityPipebombBrain.new());
+			bomb.visual_info.symbol = "P";
+			bomb.visual_info.foreground = Color(1, 1, 1, 1);
 class MolotovProjectile extends Projectile:
 	pass
 class BoomerBileProjectile extends Projectile:
