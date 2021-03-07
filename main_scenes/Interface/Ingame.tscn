@@ -90,6 +90,16 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="HealthBar" parent="Healthbars/Others" instance=ExtResource( 3 )]
+
+[node name="HealthBar2" parent="Healthbars/Others" instance=ExtResource( 3 )]
+margin_left = 252.0
+margin_right = 502.0
+
+[node name="HealthBar3" parent="Healthbars/Others" instance=ExtResource( 3 )]
+margin_left = 504.0
+margin_right = 754.0
+
 [node name="SelfHealth" parent="Healthbars" instance=ExtResource( 3 )]
 margin_left = 1020.16
 margin_top = 649.048

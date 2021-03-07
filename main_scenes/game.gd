@@ -7,6 +7,7 @@ const TurnScheduler = preload("res://main_scenes/TurnScheduler.gd");
 
 var _passed_turns = 0;
 var _player = null;
+var _survivors = [];
 var _last_known_current_chunk_position;
 
 var _survivor_distance_field = null;
@@ -262,7 +263,7 @@ func make_common_infected_chaser(position):
 	zombie.visual_info.foreground = Color.gray;
 	return zombie;
 
-func _ready():
+func initialize_survivors():
 	# Always assume the player is entity 0 for now.
 	# Obviously this can always change but whatever.
 	_entities.add_entity("Bill", Vector2.ZERO, EntityPlayerBrain.new());
@@ -282,13 +283,38 @@ func _ready():
 	_player.add_item(make_rifle());
 	_player.add_item(make_pistol());
 	_player.add_item(make_shotgun());
+	var second = _entities.add_entity("Louis", Vector2(2, 2), EntityPlayerBrain.new());
+	second.health = 100;
+	second.turn_speed = 1;
+	second.flags = 1;
+	second.add_item(Globals.Medkit.new());
+	second.add_item(make_pistol());
+	second.add_item(Globals.PipebombItem.new());
+	var third = _entities.add_entity("Francis", Vector2(4, 3), EntityPlayerBrain.new());
+	third.health = 100;
+	third.turn_speed = 1;
+	third.flags = 1;
+	third.add_item(Globals.Medkit.new());
+	third.add_item(make_pistol());
+	third.add_item(Globals.PipebombItem.new());
+	var fourth = _entities.add_entity("Zoey", Vector2(1, 4), EntityPlayerBrain.new());
+	fourth.health = 100;
+	fourth.turn_speed = 1;
+	fourth.flags = 1;
+	fourth.add_item(Globals.Medkit.new());
+	fourth.add_item(make_pistol());
+	fourth.add_item(Globals.PipebombItem.new());
+	_survivors = [_player, second, third, fourth];
+
+func _ready():
+	initialize_survivors();
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 	for i in range (1):
 		make_common_infected_chaser(Vector2(5, 5+i));
 
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):
-		_world.set_cell(Vector2(8+i, 9), 8);
+		_world.set_cell(Vector2(8+i, 4), 8);
 	# _world.set_cell(Vector2(1, 0), 8);
 	# _world.set_cell(Vector2(1, 1), 8);
 	# _world.set_cell(Vector2(3, 0), 8);
@@ -298,7 +324,7 @@ func _ready():
 	_ascii_renderer.entities = _entities;
 	# todo remove world and entities...
 	_ascii_renderer.game_state = self;
-	update_player_visibility(_player, 5);
+	update_player_visibility(_player, 8);
 
 	_ascii_renderer.update();
 	_turn_scheduler = TurnScheduler.new();
@@ -325,8 +351,12 @@ func step(_delta):
 	else:
 		_passed_turns += 1;
 
+# Special infected should only see a version with survivors exclusively?
+# survivors see one with zombies
 func regenerate_infected_distance_field():
-	var sources = [[_player.position]];
+	var sources = [];
+	for survivor in _survivors:
+		sources.push_back([survivor.position, 0]);
 	for boomer_bile_source in _boomer_bile_sources:
 		print(boomer_bile_source);
 		sources.push_back([boomer_bile_source[0], 0]);
@@ -351,7 +381,8 @@ func _process(_delta):
 
 	_interface.report_inventory(_player);
 	_interface.report_player_health(_player);
-
+	_interface.report_survivor_stats(_survivors);
+	
 	var item_pickup_prompt = _interface.get_node("Ingame/PickupItemPrompt");
 	if item_occupying_current_space:
 		item_pickup_prompt.show();
