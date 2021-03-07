@@ -10,10 +10,13 @@ var _player = null;
 var _last_known_current_chunk_position;
 
 var _survivor_distance_field = null;
-const MAX_REGENERATE_FIELD_TURN_TIME = 4;
+const MAX_REGENERATE_FIELD_TURN_TIME = 3;
 var _survivor_distance_field_regenerate_timer = 0;
 
 var _explosions = [];
+
+# array of (Vector2, int)
+var _boomer_bile_sources = [];
 # man I love how inconsistent my usage of class is.
 const EXPLOSION_MAX_ANIMATION_FRAMES = 12;
 const EXPLOSION_ANIMATION_FPS = 46;
@@ -150,7 +153,7 @@ class EntityRandomWanderingBrain extends EntityBrain:
 
 class EntityCommonInfectedChaserBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		if entity_self.position.distance_to(game_state._player.position) <= 1.414:
+		if entity_self.position.distance_squared_to(game_state._player.position) <= 2:
 			return EntityBrain.AttackTurnAction.new(game_state._player, 5);
 		else:
 			var next_position = game_state._world.distance_field_next_best_position(
@@ -273,13 +276,15 @@ func _ready():
 	_player.add_item(Globals.PipebombItem.new());
 	_player.add_item(Globals.MolotovCocktailItem.new());
 	_player.add_item(Globals.BoomerBileItem.new());
+	_player.add_item(Globals.BoomerBileItem.new());
+	_player.add_item(Globals.BoomerBileItem.new());
 	_player.add_item(Globals.PillBottle.new());
 	_player.add_item(make_rifle());
 	_player.add_item(make_pistol());
 	_player.add_item(make_shotgun());
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-#	for i in range (1):
-#		make_common_infected_chaser(Vector2(5, 5+i));
+	for i in range (1):
+		make_common_infected_chaser(Vector2(5, 5+i));
 
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):
@@ -320,14 +325,25 @@ func step(_delta):
 	else:
 		_passed_turns += 1;
 
+func regenerate_infected_distance_field():
+	var sources = [[_player.position]];
+	for boomer_bile_source in _boomer_bile_sources:
+		print(boomer_bile_source);
+		sources.push_back([boomer_bile_source[0], 0]);
+	_survivor_distance_field = _world.distance_field_map_from(sources);
+	_survivor_distance_field_regenerate_timer = MAX_REGENERATE_FIELD_TURN_TIME;
+	
 func step_round(_delta):
 	if (not _player.is_dead()):
 		if _survivor_distance_field_regenerate_timer <= 0:
-			_survivor_distance_field = _world.distance_field_map_from(_player.position);
-			_survivor_distance_field_regenerate_timer = MAX_REGENERATE_FIELD_TURN_TIME;
-			add_explosion(_player.position, 2, 0, Enumerations.EXPLOSION_TYPE_ACID);
+			regenerate_infected_distance_field();
 		else:
 			_survivor_distance_field_regenerate_timer -= 1;
+
+	for boomer_bile_source in _boomer_bile_sources:
+		if boomer_bile_source[1] <= 0:
+			_boomer_bile_sources.erase(boomer_bile_source);
+		boomer_bile_source[1] -= 1;
 
 func _process(_delta):
 	rerender_chunks();
@@ -434,6 +450,8 @@ func _process(_delta):
 								pass;
 							Enumerations.EXPLOSION_TYPE_BOOMERBILE:
 								AudioGlobal.play_sound("resources/snds/ceda_jar_explode.wav");
+								_boomer_bile_sources.push_back([explosion.position, (randi() % 5)+14]);
+								regenerate_infected_distance_field();
 								pass;
 							Enumerations.EXPLOSION_TYPE_FIRE:
 								AudioGlobal.play_sound("resources/snds/ceda_jar_explode.wav");

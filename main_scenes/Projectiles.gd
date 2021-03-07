@@ -40,7 +40,7 @@ class PipebombProjectile extends Projectile:
 			self.position += self.direction;
 			self.lifetime -= 1;
 
-			if game_state._world.is_solid_tile(self.position):
+			if game_state._world.is_solid_tile(self.position.round()):
 				self.dead = true;
 			for entity in game_state._entities.entities:
 				if entity.position == self.position.round():
@@ -50,6 +50,7 @@ class PipebombProjectile extends Projectile:
 			var bomb = game_state._entities.add_entity("Pipebomb", old_position.round(), EntityPipebombBrain.new());
 			bomb.visual_info.symbol = "P";
 			bomb.visual_info.foreground = Color(1, 1, 1, 1);
+			
 class MolotovProjectile extends Projectile:
 	func _init(position, direction):
 		self.position = position;
@@ -59,13 +60,14 @@ class MolotovProjectile extends Projectile:
 		var old_position = self.position;
 		self.position += self.direction;
 
-		if game_state._world.is_solid_tile(self.position):
+		if game_state._world.is_solid_tile(self.position.round()):
 			self.dead = true;
 		for entity in game_state._entities.entities:
 			if entity.position == self.position.round():
 				entity.health -= 10;
 				self.dead = true;
 		if self.dead:
+			self.position = self.position.round();
 			game_state.add_explosion(self.position, 2, 15, Enumerations.EXPLOSION_TYPE_FIRE);
 class BoomerBileProjectile extends Projectile:
 	func _init(position, direction):
@@ -76,13 +78,14 @@ class BoomerBileProjectile extends Projectile:
 		var old_position = self.position;
 		self.position += self.direction;
 
-		if game_state._world.is_solid_tile(self.position):
+		if game_state._world.is_solid_tile(self.position.round()):
 			self.dead = true;
 		for entity in game_state._entities.entities:
 			if entity.position == self.position.round():
 				entity.health -= 10;
 				self.dead = true;
 		if self.dead:
+			self.position = self.position.round();
 			game_state.add_explosion(self.position, 2, 0, Enumerations.EXPLOSION_TYPE_BOOMERBILE);
 class BulletProjectile extends Projectile:
 	var lifetime: int;

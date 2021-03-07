@@ -224,10 +224,13 @@ func distance_field_next_best_position(distance_field, from, entities=null):
 		return result_position;
 	return from;
 	
-func distance_field_map_from(start):
-	var frontier = [start];
+func distance_field_map_from(starts):
+	var frontier = [];
 	var visited = {};
-	var distance_scores = {start: 0};
+	var distance_scores = {};
+	for start in starts:
+		frontier.push_back(start[0]);
+		distance_scores[start[0]] = 0 if len(start) == 1 else start[1];
 
 	while len(frontier):
 		var current = frontier.pop_front();
@@ -235,7 +238,7 @@ func distance_field_map_from(start):
 			for neighbor in neighbors(self, current):
 				var current_score = distance_scores[current] if current in distance_scores else 0;
 				var neighbor_score = distance_scores[neighbor] if neighbor in distance_scores else 0;
-				var movement_distance = current_score + neighbor_score + 1 + start.distance_to(neighbor);
+				var movement_distance = current_score + neighbor_score + 1;
 
 				if not (neighbor in visited) or movement_distance < neighbor_score:
 					visited[neighbor] = true;
