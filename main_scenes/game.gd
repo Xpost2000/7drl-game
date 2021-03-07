@@ -325,6 +325,7 @@ func step_round(_delta):
 		if _survivor_distance_field_regenerate_timer <= 0:
 			_survivor_distance_field = _world.distance_field_map_from(_player.position);
 			_survivor_distance_field_regenerate_timer = MAX_REGENERATE_FIELD_TURN_TIME;
+			add_explosion(_player.position, 2, 0, Enumerations.EXPLOSION_TYPE_ACID);
 		else:
 			_survivor_distance_field_regenerate_timer -= 1;
 
@@ -429,6 +430,7 @@ func _process(_delta):
 					if explosion.animation_timer == (1):
 						match explosion.type:
 							Enumerations.EXPLOSION_TYPE_ACID:
+								AudioGlobal.play_sound("resources/snds/spitter_acid_fadeout2.wav");
 								pass;
 							Enumerations.EXPLOSION_TYPE_BOOMERBILE:
 								AudioGlobal.play_sound("resources/snds/ceda_jar_explode.wav");

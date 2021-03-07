@@ -84,7 +84,7 @@ func _draw():
 		var start_position = explosion.position;
 		var color_palette;
 		match explosion.type:
-			Enumerations.EXPLOSION_TYPE_ACID: color_palette = [Color.yellow, Color.orange, Color.red];
+			Enumerations.EXPLOSION_TYPE_ACID: color_palette = [Color.greenyellow, Color.lightgreen, Color.green];
 			Enumerations.EXPLOSION_TYPE_FIRE: color_palette = [Color.blue, Color.yellow, Color.orange, Color.orangered];
 			Enumerations.EXPLOSION_TYPE_BOOMERBILE: color_palette = [Color.white, Color.lightgreen, Color.green, Color.greenyellow];
 			Enumerations.EXPLOSION_TYPE_NORMAL: color_palette = [Color.yellow, Color.orange, Color.red];
