@@ -8,7 +8,7 @@ var _player = null;
 var _last_known_current_chunk_position;
 
 var _survivor_distance_field = null;
-const MAX_REGENERATE_FIELD_TURN_TIME = 3;
+const MAX_REGENERATE_FIELD_TURN_TIME = 4;
 var _survivor_distance_field_regenerate_timer = 0;
 
 onready var _turn_scheduler = TurnScheduler.new();
@@ -80,8 +80,6 @@ class EntityPlayerBrain extends EntityBrain:
 								return EntityBrain.UseItemAction.new(item_picked);
 		else:
 			var move_direction = game_state.player_movement_direction();
-			if move_direction != Vector2.ZERO:
-				return EntityBrain.MoveTurnAction.new(move_direction);
 			if Input.is_action_just_pressed("game_action_wait"):
 				return EntityBrain.WaitTurnAction.new();
 			if Input.is_action_just_pressed("game_use_item"):
@@ -97,6 +95,8 @@ class EntityPlayerBrain extends EntityBrain:
 						game_state._interface.message("No visible target.");
 				else:
 					game_state._interface.message("No gun or projectile equipped");
+			if move_direction != Vector2.ZERO:
+				return EntityBrain.MoveTurnAction.new(move_direction);
 		return null;
 
 #################################### Infected
@@ -143,8 +143,7 @@ class EntitySpecialInfectedSpitter extends EntityBrain:
 		pass;
 #################################### Infected
 
-func update_player_visibility(entity, radius):	
-	# wtf is this indentation?
+func update_player_visibility(entity, radius):
 	for other_entity in _entities.entities:
 		if other_entity != entity:
 			if not entity.can_see_from($ChunkViews, other_entity.position):
@@ -194,12 +193,13 @@ func _ready():
 	_player.add_item(Globals.Medkit.new());
 	var gun = Globals.Gun.new("Assault Rifle");
 	_player.add_item(Globals.AdrenalineShot.new());
+	_player.add_item(Globals.PipebombItem.new());
 	_player.add_item(Globals.PillBottle.new());
 	gun.capacity = 120;
 	gun.current_capacity = 30;
 	_player.add_item(gun);
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	for i in range (30):
+	for i in range (3):
 		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
 		zombie.visual_info.symbol = "Z";
 		zombie.visual_info.foreground = Color.gray;
@@ -313,8 +313,13 @@ func _process(_delta):
 					if actor_turn_action:
 						_entities.do_action(self, actor, actor_turn_action);
 						current_actor_turn_information.turns_left -= 1;
+						# this is important for the player as it doesn't allow
+						# them to burn through all their turns
+						if actor == _player: 
+							_ascii_renderer.update();
+							break;
+					else: 
 						_ascii_renderer.update();
-					else:
 						break;
 				else:
 					step(_delta);

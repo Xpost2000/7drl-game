@@ -31,7 +31,6 @@ remote_path = NodePath("../GameCamera")
 [node name="ChunkViews" type="Node2D" parent="."]
 position = Vector2( 1, 4 )
 script = ExtResource( 1 )
-CHUNK_MAX_SIZE = 32
 
 [node name="Current" type="TileMap" parent="ChunkViews"]
 tile_set = ExtResource( 5 )
