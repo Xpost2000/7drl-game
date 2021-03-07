@@ -37,9 +37,12 @@ func report_player_health(entity):
 
 func report_survivor_stats(survivors_list):
 	# The first slot is occupied by the player survivor so we omit that.
+	for card in _other_health_bars.get_children():
+		card.hide();
 	for survivor_index in range(1, len(survivors_list)):
 		var card = _other_health_bars.get_child(survivor_index-1);
 		card.update_from(survivors_list[survivor_index]);
+		card.show();
 
 func report_inventory(inventory_list):
 	# dummy
