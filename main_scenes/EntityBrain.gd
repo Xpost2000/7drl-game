@@ -36,7 +36,18 @@ class ShoveTurnAction extends TurnAction:
 	func do_action(game_state, target):
 		var who = game_state._entities.get_entity_at_position(target.position + self.direction);
 		if who:
-			who.position += self.direction * 2;
+			var move_result_first = game_state._entities.try_move(who, self.direction);
+			if move_result_first == Enumerations.COLLISION_NO_COLLISION:
+				who.position += self.direction;
+				var move_result_second = game_state._entities.try_move(who, self.direction);
+				if move_result_second:
+					who.position += self.direction;
+				else:
+					who.health *= 0.9;
+					who.health -= 5;
+			else:
+				who.health *= 0.8;
+				who.health -= 5;
 			AudioGlobal.play_sound("resources/snds/rifle_swing_hit_infected12.wav");
 class HealingAction extends TurnAction:
 	func do_action(game_state, target):
