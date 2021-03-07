@@ -354,8 +354,11 @@ func _process(_delta):
 			var deletion_list = [];
 			if _global_explosion_animation_timer <= 0.0:
 				for explosion in _explosions:
-					if explosion.animation_timer == (EXPLOSION_MAX_ANIMATION_FRAMES/2):
-						print("DAMAGE FRAME");
+					# To survivors any explosion should deal 10% of their normal amount.
+					if explosion.animation_timer == (1):
+						for entity in _entities.entities:
+							if explosion.position.distance_squared_to(entity.position) <= explosion.radius * explosion.radius:
+								entity.health -= 90;
 
 					if explosion.animation_timer >= EXPLOSION_MAX_ANIMATION_FRAMES:
 						deletion_list.push_back(explosion);
