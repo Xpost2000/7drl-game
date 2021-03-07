@@ -241,6 +241,16 @@ func make_rifle():
 	gun.rounds_per_shot = 3;
 	return gun;
 	
+func make_shotgun():
+	var gun = Globals.Gun.new("Shotgun");
+	gun.shotgun = true;
+	gun.capacity = 45;
+	gun.current_capacity = 4;
+	gun.current_capacity_limit = 4;
+	gun.firing_sound_string = "resources/snds/guns/shotgun_fire_1.wav";
+	gun.reload_sound_string = "resources/snds/guns/shotgun_load_shell_2.wav";
+	return gun;
+	
 func _ready():
 	# Always assume the player is entity 0 for now.
 	# Obviously this can always change but whatever.
@@ -256,6 +266,7 @@ func _ready():
 	_player.add_item(Globals.PillBottle.new());
 	_player.add_item(make_rifle());
 	_player.add_item(make_pistol());
+	_player.add_item(make_shotgun());
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 	for i in range (10):
 		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());

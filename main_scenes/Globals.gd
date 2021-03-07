@@ -30,6 +30,7 @@ class Gun extends Item:
 	var reload_sound_string: String;
 	
 	var rounds_per_shot: int;
+	var shotgun: bool; # Why doesn't subclassing work????
 	
 	func as_string():
 		return self.name + " (" + str(self.current_capacity) + "/" + str(self.capacity) + ")";
@@ -54,14 +55,29 @@ class Gun extends Item:
 			
 	func on_fire(game_state, user, direction):
 		if self.current_capacity > 0:
-			var new_bullet = Projectiles.BulletProjectile.new(user.position, direction);
-			game_state._projectiles.add_projectile(new_bullet);
-			self.current_capacity -= 1;
-			if not self.firing_sound_string.empty():
-				AudioGlobal.play_sound(self.firing_sound_string);
+			if not self.shotgun:
+				var new_bullet = Projectiles.BulletProjectile.new(user.position, direction);
+				game_state._projectiles.add_projectile(new_bullet);
+				self.current_capacity -= 1;
+				if not self.firing_sound_string.empty():
+					AudioGlobal.play_sound(self.firing_sound_string);
+			else:
+				var pellets = [];
+				var perpendicular = Vector2(-direction.y, direction.x);
+				var base_angle = direction.angle();
+				var pellet_count = 4;
+				for i in range(pellet_count):
+					var angle = ((90.0/(float(pellet_count)))*i + (base_angle*(180/PI)) - 40.0) * (PI/180.0);
+					var new_direction = Vector2(cos(angle), sin(angle));
+					var new_pellet = Projectiles.BulletProjectile.new(user.position, new_direction);
+					pellets.push_back(new_pellet);
+				for pellet in pellets:
+					game_state._projectiles.add_projectile(pellet);
+				self.current_capacity -= 1;
+				if not self.firing_sound_string.empty():
+					AudioGlobal.play_sound(self.firing_sound_string);
 		else:
 			AudioGlobal.play_sound("resources/snds/clipempty_rifle.wav");
-
 
 const HEALING_MEDKIT_TURNS = 3;
 # glorified state setter.
