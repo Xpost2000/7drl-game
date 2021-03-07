@@ -13,6 +13,22 @@ func create_tween(node_to_tween, property, start, end, tween_fn, tween_ease, tim
 	add_child(new_tween);
 	return new_tween;
 
+# idk if godot offers this builtin?
+# probably, if I google for a little bit.
+func multi_gradient_interpolation(colors, t):
+	var interval = (1.0 / (len(colors)-1));
+
+	var first_color_index = (t / interval);
+	var second_color_index = (first_color_index+1) if ((first_color_index+1) < len(colors)) else -1;
+
+	var first_color = colors[first_color_index];
+	var second_color = colors[second_color_index];
+
+	var first_t = (interval * first_color_index);
+	var second_t = (interval * second_color_index);
+
+	return lerp(first_color, second_color, (t - first_t)/(second_t - first_t));
+
 func movement_tween(node, start, end):
 	create_tween(node, "position", start, end, Tween.TRANS_LINEAR, Tween.EASE_IN, 0.25).start();
 

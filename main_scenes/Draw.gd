@@ -61,15 +61,18 @@ func _draw():
 		var tile_position = entity.position;
 		if world.is_cell_visible(tile_position) == 1.0:
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
-			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "O", Color.white);
+			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "X", Color.white);
 	for explosion in game_state._explosions:
 		var start_position = explosion.position;
 		var current_radius = ceil(((cos(explosion.animation_timer+PI)+1)/2.0) * explosion.radius);
 		for y in range(start_position.y - current_radius, start_position.y + current_radius):
 			for x in range(start_position.x - current_radius, start_position.x + current_radius):
-				if start_position.distance_squared_to(Vector2(x, y)) <= current_radius*current_radius:
+				var distance = start_position.distance_to(Vector2(x, y));
+				if distance <= current_radius:
+					var blend_time = distance/current_radius;
+					var blend_colors = [Color.yellow, Color.orange, Color.red];
 					draw_rect(Rect2(x*(FONT_HEIGHT/2), y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
-					draw_string(game_font, Vector2(x*(FONT_HEIGHT/2), (1+y)*FONT_HEIGHT), "O", Color.orange);
+					draw_string(game_font, Vector2(x*(FONT_HEIGHT/2), (1+y)*FONT_HEIGHT), "x", Utilities.multi_gradient_interpolation(blend_colors, blend_time));
 	if game_state.prompting_firing_target:
 			var tile_position = game_state.firing_target_cursor_location;
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color(0.3, 0.5, 0.3, 0.6));
