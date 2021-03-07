@@ -137,7 +137,11 @@ class EntityPlayerBrain extends EntityBrain:
 				"resources/snds/footsteps/gravel3.wav",
 				"resources/snds/footsteps/gravel4.wav"
 				]));
-				return EntityBrain.MoveTurnAction.new(move_direction);
+				var move_result = game_state._entities.try_move(entity_self, move_direction);
+				if move_result == Enumerations.COLLISION_HIT_ENTITY:
+					return EntityBrain.ShoveTurnAction.new(move_direction);
+				else:
+					return EntityBrain.MoveTurnAction.new(move_direction);
 		return null;
 
 #################################### Infected
@@ -208,7 +212,6 @@ func present_entity_actions_as_messages(entity, action):
 			_interface.message("Waiting turn...");
 		elif action is EntityBrain.MoveTurnAction:
 			var move_result = _entities.try_move(entity, action.direction);
-			# $ChunkViews.a_star_request_path_from_to(entity.position, Vector2(4, 4));
 			update_player_visibility(entity, 5);
 			match move_result:
 				Enumerations.COLLISION_HIT_WALL: _interface.message("You bumped into a wall.");
@@ -250,7 +253,13 @@ func make_shotgun():
 	gun.firing_sound_string = "resources/snds/guns/shotgun_fire_1.wav";
 	gun.reload_sound_string = "resources/snds/guns/shotgun_load_shell_2.wav";
 	return gun;
-	
+
+func make_common_infected_chaser(position):
+	var zombie = _entities.add_entity("Infected", position, EntityCommonInfectedChaserBrain.new());
+	zombie.visual_info.symbol = "Z";
+	zombie.visual_info.foreground = Color.gray;
+	return zombie;
+
 func _ready():
 	# Always assume the player is entity 0 for now.
 	# Obviously this can always change but whatever.
@@ -268,10 +277,8 @@ func _ready():
 	_player.add_item(make_pistol());
 	_player.add_item(make_shotgun());
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	for i in range (10):
-		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());
-		zombie.visual_info.symbol = "Z";
-		zombie.visual_info.foreground = Color.gray;
+	for i in range (1):
+		make_common_infected_chaser(Vector2(5, 5+i));
 
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):

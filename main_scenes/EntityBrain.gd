@@ -29,7 +29,15 @@ class UseItemAction extends TurnAction:
 
 	func do_action(game_state, target):
 		item_picked.on_use(game_state, target);
-
+class ShoveTurnAction extends TurnAction:
+	var direction: Vector2;
+	func _init(direction):
+		self.direction = direction;
+	func do_action(game_state, target):
+		var who = game_state._entities.get_entity_at_position(target.position + self.direction);
+		if who:
+			who.position += self.direction * 2;
+			AudioGlobal.play_sound("resources/snds/rifle_swing_hit_infected12.wav");
 class HealingAction extends TurnAction:
 	func do_action(game_state, target):
 		target.current_medkit.uses_left -= 1;
