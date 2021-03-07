@@ -29,10 +29,13 @@ class Gun extends Item:
 	var firing_sound_string: String;
 	var reload_sound_string: String;
 	
+	var rounds_per_shot: int;
+	
 	func as_string():
 		return self.name + " (" + str(self.current_capacity) + "/" + str(self.capacity) + ")";
 	func _init(name):
 		self.name = name;
+		self.rounds_per_shot = 1;
 	func on_use(game_state, target):
 		target.currently_equipped_weapon = self;
 	func reload():

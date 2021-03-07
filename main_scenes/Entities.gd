@@ -119,7 +119,7 @@ class Entity:
 	# item related state cause this is faster to do
 	var current_medkit: Object;
 	var use_medkit_timer: int;
-
+	var rounds_left_in_burst: int;
 	var currently_equipped_weapon: Object;
 
 func remove_entity_at_index(index):

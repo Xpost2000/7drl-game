@@ -79,7 +79,7 @@ func _draw():
 		var tile_position = entity.position;
 		if world.is_cell_visible(tile_position) == 1.0:
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
-			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "X", Color.white);
+			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "x", Color.white);
 	for explosion in game_state._explosions:
 		var start_position = explosion.position;
 		blit_explosion(start_position, explosion.radius, explosion.animation_timer/float(game_state.EXPLOSION_MAX_ANIMATION_FRAMES), [Color.yellow, Color.orange, Color.red]);

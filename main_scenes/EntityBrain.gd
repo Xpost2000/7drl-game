@@ -47,6 +47,8 @@ class FireWeaponTurnAction extends TurnAction:
 		target_location = target_where;
 	func do_action(game_state, user):
 		if user.currently_equipped_weapon:
+#			if user.currently_equipped_weapon.rounds_per_shot > 1:
+#				user.rounds_left_in_burst = user.currently_equipped_weapon.rounds_per_shot;
 			user.currently_equipped_weapon.on_fire(game_state, user, (target_location - user.position).normalized());
 class ReloadWeaponTurnAction extends TurnAction:
 	func _init():

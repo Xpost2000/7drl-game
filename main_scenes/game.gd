@@ -61,12 +61,23 @@ func player_movement_direction():
 
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
+		print(entity_self.rounds_left_in_burst)
+		if entity_self.currently_equipped_weapon and (entity_self.rounds_left_in_burst > 0) and entity_self.currently_equipped_weapon is Globals.Gun:
+			entity_self.rounds_left_in_burst -= 1;
+			if entity_self.currently_equipped_weapon.current_capacity:
+				return EntityBrain.FireWeaponTurnAction.new(game_state.firing_target_cursor_location);
+			else:
+				entity_self.rounds_left_in_burst = 0;
+				return null;
+		
 		if game_state.prompting_firing_target:
 			if Input.is_action_just_pressed("game_pause"):
 				game_state.prompting_firing_target = false;
 			if Input.is_action_just_pressed("game_fire_weapon"):
 				game_state.prompting_firing_target = false;
 				if game_state.firing_target_cursor_location != game_state._player.position:
+					if entity_self.currently_equipped_weapon.rounds_per_shot > 1:
+						entity_self.rounds_left_in_burst = entity_self.currently_equipped_weapon.rounds_per_shot-1;
 					return EntityBrain.FireWeaponTurnAction.new(game_state.firing_target_cursor_location);
 				else:
 					game_state._interface.message("You cannot shoot yourself.");
@@ -227,6 +238,7 @@ func make_rifle():
 	gun.current_capacity_limit = 8;
 	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
 	gun.reload_sound_string = "resources/snds/guns/rifle_clip_in_1.wav";
+	gun.rounds_per_shot = 3;
 	return gun;
 	
 func _ready():
@@ -366,7 +378,8 @@ func _process(_delta):
 					var actor_turn_action = actor.get_turn_action(self);
 					if actor_turn_action:
 						_entities.do_action(self, actor, actor_turn_action);
-						current_actor_turn_information.turns_left -= 1;
+						if not actor_turn_action is EntityBrain.FireWeaponTurnAction or (actor.rounds_left_in_burst > 0):
+							current_actor_turn_information.turns_left -= 1;
 						# this is important for the player as it doesn't allow
 						# them to burn through all their turns
 						if actor == _player: 
