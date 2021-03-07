@@ -151,11 +151,23 @@ class EntityPlayerBrain extends EntityBrain:
 class EntityRandomWanderingBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
+		
+func nearest_survivor_to(position):
+	var result = null;
+	var closest_distance = INF;
+	for survivor in _survivors:
+		var distance = position.distance_squared_to(survivor.position);
+		if distance < closest_distance:
+			result = survivor;
+			closest_distance = distance;
+	return result;
 
 class EntityCommonInfectedChaserBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		if entity_self.position.distance_squared_to(game_state._player.position) <= 2:
-			return EntityBrain.AttackTurnAction.new(game_state._player, 5);
+		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
+		
+		if nearest_survivor and entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
+			return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
 		else:
 			var next_position = game_state._world.distance_field_next_best_position(
 				game_state._survivor_distance_field, entity_self.position, game_state._entities);
