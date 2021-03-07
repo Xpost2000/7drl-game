@@ -107,6 +107,7 @@ class EntityPlayerBrain extends EntityBrain:
 						game_state.firing_target_cursor_location = closest_entity.position;
 					else:
 						game_state._interface.message("No visible target.");
+						game_state.firing_target_cursor_location = game_state._player.position;
 				else:
 					game_state._interface.message("No gun or projectile equipped");
 			if move_direction != Vector2.ZERO:

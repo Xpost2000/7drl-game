@@ -25,6 +25,18 @@ const neighbor_vectors = [Vector2(-1, 0),
 						  Vector2(1, -1),
 						  Vector2(-1, -1),
 						  ];
+
+func blit_explosion(position, radius, t, explosion_gradient):
+	# explosion.animation_timer/float(game_state.EXPLOSION_MAX_ANIMATION_FRAMES)
+	var current_radius = ceil(((cos(t * PI)+1)/2.0) * radius);
+	for y in range(position.y - current_radius, position.y + current_radius):
+		for x in range(position.x - current_radius, position.x + current_radius):
+			var distance = position.distance_to(Vector2(x, y));
+			if distance <= current_radius:
+				var blend_time = distance/current_radius;
+				draw_rect(Rect2(x*(FONT_HEIGHT/2), y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
+				draw_string(game_font, Vector2(x*(FONT_HEIGHT/2), (1+y)*FONT_HEIGHT), "x", Utilities.multi_gradient_interpolation(explosion_gradient, blend_time));
+
 func _draw():
 	if world:
 		var chunk_offsets = neighbor_vectors.duplicate();
@@ -64,15 +76,7 @@ func _draw():
 			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "X", Color.white);
 	for explosion in game_state._explosions:
 		var start_position = explosion.position;
-		var current_radius = ceil(((cos(explosion.animation_timer+PI)+1)/2.0) * explosion.radius);
-		for y in range(start_position.y - current_radius, start_position.y + current_radius):
-			for x in range(start_position.x - current_radius, start_position.x + current_radius):
-				var distance = start_position.distance_to(Vector2(x, y));
-				if distance <= current_radius:
-					var blend_time = distance/current_radius;
-					var blend_colors = [Color.yellow, Color.orange, Color.red];
-					draw_rect(Rect2(x*(FONT_HEIGHT/2), y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
-					draw_string(game_font, Vector2(x*(FONT_HEIGHT/2), (1+y)*FONT_HEIGHT), "x", Utilities.multi_gradient_interpolation(blend_colors, blend_time));
+		blit_explosion(start_position, explosion.radius, explosion.animation_timer/float(game_state.EXPLOSION_MAX_ANIMATION_FRAMES), [Color.yellow, Color.orange, Color.red]);
 	if game_state.prompting_firing_target:
 			var tile_position = game_state.firing_target_cursor_location;
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color(0.3, 0.5, 0.3, 0.6));
