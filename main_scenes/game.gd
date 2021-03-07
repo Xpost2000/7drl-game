@@ -211,6 +211,24 @@ func present_entity_actions_as_messages(entity, action):
 			else:
 				_interface.message(entity.name + " finished using a medkit.");
 
+func make_pistol():
+	var pistol = Globals.Gun.new("Pistol");
+	pistol.capacity = 30;
+	pistol.current_capacity = 4;
+	pistol.current_capacity_limit = 4;
+	pistol.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
+	pistol.reload_sound_string = "resources/snds/guns/pistol_clip_in_1.wav";
+	return pistol;
+
+func make_rifle():
+	var gun = Globals.Gun.new("Assault Rifle");
+	gun.capacity = 50;
+	gun.current_capacity = 8;
+	gun.current_capacity_limit = 8;
+	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
+	gun.reload_sound_string = "resources/snds/guns/rifle_clip_in_1.wav";
+	return gun;
+	
 func _ready():
 	# Always assume the player is entity 0 for now.
 	# Obviously this can always change but whatever.
@@ -224,18 +242,8 @@ func _ready():
 	_player.add_item(Globals.AdrenalineShot.new());
 	_player.add_item(Globals.PipebombItem.new());
 	_player.add_item(Globals.PillBottle.new());
-	var gun = Globals.Gun.new("Assault Rifle");
-	gun.capacity = 50;
-	gun.current_capacity = 8;
-	gun.current_capacity_limit = 8;
-	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
-	_player.add_item(gun);
-	var pistol = Globals.Gun.new("Pistol");
-	pistol.capacity = 30;
-	pistol.current_capacity = 4;
-	pistol.current_capacity_limit = 4;
-	pistol.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
-	_player.add_item(pistol);
+	_player.add_item(make_rifle());
+	_player.add_item(make_pistol());
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 	for i in range (10):
 		var zombie = _entities.add_entity("Zombie", Vector2(3, 4+i), EntityCommonInfectedChaserBrain.new());

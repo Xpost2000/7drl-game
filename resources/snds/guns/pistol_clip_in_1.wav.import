@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/pistol_clip_in_1.wav-ba998df9efba6b92c4bc9f009198d509.sample"
+
+[deps]
+
+source_file="res://resources/snds/guns/pistol_clip_in_1.wav"
+dest_files=[ "res://.import/pistol_clip_in_1.wav-ba998df9efba6b92c4bc9f009198d509.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

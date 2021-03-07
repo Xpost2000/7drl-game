@@ -27,7 +27,8 @@ class Gun extends Item:
 	var current_capacity: int;
 	
 	var firing_sound_string: String;
-
+	var reload_sound_string: String;
+	
 	func as_string():
 		return self.name + " (" + str(self.current_capacity) + "/" + str(self.capacity) + ")";
 	func _init(name):
@@ -42,6 +43,9 @@ class Gun extends Item:
 			else:
 				self.current_capacity = self.capacity;
 				self.capacity = 0;
+				
+			if not self.reload_sound_string.empty():
+				AudioGlobal.play_sound(self.reload_sound_string);
 		else:
 			AudioGlobal.play_sound("resources/snds/clipempty_rifle.wav");
 			
