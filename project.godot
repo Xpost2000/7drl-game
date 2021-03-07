@@ -28,6 +28,7 @@ Enumerations="*res://main_scenes/Enumerations.gd"
 Utilities="*res://main_scenes/Utilities.gd"
 GamePreferences="*res://main_scenes/GamePreferences.gd"
 Globals="*res://main_scenes/Globals.gd"
+AudioGlobal="*res://main_scenes/AudioGlobal.gd"
 
 [debug]
 

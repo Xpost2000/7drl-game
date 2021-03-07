@@ -94,12 +94,14 @@ class PipebombItem extends Item:
 	func _init():
 		self.name = "Pipebomb";
 	func on_use(game_state, target):
+		AudioGlobal.play_sound("resources/snds/pipebomb/beep.wav");
 		target.currently_equipped_weapon = self;
 	func on_fire(game_state, user, direction):
 		user.remove_item(user.currently_equipped_weapon);
 		user.currently_equipped_weapon = null;
 		var new_bullet = Projectiles.PipebombProjectile.new(user.position, direction);
 		game_state._projectiles.add_projectile(new_bullet);
+		AudioGlobal.play_sound("resources/snds/pipebomb/beep.wav");
 # end of item definitions;
 var _global_event = null;
 func _input(event):

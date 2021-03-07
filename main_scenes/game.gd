@@ -111,6 +111,13 @@ class EntityPlayerBrain extends EntityBrain:
 				else:
 					game_state._interface.message("No gun or projectile equipped");
 			if move_direction != Vector2.ZERO:
+				AudioGlobal.play_sound(
+				Utilities.random_nth([
+				"resources/snds/footsteps/gravel1.wav",
+				"resources/snds/footsteps/gravel2.wav",
+				"resources/snds/footsteps/gravel3.wav",
+				"resources/snds/footsteps/gravel4.wav"
+				]));
 				return EntityBrain.MoveTurnAction.new(move_direction);
 		return null;
 
@@ -356,6 +363,7 @@ func _process(_delta):
 				for explosion in _explosions:
 					# To survivors any explosion should deal 10% of their normal amount.
 					if explosion.animation_timer == (1):
+						AudioGlobal.play_sound("resources/snds/pipebomb/explode.wav");
 						for entity in _entities.entities:
 							if explosion.position.distance_squared_to(entity.position) <= explosion.radius * explosion.radius:
 								entity.health -= 100;

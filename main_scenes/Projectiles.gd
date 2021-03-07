@@ -23,6 +23,7 @@ class PipebombProjectile extends Projectile:
 				print("explode");
 			else:
 				self.timer -= 1;
+				AudioGlobal.play_sound("resources/snds/pipebomb/beep.wav");
 			return EntityBrain.WaitTurnAction.new();
 
 	var lifetime: int;

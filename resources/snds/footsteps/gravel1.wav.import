@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/gravel1.wav-a689999765f6dd5591cac1a0d41d967d.sample"
+
+[deps]
+
+source_file="res://resources/snds/footsteps/gravel1.wav"
+dest_files=[ "res://.import/gravel1.wav-a689999765f6dd5591cac1a0d41d967d.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0
