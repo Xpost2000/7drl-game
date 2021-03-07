@@ -29,6 +29,21 @@ func multi_gradient_interpolation(colors, t):
 
 	return lerp(first_color, second_color, (t - first_t)/(second_t - first_t));
 
+func weighted_random(items_and_weights):
+	var weight_sum = 0;
+	var smallest_weight = 0.0;
+	for item_and_weight in items_and_weights:
+		var weight = item_and_weight[1];
+		weight_sum += weight;
+		smallest_weight = min(smallest_weight, weight);
+	
+	var random_weight_score = rand_range(smallest_weight, weight_sum);
+	for item_and_weight in items_and_weights:
+		if random_weight_score < item_and_weight[1]:
+			return item_and_weight[0];
+		random_weight_score -= item_and_weight[1];
+	return null;
+
 func movement_tween(node, start, end):
 	create_tween(node, "position", start, end, Tween.TRANS_LINEAR, Tween.EASE_IN, 0.25).start();
 
