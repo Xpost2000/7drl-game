@@ -302,16 +302,20 @@ class EntitySpecialInfectedSmoker extends EntityBrain:
 					var direction = next_position - entity_self.position;
 					return EntityBrain.MoveTurnAction.new(direction);
 			else:
-				if nearest_survivor.can_see_from(game_state._world, entity_self.position) and entity_self.position.distance_squared_to(nearest_survivor.position) <= 24:
-					print("SUCK!");
-					self.tongue_suck_cooldown = TONGUE_SUCK_COOLDOWN;
-					return EntityBrain.SmokerTongueSuckTurnAction.new(nearest_survivor);
-				else:
-					print("MUST FIND!");
-					var next_position = game_state._world.distance_field_next_best_position(
-					game_state._survivor_distance_field, entity_self.position, game_state._entities);
-					var direction = next_position - entity_self.position;
-					return EntityBrain.MoveTurnAction.new(direction);
+				if entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
+					return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
+				if not nearest_survivor.smoker_link:
+					if nearest_survivor.can_see_from(game_state._world, entity_self.position) and entity_self.position.distance_squared_to(nearest_survivor.position) <= 24:
+						print("SUCK!");
+						self.tongue_suck_cooldown = TONGUE_SUCK_COOLDOWN;
+						return EntityBrain.SmokerTongueSuckTurnAction.new(nearest_survivor);
+					else:
+						print("MUST FIND!");
+						var next_position = game_state._world.distance_field_next_best_position(
+						game_state._survivor_distance_field, entity_self.position, game_state._entities);
+						var direction = next_position - entity_self.position;
+						return EntityBrain.MoveTurnAction.new(direction);
+				return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 		else:
 			return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 			

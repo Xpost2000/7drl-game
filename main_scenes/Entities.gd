@@ -232,20 +232,24 @@ func do_action(game_state, entity_target, turn_action):
 			direction_to_smoker.y = -1;
 		
 		var travel_to = EntityBrain.MoveTurnAction.new(direction_to_smoker);
-		travel_to.do_action(game_state, entity_target);
-	else:
-		if turn_action is EntityBrain.WaitTurnAction and entity_target.current_medkit and entity_target.use_medkit_timer >= 0:
-			var healing_action = EntityBrain.HealingAction.new();
-			emit_signal("_on_entity_do_action", entity_target, healing_action);
-			healing_action.do_action(game_state, entity_target);
-			if game_state._player == entity_target:
-				AudioGlobal.play_sound("resources/snds/bandaging_1.wav");
+		if game_state._entities.try_move(entity_target, direction_to_smoker) != Enumerations.COLLISION_NO_COLLISION:
+			entity_target.health -= 3;
+		else:
+			travel_to.do_action(game_state, entity_target);
 
-		if turn_action:
-			emit_signal("_on_entity_do_action", entity_target, turn_action);
+	if turn_action is EntityBrain.WaitTurnAction and entity_target.current_medkit and entity_target.use_medkit_timer >= 0:
+		var healing_action = EntityBrain.HealingAction.new();
+		emit_signal("_on_entity_do_action", entity_target, healing_action);
+		healing_action.do_action(game_state, entity_target);
+		if game_state._player == entity_target:
+			AudioGlobal.play_sound("resources/snds/bandaging_1.wav");
+
+	if turn_action:
+		emit_signal("_on_entity_do_action", entity_target, turn_action);
+		if not (entity_target.smoker_link and turn_action is EntityBrain.MoveTurnAction):
 			turn_action.do_action(game_state, entity_target);
-			if not (turn_action is EntityBrain.WaitTurnAction):
-				entity_target.current_medkit = null;
+		if not (turn_action is EntityBrain.WaitTurnAction):
+			entity_target.current_medkit = null;
 
 func _ready():
 	_entity_sprites = get_parent().get_node("Entities");
