@@ -288,29 +288,33 @@ class EntitySpecialInfectedJockey extends EntityBrain:
 class EntitySpecialInfectedSmoker extends EntityBrain:
 	const TONGUE_SUCK_COOLDOWN = 4;
 	var tongue_suck_cooldown: int;
+	var target: Object;
+	func on_hit(game_state, entity_self, from_entity):
+		if entity_self.is_dead():
+			game_state.add_explosion(entity_self.position, 6, 0, Enumerations.EXPLOSION_TYPE_SMOKE);
+			self.target.smoker_link = null;
 	func get_turn_action(entity_self, game_state):
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
-		
-		if nearest_survivor:
-			if self.tongue_suck_cooldown > 0 and not nearest_survivor.smoker_link:
+		if not self.target:
+			self.target = nearest_survivor;
+		if self.target:
+			if self.tongue_suck_cooldown > 0 and not self.target.smoker_link:
 				self.tongue_suck_cooldown -= 1;
-				if entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
-					return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
+				if entity_self.position.distance_squared_to(self.target.position) <= 2:
+					return EntityBrain.AttackTurnAction.new(self.target, 5);
 				else:
 					var next_position = game_state._world.distance_field_next_best_position(
 						game_state._survivor_distance_field, entity_self.position, game_state._entities);
 					var direction = next_position - entity_self.position;
 					return EntityBrain.MoveTurnAction.new(direction);
 			else:
-				if entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
-					return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
-				if not nearest_survivor.smoker_link:
-					if nearest_survivor.can_see_from(game_state._world, entity_self.position) and entity_self.position.distance_squared_to(nearest_survivor.position) <= 24:
-						print("SUCK!");
+				if entity_self.position.distance_squared_to(self.target.position) <= 2:
+					return EntityBrain.AttackTurnAction.new(self.target, 5);
+				if not self.target.smoker_link:
+					if self.target.can_see_from(game_state._world, entity_self.position) and entity_self.position.distance_squared_to(self.target.position) <= 24:
 						self.tongue_suck_cooldown = TONGUE_SUCK_COOLDOWN;
-						return EntityBrain.SmokerTongueSuckTurnAction.new(nearest_survivor);
+						return EntityBrain.SmokerTongueSuckTurnAction.new(self.target);
 					else:
-						print("MUST FIND!");
 						var next_position = game_state._world.distance_field_next_best_position(
 						game_state._survivor_distance_field, entity_self.position, game_state._entities);
 						var direction = next_position - entity_self.position;
@@ -672,6 +676,9 @@ func _process(_delta):
 							Enumerations.EXPLOSION_TYPE_FIRE:
 								AudioGlobal.play_sound("resources/snds/ceda_jar_explode.wav");
 								_flame_areas.push_back([explosion.position, 2, 8]);
+								pass;
+							Enumerations.EXPLOSION_TYPE_SMOKE:
+								AudioGlobal.play_sound("resources/snds/smoker/smoker_explode_04.wav");
 								pass;
 							Enumerations.EXPLOSION_TYPE_NORMAL:
 								AudioGlobal.play_sound("resources/snds/pipebomb/explode.wav");

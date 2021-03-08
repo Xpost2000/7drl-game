@@ -112,6 +112,7 @@ func _draw():
 			Enumerations.EXPLOSION_TYPE_FIRE: color_palette = [Color.blue, Color.yellow, Color.orange, Color.orangered];
 			Enumerations.EXPLOSION_TYPE_BOOMERBILE: color_palette = [Color.white, Color.lightgreen, Color.green, Color.greenyellow];
 			Enumerations.EXPLOSION_TYPE_NORMAL: color_palette = [Color.yellow, Color.orange, Color.red];
+			Enumerations.EXPLOSION_TYPE_SMOKE: color_palette = [Color.darkgray, Color.white, Color.gray];
 				
 		blit_explosion(start_position, explosion.radius, explosion.animation_timer/float(game_state.EXPLOSION_MAX_ANIMATION_FRAMES), color_palette);
 	if game_state.prompting_firing_target:
