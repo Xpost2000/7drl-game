@@ -127,7 +127,7 @@ class EntityPlayerBrain extends EntityBrain:
 			elif Input.is_action_just_pressed("game_fire_weapon"):
 				if entity_self.currently_equipped_weapon:
 					game_state.prompting_firing_target = true;
-					var closest_entity = entity_self.find_closest_entity(game_state, true);
+					var closest_entity = entity_self.find_closest_zombie_entity(game_state, game_state._survivors, true);
 					if closest_entity:
 						game_state.firing_target_cursor_location = closest_entity.position;
 					else:
@@ -165,8 +165,9 @@ func nearest_survivor_to(position):
 	for survivor in _survivors:
 		var distance = position.distance_squared_to(survivor.position);
 		if distance < closest_distance:
-			result = survivor;
-			closest_distance = distance;
+			if not survivor.is_dead():
+				result = survivor;
+				closest_distance = distance;
 	return result;
 
 class EntityCommonInfectedChaserBrain extends EntityBrain:
@@ -292,12 +293,15 @@ class EntitySpecialInfectedSmoker extends EntityBrain:
 	func on_hit(game_state, entity_self, from_entity):
 		if entity_self.is_dead():
 			game_state.add_explosion(entity_self.position, 6, 0, Enumerations.EXPLOSION_TYPE_SMOKE);
-			self.target.smoker_link = null;
+			if self.target:
+				self.target.smoker_link = null;
 	func get_turn_action(entity_self, game_state):
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
 		if not self.target:
-			self.target = nearest_survivor;
-		if self.target:
+			if not nearest_survivor.is_dead():
+				self.target = nearest_survivor;
+			
+		if self.target and not self.target.is_dead():
 			if self.tongue_suck_cooldown > 0 and not self.target.smoker_link:
 				self.tongue_suck_cooldown -= 1;
 				if entity_self.position.distance_squared_to(self.target.position) <= 2:
@@ -308,19 +312,23 @@ class EntitySpecialInfectedSmoker extends EntityBrain:
 					var direction = next_position - entity_self.position;
 					return EntityBrain.MoveTurnAction.new(direction);
 			else:
-				if entity_self.position.distance_squared_to(self.target.position) <= 2:
-					return EntityBrain.AttackTurnAction.new(self.target, 5);
-				if not self.target.smoker_link:
-					if self.target.can_see_from(game_state._world, entity_self.position) and entity_self.position.distance_squared_to(self.target.position) <= 24:
-						self.tongue_suck_cooldown = TONGUE_SUCK_COOLDOWN;
-						return EntityBrain.SmokerTongueSuckTurnAction.new(self.target);
-					else:
-						var next_position = game_state._world.distance_field_next_best_position(
-						game_state._survivor_distance_field, entity_self.position, game_state._entities);
-						var direction = next_position - entity_self.position;
-						return EntityBrain.MoveTurnAction.new(direction);
+				if self.target and self.target.is_dead():
+					self.target.smoker_link = null;
+				else:
+					if entity_self.position.distance_squared_to(self.target.position) <= 2:
+						return EntityBrain.AttackTurnAction.new(self.target, 5);
+					if not self.target.smoker_link:
+						if self.target.can_see_from(game_state._world, entity_self.position) and entity_self.position.distance_squared_to(self.target.position) <= 24:
+							self.tongue_suck_cooldown = TONGUE_SUCK_COOLDOWN;
+							return EntityBrain.SmokerTongueSuckTurnAction.new(self.target);
+						else:
+							var next_position = game_state._world.distance_field_next_best_position(
+							game_state._survivor_distance_field, entity_self.position, game_state._entities);
+							var direction = next_position - entity_self.position;
+							return EntityBrain.MoveTurnAction.new(direction);
 				return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 		else:
+			self.target = null;
 			return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 			
 class EntitySpecialInfectedSpitter extends EntityBrain:
@@ -457,28 +465,28 @@ func initialize_survivors():
 	_player.add_item(make_rifle());
 	_player.add_item(make_pistol());
 	_player.add_item(make_shotgun());
-#	var second = _entities.add_entity("Louis", Vector2(2, 2), EntitySurvivorBrain.new());
-#	second.health = 100;
-#	second.turn_speed = 1;
-#	second.flags = 1;
-#	second.add_item(Globals.Medkit.new());
-#	second.add_item(make_pistol());
-#	second.add_item(Globals.PipebombItem.new());
-#	var third = _entities.add_entity("Francis", Vector2(4, 3), EntitySurvivorBrain.new());
-#	third.health = 100;
-#	third.turn_speed = 1;
-#	third.flags = 1;
-#	third.add_item(Globals.Medkit.new());
-#	third.add_item(make_pistol());
-#	third.add_item(Globals.PipebombItem.new());
-#	var fourth = _entities.add_entity("Zoey", Vector2(1, 4), EntitySurvivorBrain.new());
-#	fourth.health = 100;
-#	fourth.turn_speed = 1;
-#	fourth.flags = 1;
-#	fourth.add_item(Globals.Medkit.new());
-#	fourth.add_item(make_pistol());
-#	fourth.add_item(Globals.PipebombItem.new());
-	_survivors = [_player];#[_player, second, third, fourth];
+	var second = _entities.add_entity("Louis", Vector2(2, 2), EntitySurvivorBrain.new());
+	second.health = 100;
+	second.turn_speed = 1;
+	second.flags = 1;
+	second.add_item(Globals.Medkit.new());
+	second.add_item(make_pistol());
+	second.add_item(Globals.PipebombItem.new());
+	var third = _entities.add_entity("Francis", Vector2(4, 3), EntitySurvivorBrain.new());
+	third.health = 100;
+	third.turn_speed = 1;
+	third.flags = 1;
+	third.add_item(Globals.Medkit.new());
+	third.add_item(make_pistol());
+	third.add_item(Globals.PipebombItem.new());
+	var fourth = _entities.add_entity("Zoey", Vector2(1, 4), EntitySurvivorBrain.new());
+	fourth.health = 100;
+	fourth.turn_speed = 1;
+	fourth.flags = 1;
+	fourth.add_item(Globals.Medkit.new());
+	fourth.add_item(make_pistol());
+	fourth.add_item(Globals.PipebombItem.new());
+	_survivors = [_player, second, third, fourth];
 
 func _ready():
 	initialize_survivors();

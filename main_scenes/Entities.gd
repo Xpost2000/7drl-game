@@ -62,6 +62,17 @@ class Entity:
 					closest_distance = distance;
 					closest_entity = entity;
 		return closest_entity;
+	# not_zombies.. REALLY? Man that's seriously fucked.
+	func find_closest_zombie_entity(game_state, not_zombies, account_for_visibility_map=false):
+		var closest_entity = null;
+		var closest_distance = INF;
+		for entity in game_state._entities.entities:
+			if entity != self and (not not_zombies.has(entity)) and game_state._world.is_cell_visible(entity.position) and (self.can_see_from(game_state._world, entity.position) or (not account_for_visibility_map)):
+				var distance = self.position.distance_to(entity.position);
+				if distance < closest_distance:
+					closest_distance = distance;
+					closest_entity = entity;
+		return closest_entity;
 
 	func health_percentage():
 		return float(self.health) / float(self.max_health);
@@ -263,6 +274,8 @@ func _process(delta):
 		sprite_node.position = (entity.position+Vector2(0.5, 0.5)) * _chunk_views.TILE_SIZE;
 		if entity.is_dead() and not (entity.flags & FLAG_DO_NOT_REMOVE_ON_DEATH):
 			deletion_list.push_back(entity);
+		if entity.is_dead():
+			entity.smoker_link = null;
 
 	for entity in deletion_list:
 		remove_entity(entity);
