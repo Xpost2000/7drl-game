@@ -219,18 +219,33 @@ func move_entity(entity, direction):
 func do_action(game_state, entity_target, turn_action):
 	# only allow healing for passive actions like wait turn
 	# basically it's a state.
-	if turn_action is EntityBrain.WaitTurnAction and entity_target.current_medkit and entity_target.use_medkit_timer >= 0:
-		var healing_action = EntityBrain.HealingAction.new();
-		emit_signal("_on_entity_do_action", entity_target, healing_action);
-		healing_action.do_action(game_state, entity_target);
-		if game_state._player == entity_target:
-			AudioGlobal.play_sound("resources/snds/bandaging_1.wav");
+	if entity_target.smoker_link:
+		var direction_to_smoker = entity_target.smoker_link.position - entity_target.position;
+		if direction_to_smoker.x > 0:
+			direction_to_smoker.x = 1;
+		elif direction_to_smoker.x < 0:
+			direction_to_smoker.x = -1;
+		
+		if direction_to_smoker.y > 0:
+			direction_to_smoker.y = 1;
+		elif direction_to_smoker.y < 0:
+			direction_to_smoker.y = -1;
+		
+		var travel_to = EntityBrain.MoveTurnAction.new(direction_to_smoker);
+		travel_to.do_action(game_state, entity_target);
+	else:
+		if turn_action is EntityBrain.WaitTurnAction and entity_target.current_medkit and entity_target.use_medkit_timer >= 0:
+			var healing_action = EntityBrain.HealingAction.new();
+			emit_signal("_on_entity_do_action", entity_target, healing_action);
+			healing_action.do_action(game_state, entity_target);
+			if game_state._player == entity_target:
+				AudioGlobal.play_sound("resources/snds/bandaging_1.wav");
 
-	if turn_action:
-		emit_signal("_on_entity_do_action", entity_target, turn_action);
-		turn_action.do_action(game_state, entity_target);
-		if not (turn_action is EntityBrain.WaitTurnAction):
-			entity_target.current_medkit = null;
+		if turn_action:
+			emit_signal("_on_entity_do_action", entity_target, turn_action);
+			turn_action.do_action(game_state, entity_target);
+			if not (turn_action is EntityBrain.WaitTurnAction):
+				entity_target.current_medkit = null;
 
 func _ready():
 	_entity_sprites = get_parent().get_node("Entities");
