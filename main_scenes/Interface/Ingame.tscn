@@ -20,9 +20,9 @@ anchor_left = 0.00234375
 anchor_top = 0.125
 anchor_right = 0.00234375
 anchor_bottom = 0.125
-margin_left = 870.0
+margin_left = 913.0
 margin_top = -1.0
-margin_right = 1232.0
+margin_right = 1275.0
 margin_bottom = 711.0
 __meta__ = {
 "_edit_use_anchors_": false
@@ -137,3 +137,6 @@ margin_right = 1282.0
 margin_bottom = 65.0
 text = "Press g to pickup item."
 align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}

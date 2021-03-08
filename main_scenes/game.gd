@@ -188,7 +188,7 @@ class EntitySpecialInfectedTank extends EntityBrain:
 		if self.victim == null or self.victim.is_dead() and entity_self.can_see_from(game_state._world, nearest_survivor.position):
 			self.victim = nearest_survivor;
 		if self.victim and not self.victim.is_dead():
-			if entity_self.position.distance_squared_to(self.victim.position) <= 2:
+			if entity_self.position.distance_squared_to(self.victim.position) <= 3:
 				var direction = self.victim.position.direction_to(entity_self.position).normalized();
 				if direction.x > 0:
 					direction.x = -1;
@@ -213,7 +213,15 @@ class EntitySpecialInfectedTank extends EntityBrain:
 
 class EntitySpecialInfectedHunter extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		pass;
+		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
+		
+		if nearest_survivor and entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
+			return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
+		else:
+			var next_position = game_state._world.distance_field_next_best_position(
+				game_state._survivor_distance_field, entity_self.position, game_state._entities);
+			var direction = next_position - entity_self.position;
+			return EntityBrain.MoveTurnAction.new(direction);
 
 class EntitySpecialInfectedWitch extends EntityBrain:
 	var impending_victims: Array;
@@ -279,7 +287,15 @@ class EntitySpecialInfectedJockey extends EntityBrain:
 
 class EntitySpecialInfectedSmoker extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		pass;
+		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
+		
+		if nearest_survivor and entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
+			return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
+		else:
+			var next_position = game_state._world.distance_field_next_best_position(
+				game_state._survivor_distance_field, entity_self.position, game_state._entities);
+			var direction = next_position - entity_self.position;
+			return EntityBrain.MoveTurnAction.new(direction);
 
 class EntitySpecialInfectedSpitter extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
@@ -403,7 +419,7 @@ func initialize_survivors():
 	_player.health = 100;
 	_player.turn_speed = 1;
 	_player.flags = 1;
-	_player.position = Vector2(4, 5);
+	_player.position = Vector2(12, 7);
 	_player.add_item(Globals.Medkit.new());
 	_player.add_item(Globals.AdrenalineShot.new());
 	_player.add_item(Globals.PipebombItem.new());
@@ -442,7 +458,9 @@ func _ready():
 	initialize_survivors();
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 #	make_boomer(Vector2(3, 3));
-#	for i in range (1):
+	make_smoker(Vector2(3, 3));
+#	make_tank(Vector2(8, 9));
+#	for i in range (5):
 #		make_common_infected_chaser(Vector2(5, 5+i));
 
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
