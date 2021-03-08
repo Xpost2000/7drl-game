@@ -286,17 +286,35 @@ class EntitySpecialInfectedJockey extends EntityBrain:
 		pass;
 
 class EntitySpecialInfectedSmoker extends EntityBrain:
+	const TONGUE_SUCK_COOLDOWN = 4;
+	var tongue_suck_cooldown: int;
 	func get_turn_action(entity_self, game_state):
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
 		
-		if nearest_survivor and entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
-			return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
+		if nearest_survivor:
+			if self.tongue_suck_cooldown > 0:
+				self.tongue_suck_cooldown -= 1;
+				if entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
+					return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
+				else:
+					var next_position = game_state._world.distance_field_next_best_position(
+						game_state._survivor_distance_field, entity_self.position, game_state._entities);
+					var direction = next_position - entity_self.position;
+					return EntityBrain.MoveTurnAction.new(direction);
+			else:
+				if nearest_survivor.can_see_from(game_state._world, entity_self.position) and entity_self.position.distance_squared_to(nearest_survivor.position) <= 24:
+					print("SUCK!");
+					self.tongue_suck_cooldown = TONGUE_SUCK_COOLDOWN;
+					return EntityBrain.AttackTurnAction.new(nearest_survivor, 15);
+				else:
+					print("MUST FIND!");
+					var next_position = game_state._world.distance_field_next_best_position(
+					game_state._survivor_distance_field, entity_self.position, game_state._entities);
+					var direction = next_position - entity_self.position;
+					return EntityBrain.MoveTurnAction.new(direction);
 		else:
-			var next_position = game_state._world.distance_field_next_best_position(
-				game_state._survivor_distance_field, entity_self.position, game_state._entities);
-			var direction = next_position - entity_self.position;
-			return EntityBrain.MoveTurnAction.new(direction);
-
+			return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
+			
 class EntitySpecialInfectedSpitter extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		pass;
