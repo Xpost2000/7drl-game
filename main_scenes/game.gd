@@ -255,7 +255,19 @@ class EntitySpecialInfectedWitch extends EntityBrain:
 			return EntityBrain.WaitTurnAction.new();
 
 class EntitySpecialInfectedBoomer extends EntityBrain:
+	func on_hit(game_state, entity_self, from_entity):
+		if entity_self.is_dead():
+			game_state.add_explosion(entity_self.position, 6, 0, Enumerations.EXPLOSION_TYPE_BOOMERBILE);
 	func get_turn_action(entity_self, game_state):
+		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
+		
+		if nearest_survivor and entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
+			return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
+		else:
+			var next_position = game_state._world.distance_field_next_best_position(
+				game_state._survivor_distance_field, entity_self.position, game_state._entities);
+			var direction = next_position - entity_self.position;
+			return EntityBrain.MoveTurnAction.new(direction);
 		pass;
 
 class EntitySpecialInfectedJockey extends EntityBrain:
@@ -347,16 +359,37 @@ func make_witch(position):
 	var zombie = _entities.add_entity("Witch", position, EntitySpecialInfectedWitch.new());
 	zombie.visual_info.symbol = "W";
 	zombie.visual_info.foreground = Color.white;
-	zombie.health = 350;
-	zombie.turn_speed = 3;
+	zombie.health = 700;
+	zombie.turn_speed = 2;
 	return zombie;
 	
 func make_tank(position):
 	var zombie = _entities.add_entity("Tank", position, EntitySpecialInfectedTank.new());
 	zombie.visual_info.symbol = "T";
 	zombie.visual_info.foreground = Color.gray;
-	zombie.health = 400;
+	zombie.health = 670;
 	zombie.turn_speed = 2;
+	return zombie;
+func make_smoker(position):
+	var zombie = _entities.add_entity("Smoker", position, EntitySpecialInfectedSmoker.new());
+	zombie.visual_info.symbol = "S";
+	zombie.visual_info.foreground = Color.darkgray;
+	zombie.health = 325;
+	zombie.turn_speed = 1;
+	return zombie;
+func make_hunter(position):
+	var zombie = _entities.add_entity("Hunter", position, EntitySpecialInfectedHunter.new());
+	zombie.visual_info.symbol = "H";
+	zombie.visual_info.foreground = Color.navyblue;
+	zombie.health = 150;
+	zombie.turn_speed = 2;
+	return zombie;
+func make_boomer(position):
+	var zombie = _entities.add_entity("Boomer", position, EntitySpecialInfectedBoomer.new());
+	zombie.visual_info.symbol = "B";
+	zombie.visual_info.foreground = Color.seagreen;
+	zombie.health = 200;
+	zombie.turn_speed = 1;
 	return zombie;
 
 func initialize_survivors():
@@ -405,7 +438,7 @@ func initialize_survivors():
 func _ready():
 	initialize_survivors();
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	make_tank(Vector2(3, 3));
+	make_boomer(Vector2(3, 3));
 #	for i in range (1):
 #		make_common_infected_chaser(Vector2(5, 5+i));
 

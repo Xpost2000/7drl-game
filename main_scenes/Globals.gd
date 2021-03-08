@@ -68,7 +68,7 @@ class Gun extends Item:
 				var base_angle = direction.angle();
 				var pellet_count = 4;
 				for i in range(pellet_count):
-					var angle = ((90.0/(float(pellet_count)))*i + (base_angle*(180/PI)) - 40.0) * (PI/180.0);
+					var angle = ((32.0/(float(pellet_count)))*i + (base_angle*(180/PI)) - 15.0) * (PI/180.0);
 					var new_direction = Vector2(cos(angle), sin(angle));
 					var new_pellet = Projectiles.BulletProjectile.new(user.position, new_direction);
 					new_pellet.owner = user;

@@ -55,14 +55,20 @@ class PipebombProjectile extends Projectile:
 			bomb.visual_info.foreground = Color(1, 1, 1, 1);
 			
 class MolotovProjectile extends Projectile:
+	var lifetime: int;
 	func _init(position, direction):
 		self.position = position;
 		self.direction = direction;
 		self.dead = false;
+		self.lifetime = 5;
 	func tick(game_state):
 		var old_position = self.position;
+		
+		if self.lifetime <= 0:
+			self.dead = true;
+		
 		self.position += self.direction;
-
+		self.lifetime -= 1;
 		if game_state._world.is_solid_tile(self.position.round()) or not game_state._world.get_chunk_at(self.position.round()):
 			self.dead = true;
 		for entity in game_state._entities.entities:
@@ -75,13 +81,19 @@ class MolotovProjectile extends Projectile:
 			self.position = self.position.round();
 			game_state.add_explosion(self.position, 2, 15, Enumerations.EXPLOSION_TYPE_FIRE);
 class BoomerBileProjectile extends Projectile:
+	var lifetime: int;
 	func _init(position, direction):
 		self.position = position;
 		self.direction = direction;
 		self.dead = false;
+		self.lifetime = 5;
 	func tick(game_state):
 		var old_position = self.position;
 		self.position += self.direction;
+
+		if self.lifetime <= 0:
+			self.dead = true;
+		self.lifetime -= 1;
 
 		if game_state._world.is_solid_tile(self.position.round()) or not game_state._world.get_chunk_at(self.position.round()):
 			self.dead = true;
@@ -100,7 +112,7 @@ class BulletProjectile extends Projectile:
 	func _init(position, direction):
 		self.position = position;
 		self.direction = direction;
-		self.lifetime = 10;
+		self.lifetime = 15;
 		self.penetration_health = 0;
 		self.dead = false;
 	func tick(game_state):
