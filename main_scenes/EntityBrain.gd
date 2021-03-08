@@ -110,7 +110,15 @@ class AttackTurnAction extends TurnAction:
 		if self.target:
 			self.target.health -= self.damage;
 			self.target.on_hit(game_state, user);
-
+class SmokerTongueSuckTurnAction extends TurnAction:
+	var target: Object;
+	var damage: int;
+	func _init(target):
+		self.target = target;
+		self.damage = damage;
+	func do_action(game_state, user):
+		if self.target and self.target.smoker_link == null:
+			self.target.smoker_link = user;
 func on_hit(game_state, self_entity, from):
 	pass;
 func get_turn_action(entity_self, game_state):

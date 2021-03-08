@@ -73,6 +73,10 @@ func _draw():
 				var entity_visual = entity.visual_info;
 				draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), entity_visual.background);
 				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), entity_visual.symbol, entity_visual.foreground*world.is_cell_visible(tile_position));
+				if entity.smoker_link:
+					var smoker_entity = entity.smoker_link;
+					draw_line(Vector2((entity.position.x+0.5) * (FONT_HEIGHT/2), (entity.position.y+1) * (FONT_HEIGHT)), 
+					Vector2((smoker_entity.position.x+0.5) * (FONT_HEIGHT/2), (smoker_entity.position.y+1) * (FONT_HEIGHT)), Color(0.2, 0.2, 0.2, 1), 5);
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)-0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
 				# draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2)+0.25, (1+tile_position.y)*FONT_HEIGHT-0.25), "@", Color.red);
 	for entity in game_state._projectiles.projectiles:

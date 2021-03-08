@@ -27,7 +27,7 @@ class ItemPickup:
 
 var item_pickups = []; # I will probably move this later
 const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
-
+# scary god class.
 class Entity:
 	class VisualInfo:
 		func _init(symbol='@', foreground=Color.red, background=Color.black):
@@ -118,6 +118,11 @@ class Entity:
 	var associated_sprite_node: Sprite;
 	var flags: int;
 	var brain: EntityBrain;
+
+	# specific state. Honestly even not in a jam I'm not quite sure
+	# how to best handle entity-entity interactions that are stateful
+	# like this... I need to make more things...
+	var smoker_link: Object;
 
 	# item related state cause this is faster to do
 	var current_medkit: Object;

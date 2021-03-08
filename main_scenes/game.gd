@@ -292,7 +292,7 @@ class EntitySpecialInfectedSmoker extends EntityBrain:
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
 		
 		if nearest_survivor:
-			if self.tongue_suck_cooldown > 0:
+			if self.tongue_suck_cooldown > 0 and not nearest_survivor.smoker_link:
 				self.tongue_suck_cooldown -= 1;
 				if entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
 					return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
@@ -305,7 +305,7 @@ class EntitySpecialInfectedSmoker extends EntityBrain:
 				if nearest_survivor.can_see_from(game_state._world, entity_self.position) and entity_self.position.distance_squared_to(nearest_survivor.position) <= 24:
 					print("SUCK!");
 					self.tongue_suck_cooldown = TONGUE_SUCK_COOLDOWN;
-					return EntityBrain.AttackTurnAction.new(nearest_survivor, 15);
+					return EntityBrain.SmokerTongueSuckTurnAction.new(nearest_survivor);
 				else:
 					print("MUST FIND!");
 					var next_position = game_state._world.distance_field_next_best_position(
