@@ -515,7 +515,10 @@ func step_round(_delta):
 	for entity in _entities.entities:
 		for flame_source in _flame_areas:
 			if entity.position.distance_squared_to(flame_source[0]) < flame_source[1]:
-				entity.health -= 15;
+				if entity.brain is EntityPlayerBrain or entity.brain is EntitySurvivorBrain:
+					entity.health -= 5;
+				else:
+					entity.health -= (17 + (randi()%3));
 
 func _process(_delta):
 	rerender_chunks();
