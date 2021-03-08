@@ -18,6 +18,9 @@ var _explosions = [];
 
 # array of (Vector2, int)
 var _boomer_bile_sources = [];
+# Vector2, int(radius), int(timer)
+var _flame_areas = [];
+
 # man I love how inconsistent my usage of class is.
 const EXPLOSION_MAX_ANIMATION_FRAMES = 12;
 const EXPLOSION_ANIMATION_FPS = 46;
@@ -405,8 +408,8 @@ func initialize_survivors():
 	_player.add_item(Globals.AdrenalineShot.new());
 	_player.add_item(Globals.PipebombItem.new());
 	_player.add_item(Globals.MolotovCocktailItem.new());
-	_player.add_item(Globals.BoomerBileItem.new());
-	_player.add_item(Globals.BoomerBileItem.new());
+	_player.add_item(Globals.MolotovCocktailItem.new());
+	_player.add_item(Globals.MolotovCocktailItem.new());
 	_player.add_item(Globals.BoomerBileItem.new());
 	_player.add_item(Globals.PillBottle.new());
 	_player.add_item(make_rifle());
@@ -438,7 +441,7 @@ func initialize_survivors():
 func _ready():
 	initialize_survivors();
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-	make_boomer(Vector2(3, 3));
+#	make_boomer(Vector2(3, 3));
 #	for i in range (1):
 #		make_common_infected_chaser(Vector2(5, 5+i));
 
@@ -488,7 +491,6 @@ func regenerate_infected_distance_field():
 	for survivor in _survivors:
 		sources.push_back([survivor.position, 0]);
 	for boomer_bile_source in _boomer_bile_sources:
-		print(boomer_bile_source);
 		sources.push_back([boomer_bile_source[0], 0]);
 	_survivor_distance_field = _world.distance_field_map_from(sources);
 	_survivor_distance_field_regenerate_timer = MAX_REGENERATE_FIELD_TURN_TIME;
@@ -504,6 +506,11 @@ func step_round(_delta):
 		if boomer_bile_source[1] <= 0:
 			_boomer_bile_sources.erase(boomer_bile_source);
 		boomer_bile_source[1] -= 1;
+		
+	for flame_source in _flame_areas:
+		if flame_source[2] <= 0:
+			_flame_areas.erase(flame_source);
+		flame_source[2] -= 1;
 
 func _process(_delta):
 	rerender_chunks();
@@ -616,6 +623,7 @@ func _process(_delta):
 								pass;
 							Enumerations.EXPLOSION_TYPE_FIRE:
 								AudioGlobal.play_sound("resources/snds/ceda_jar_explode.wav");
+								_flame_areas.push_back([explosion.position, 2, 8]);
 								pass;
 							Enumerations.EXPLOSION_TYPE_NORMAL:
 								AudioGlobal.play_sound("resources/snds/pipebomb/explode.wav");

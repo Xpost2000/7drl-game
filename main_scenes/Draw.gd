@@ -80,6 +80,26 @@ func _draw():
 		if world.is_cell_visible(tile_position) == 1.0:
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
 			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "x", Color.white);
+			
+	for flame_source in game_state._flame_areas:
+		var tile_position = flame_source[0];
+		var radius = flame_source[1];
+		if world.is_cell_visible(tile_position):
+			var current_radius = radius;
+			for y in range(tile_position.y - current_radius, tile_position.y + current_radius+1):
+				for x in range(tile_position.x - current_radius, tile_position.x + current_radius+1):
+					var distance = max(tile_position.distance_to(Vector2(x, y)), 0.1);
+					if distance <= current_radius and not world.is_solid_tile(Vector2(x, y)):
+						var blend_time = distance/(current_radius);
+						draw_rect(Rect2(x*(FONT_HEIGHT/2), y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
+						draw_string(
+							game_font,
+							Vector2(x*(FONT_HEIGHT/2), 
+									(1+y)*FONT_HEIGHT),
+									 "x", 
+									Utilities.multi_gradient_interpolation(
+										[Color.yellow, Color.orange, Color.orangered],
+												(((sin(flame_source[2])+1)/2.0) * 8.0)/8.0));
 	for explosion in game_state._explosions:
 		var start_position = explosion.position;
 		var color_palette;
