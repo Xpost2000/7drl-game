@@ -4,6 +4,7 @@ extends Node2D
 
 const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
 const TurnScheduler = preload("res://main_scenes/TurnScheduler.gd");
+const DimmerRect = preload("res://main_scenes/Interface/DimmerRect.gd");
 
 var _passed_turns = 0;
 var _player = null;
@@ -673,7 +674,18 @@ func _process(_delta):
 		if _show_summary_state_timer <= 0.0:
 			_show_summary_state_timer = SHOW_SUMMARY_STATE_TIMER_MAX;
 			_interface.state = _interface.INGAME_STATE;
-			generate_next_room();
+			if (_temporary_current_dungeon_room) >= MAX_DUNGEON_LEVELS:
+				var new_dimmer_rect = DimmerRect.new();
+				new_dimmer_rect.disabled = false;
+				new_dimmer_rect.rect_size = Vector2(1280, 720);
+				new_dimmer_rect.color = Color.black;
+				new_dimmer_rect.begin_fade_in();
+				_interface.add_child(new_dimmer_rect);
+				new_dimmer_rect.connect("finished", _interface, "remove_child", [new_dimmer_rect]);
+				new_dimmer_rect.connect("finished", new_dimmer_rect, "queue_free");
+				new_dimmer_rect.connect("finished", get_tree(), "change_scene_to", [Globals.game_ending_scene]);
+			else:
+				generate_next_room();
 		else:
 			_show_summary_state_timer -= _delta;
 		
