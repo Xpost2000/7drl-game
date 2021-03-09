@@ -749,6 +749,10 @@ func _process(_delta):
 								for entity in _entities.entities:
 									if explosion.position.distance_squared_to(entity.position) <= explosion.radius * explosion.radius:
 										entity.health -= 100;
+										entity.bleed(self, Vector2(-1, 0));
+										entity.bleed(self, Vector2(1, 0));
+										entity.bleed(self, Vector2(0, -1));
+										entity.bleed(self, Vector2(0, 1));
 								pass;
 
 					if explosion.animation_timer >= EXPLOSION_MAX_ANIMATION_FRAMES:
