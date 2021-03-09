@@ -571,7 +571,8 @@ func step(_delta):
 func regenerate_infected_distance_field():
 	var sources = [];
 	for survivor in _survivors:
-		sources.push_back([survivor.position, 0]);
+		if not survivor.is_dead():
+			sources.push_back([survivor.position, 0]);
 	for boomer_bile_source in _boomer_bile_sources:
 		sources.push_back([boomer_bile_source[0], 0]);
 	_survivor_distance_field = _world.distance_field_map_from(sources);

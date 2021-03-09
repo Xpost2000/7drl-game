@@ -35,8 +35,8 @@ class ShoveTurnAction extends TurnAction:
 		self.direction = direction;
 	func do_action(game_state, target):
 		var who = game_state._entities.get_entity_at_position(target.position + self.direction);
-		who.on_hit(game_state, target);
 		if who:
+			who.on_hit(game_state, target);
 			var move_result_first = game_state._entities.try_move(who, self.direction);
 			if move_result_first == Enumerations.COLLISION_NO_COLLISION:
 				who.position += self.direction;
