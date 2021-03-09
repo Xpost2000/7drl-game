@@ -11,11 +11,13 @@ const UNDEFINED = -999;
 const DEATH_STATE = 0;
 const INGAME_STATE = 1;
 const PAUSE_STATE = 2;
+const SUMMARY_STATE = 3;
 
 onready var states = {
 	DEATH_STATE: $Death,
 	INGAME_STATE: $Ingame,
 	PAUSE_STATE: $Pause,
+	SUMMARY_STATE: $MovingToNextFloor,
 };
 onready var state = UNDEFINED setget set_state;
 onready var previous_state = INGAME_STATE;

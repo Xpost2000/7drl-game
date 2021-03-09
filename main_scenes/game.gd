@@ -298,7 +298,7 @@ class EntitySpecialInfectedSmoker extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
 		if not self.target:
-			if not nearest_survivor.is_dead():
+			if nearest_survivor and not nearest_survivor.is_dead():
 				self.target = nearest_survivor;
 			
 		if self.target and not self.target.is_dead():
@@ -488,28 +488,58 @@ func initialize_survivors():
 	fourth.add_item(Globals.PipebombItem.new());
 	_survivors = [_player, second, third, fourth];
 
-func _ready():
-	initialize_survivors();
-	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
-#	make_boomer(Vector2(3, 3));
+func remove_all_infected_from_entities():
+	for entity in _entities.entities:
+		if not _survivors.has(entity):
+			_entities.remove_entity(entity);
+
+func clear_world_state():
+	_world.clear();
+	remove_all_infected_from_entities();
+	_boomer_bile_sources.clear();
+	_explosions.clear();
+	_flame_areas.clear();
+	
+const MAX_DUNGEON_LEVELS = 2;
+var _temporary_current_dungeon_room = 0;
+func initialize_initial_test_room():
+	clear_world_state();
+	#make_boomer(Vector2(3, 3));
 	make_smoker(Vector2(3, 3));
 #	make_tank(Vector2(8, 9));
 #	for i in range (5):
 #		make_common_infected_chaser(Vector2(5, 5+i));
-
+	_player.position = Vector2(12, 7);
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):
 		_world.set_cell(Vector2(8+i, 4), 8);
-	# _world.set_cell(Vector2(1, 0), 8);
-	# _world.set_cell(Vector2(1, 1), 8);
-	# _world.set_cell(Vector2(3, 0), 8);
-	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 
+func initialize_second_room():
+	clear_world_state();
+	make_boomer(Vector2(6, 3));
+	make_smoker(Vector2(3, 5));
+	_player.position = Vector2(12, 12);
+	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
+	for i in range (5):
+		_world.set_cell(Vector2(8, 4+i), 8);
+		make_common_infected_chaser(Vector2(3+i, 15));
+
+func generate_next_room():
+	match _temporary_current_dungeon_room:
+		0: initialize_initial_test_room();
+		1: initialize_second_room();
+	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
+	update_player_visibility(_player, 8);
+	_temporary_current_dungeon_room += 1;
+
+func _ready():
+	initialize_survivors();
+	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 	_ascii_renderer.world = _world;
 	_ascii_renderer.entities = _entities;
-	# todo remove world and entities...
 	_ascii_renderer.game_state = self;
-	update_player_visibility(_player, 8);
+	
+	generate_next_room();
 
 	_ascii_renderer.update();
 	_turn_scheduler = TurnScheduler.new();
@@ -572,6 +602,8 @@ func step_round(_delta):
 				else:
 					entity.health -= (17 + (randi()%3));
 
+const SHOW_SUMMARY_STATE_TIMER_MAX = 1.5;
+var _show_summary_state_timer = SHOW_SUMMARY_STATE_TIMER_MAX;
 func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
@@ -622,6 +654,9 @@ func _process(_delta):
 			_interface.state = _interface.previous_state;
 			Globals.paused = false;
 
+	if Input.is_action_just_pressed("ui_end") and not prompting_firing_target and not prompting_item_use:
+		_interface.state = _interface.SUMMARY_STATE;
+
 	if GamePreferences.ascii_mode:
 		$CameraTracer.position = _player.position * Vector2(_ascii_renderer.FONT_HEIGHT/2, _ascii_renderer.FONT_HEIGHT);
 		_ascii_renderer.show();
@@ -632,8 +667,16 @@ func _process(_delta):
 		_ascii_renderer.hide();
 		_world.show();
 		_entities.show();
-
-	if not Globals.paused:
+	
+	if _interface.state == _interface.SUMMARY_STATE:
+		if _show_summary_state_timer <= 0.0:
+			_show_summary_state_timer = SHOW_SUMMARY_STATE_TIMER_MAX;
+			_interface.state = _interface.INGAME_STATE;
+			generate_next_room();
+		else:
+			_show_summary_state_timer -= _delta;
+		
+	if not Globals.paused and not _interface.state == _interface.SUMMARY_STATE:
 		if _projectiles.projectiles.empty() and _explosions.empty():
 			while not _turn_scheduler.finished():
 				var current_actor_turn_information = _turn_scheduler.get_current_actor();

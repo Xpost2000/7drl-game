@@ -10,6 +10,11 @@ func in_bounds_of(position, chunk_x, chunk_y) -> bool:
 	return (position.x >= chunk_x*CHUNK_MAX_SIZE && position.x < (chunk_x + CHUNK_MAX_SIZE)) && (position.y >= chunk_y*CHUNK_MAX_SIZE && position.y < (chunk_y + CHUNK_MAX_SIZE));
 
 var world_chunks = [];
+func clear():
+	for chunk_row in world_chunks:
+		for chunk in chunk_row:
+			chunk.clear();
+		
 const neighbor_vectors = [Vector2(-1, 0),
 						  Vector2(1, 0),
 						  Vector2(0, 1),
@@ -73,6 +78,12 @@ class WorldChunk:
 				if not any_animated:
 					self.dirty_cells.push_back(Vector2(x, y));
 
+	func clear():
+		for y in range(size):
+			for x in range(size):
+				set_cell(x, y, 0);
+				set_cell_visible(x, y, 0.0);
+		
 	func clear_dirty():
 		dirty_cells = [];
 
