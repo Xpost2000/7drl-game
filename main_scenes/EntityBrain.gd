@@ -121,7 +121,7 @@ class AttackTurnAction extends TurnAction:
 				direction.y = 1;
 			elif direction.y < 0:
 				direction.y = -1;
-			self.target.bleed(game_state, direction);
+			self.target.bleed(game_state, self.target.position - user.position);
 class SmokerTongueSuckTurnAction extends TurnAction:
 	var target: Object;
 	var damage: int;

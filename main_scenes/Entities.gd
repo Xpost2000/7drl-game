@@ -112,7 +112,13 @@ class Entity:
 		return (health <= 0);
 	
 	func bleed(game_state, direction):
-		game_state._world.set_cell_gore(self.position, true);
+		var base_angle = direction.angle();
+		for degree_spread in range(0, 45, 15):
+			var angle_rad = (degree_spread + (base_angle * 180.0/PI) + 35) * PI/180;
+			var new_direction = Vector2(cos(angle_rad), sin(angle_rad));
+			for distance in (randi()%3+2):
+				game_state._world.set_cell_gore((self.position+new_direction*distance).round(), true);
+			
 	func on_hit(game_state, from):
 		self.brain.on_hit(game_state, self, from);
 
