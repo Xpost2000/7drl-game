@@ -32,9 +32,10 @@ func calculate_chunk_position(absolute_position):
 export var _solid_cells_list = [8, 9];
 func is_solid_tile(position) -> bool:
 	var cell_at_position = get_cell(position);
-	for cell in _solid_cells_list:
-		if cell == cell_at_position:
-			return true;
+	if cell_at_position:
+		for cell in _solid_cells_list:
+			if cell == cell_at_position[0]:
+				return true;
 	return false;
 
 # provide world generation algorithms.
@@ -98,14 +99,14 @@ class WorldChunk:
 		visible_cells[y][x] = val;
 		self.dirty_cells.push_back(Vector2(x, y));
 
-	func set_cell(x, y, val):
+	func set_cell(x, y, val, bloody=false):
 		for animated_cell in animated_cells:
 			var position_of_cell = animated_cell[0];
 			if position_of_cell.x == x && position_of_cell.y == y:
 				animated_cells.erase(animated_cell);
 				break;
 
-		cells[y][x] = val;
+		cells[y][x] = [val, bloody];
 		self.dirty_cells.push_back(Vector2(x, y));
 
 	var size: int;
@@ -296,7 +297,7 @@ func paint_chunk_to_tilemap(tilemap, chunk, chunk_x, chunk_y):
 	for dirty_cell in chunk.dirty_cells:
 		var x = dirty_cell.x;
 		var y = dirty_cell.y;
-		tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y));
+		tilemap.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), chunk.get_cell(x, y)[0]);
 		_fog_of_war.set_cell(x + (chunk_x * CHUNK_MAX_SIZE), y + (chunk_y * CHUNK_MAX_SIZE), 1 - chunk.is_cell_visible(x, y));
 	chunk.clear_dirty();
 
