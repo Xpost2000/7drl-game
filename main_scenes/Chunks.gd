@@ -124,6 +124,12 @@ func get_chunk_at(where):
 	if where.x >= 0 && where.y >= 0 && in_bounds(current_chunk_location):
 		return world_chunks[current_chunk_location.y][current_chunk_location.x];
 	return null;
+func set_cell_gore(where, value):
+	var current_chunk_location = calculate_chunk_position(where); 
+	var chunk = get_chunk_at(where);
+	where -= current_chunk_location * CHUNK_MAX_SIZE;
+	if chunk:
+		chunk.set_cell(where.x, where.y, get_cell(where)[0], value);
 func set_cell(where, value):
 	var current_chunk_location = calculate_chunk_position(where); 
 	var chunk = get_chunk_at(where);

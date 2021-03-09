@@ -37,6 +37,7 @@ class ShoveTurnAction extends TurnAction:
 		var who = game_state._entities.get_entity_at_position(target.position + self.direction);
 		if who:
 			who.on_hit(game_state, target);
+			who.bleed(game_state, self.direction);
 			var move_result_first = game_state._entities.try_move(who, self.direction);
 			if move_result_first == Enumerations.COLLISION_NO_COLLISION:
 				who.position += self.direction;
@@ -110,6 +111,17 @@ class AttackTurnAction extends TurnAction:
 		if self.target:
 			self.target.health -= self.damage;
 			self.target.on_hit(game_state, user);
+			var direction = self.target.position - user.position;
+			if direction.x > 0:
+				direction.x = 1;
+			elif direction.x < 0:
+				direction.x = -1;
+			
+			if direction.y > 0:
+				direction.y = 1;
+			elif direction.y < 0:
+				direction.y = -1;
+			self.target.bleed(game_state, direction);
 class SmokerTongueSuckTurnAction extends TurnAction:
 	var target: Object;
 	var damage: int;

@@ -51,11 +51,12 @@ func _draw():
 				for y in range(world.CHUNK_MAX_SIZE):
 					for x in range(world.CHUNK_MAX_SIZE):
 						var tile_position = Vector2(x + (chunk_x * world.CHUNK_MAX_SIZE), (y) + (chunk_y * world.CHUNK_MAX_SIZE));
-						var cell_id;
+						var cell = world.get_cell(tile_position);
 						var cell_symbol = "#" if world.is_solid_tile(tile_position) else ".";
 						var light_value = world.is_cell_visible(tile_position);
 						var cell_color = Color(1, 1, 1) if world.is_solid_tile(tile_position) else Color(0.3, 0.3, 0.3);
-
+						if cell[1]:
+							cell_color = Color.darkred;
 						if world.is_cell_visible(tile_position):
 							draw_string(game_font, (tile_position+Vector2(0, 1)) * Vector2((FONT_HEIGHT/2), FONT_HEIGHT), cell_symbol, Color(cell_color * light_value));
 	if entities:

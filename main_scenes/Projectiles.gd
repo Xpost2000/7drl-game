@@ -129,6 +129,7 @@ class BulletProjectile extends Projectile:
 					entity.health -= 40;
 					self.penetration_health -= 1;
 					entity.on_hit(game_state, self.owner);
+					entity.bleed(game_state, self.direction);
 					if self.penetration_health < 0:
 						self.dead = true;
 						break;

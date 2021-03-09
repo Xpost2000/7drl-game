@@ -110,7 +110,9 @@ class Entity:
 
 	func is_dead():
 		return (health <= 0);
-		
+	
+	func bleed(game_state, direction):
+		game_state._world.set_cell_gore(self.position, true);
 	func on_hit(game_state, from):
 		self.brain.on_hit(game_state, self, from);
 
