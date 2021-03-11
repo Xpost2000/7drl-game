@@ -582,11 +582,22 @@ func generate_random_dungeon():
 	draw_chunky_room(Vector2(7,7), 5, 5);
 	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
 	pass;
-
+	
+# ATM, and probably even on finish, this might just have to be a plain room, with supplies in the center.
+# Or at the end of the room. It's a last stand sort of thing.
+# Zombies, flood in... good luck!
+func generate_horde_finale_room():
+	_interface.message("You're almost there now!");
+	_interface.message("Head to the end of the room, and prepare for a horde!");
+	_interface.message("Interact with the radio at the end to start. Good luck!");
+	clear_world_state();
+	_player.position = Vector2(9,10);
+	draw_room(Vector2(24, 24), 17, 17);
+	pass;
 func generate_next_room():
 	match _temporary_current_dungeon_room:
-		0: generate_random_dungeon();
-		1: initialize_second_room();
+		#0: generate_random_dungeon();
+		0: generate_horde_finale_room();
 	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 	update_player_visibility(_player, 8);
 	_temporary_current_dungeon_room += 1;

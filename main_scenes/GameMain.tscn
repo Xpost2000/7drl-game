@@ -136,7 +136,7 @@ script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-MESSAGE_LIFETIME_MAX = 1.0
+MESSAGE_LIFETIME_MAX = 3.0
 
 [node name="Ingame" parent="InterfaceLayer/Interface" instance=ExtResource( 12 )]
 
