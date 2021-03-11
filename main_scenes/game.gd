@@ -577,37 +577,61 @@ func draw_chunky_room(center_position, half_width, half_height):
 		 randi()%(half_height/2)+(half_height/2)+1);
 
 var _generated_rooms = [];
-func generate_random_room_positions():
+func generate_random_room_positions(displacement_x, displacement_y, horizontal=false):
 	var generated_room_positions = [];
 	var speeds = [];
 	var room_count = 7 + randi()%5;
 	var spacing = ((len(_world.world_chunks[0])-4)*_world.CHUNK_MAX_SIZE)/room_count;
 	for room_horizontal_position in range(0, room_count):
-		generated_room_positions.push_back(Vector2(spacing * room_horizontal_position + 15, 15));
+		if horizontal:
+			generated_room_positions.push_back(Vector2(displacement_x, spacing * room_horizontal_position + displacement_y));
+		else:
+			generated_room_positions.push_back(Vector2(spacing * room_horizontal_position + displacement_x, displacement_y));
 		speeds.push_back(randi() % 15 + 5);
 	var random_end_line = randi() % ((len(_world.world_chunks)-4)*_world.CHUNK_MAX_SIZE-10)+20;
 	var any_reached = false;
 	while not any_reached:
 		for room_index in range(len(generated_room_positions)):
 			for displacement in range(speeds[room_index]):
-				generated_room_positions[room_index].y += 1;
-				if generated_room_positions[room_index].y >= random_end_line:
-					any_reached = true;
-					break;
+				if not horizontal:
+					generated_room_positions[room_index].y += 1;
+					if generated_room_positions[room_index].y >= random_end_line:
+						any_reached = true;
+						break;
+				else:
+					generated_room_positions[room_index].x += 1;
+					if generated_room_positions[room_index].x >= random_end_line:
+						any_reached = true;
+						break;
 			if any_reached:
 				break;
 	return generated_room_positions;
-	
+
+func vertically_biased_whatever_dungeon():
+	var room_positions = generate_random_room_positions(16, 16);
+	_player.position = room_positions[0];
+	for room in room_positions:
+		draw_chunky_room(room, randi()%10+4, randi()%10+5);
+	for room in generate_random_room_positions(30, 26):
+		draw_chunky_room(room, randi()%10+6, randi()%4+6);
+	for room in generate_random_room_positions(20, 42):
+		draw_chunky_room(room, randi()%3+4, randi()%3+6);
+func horizontally_biased_whatever_dungeon():
+	var room_positions = generate_random_room_positions(15, 25, true);
+	_player.position = room_positions[0];
+	for room in room_positions:
+		draw_chunky_room(room, randi()%10+4, randi()%10+6);
+	for room in generate_random_room_positions(27, 28, true):
+		draw_chunky_room(room, randi()%10+9, randi()%4+6);
+	for room in generate_random_room_positions(41, 29, true):
+		draw_chunky_room(room, randi()%3+4, randi()%3+6);
 func generate_random_dungeon():
 	clear_world_state();
 #	_player.position = Vector2(7,7);
 #	draw_chunky_room(Vector2(7,7), 5, 5);
 #	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
-	var room_positions = generate_random_room_positions();
-	print(room_positions);
-	_player.position = room_positions[0];
-	for room in room_positions:
-		draw_chunky_room(room, randi()%10+4, randi()%10+4);
+	vertically_biased_whatever_dungeon();
+#	horizontally_biased_whatever_dungeon();
 	
 # ATM, and probably even on finish, this might just have to be a plain room, with supplies in the center.
 # Or at the end of the room. It's a last stand sort of thing.
