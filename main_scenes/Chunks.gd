@@ -29,7 +29,7 @@ func calculate_chunk_position(absolute_position):
 	return Vector2(int(absolute_position.x / CHUNK_MAX_SIZE), int(absolute_position.y / CHUNK_MAX_SIZE));
 
 # for now keep this in sync with tileset...
-export var _solid_cells_list = [8, 9];
+export var _solid_cells_list = [0, 8, 9];
 func is_solid_tile(position) -> bool:
 	var cell_at_position = get_cell(position);
 	if cell_at_position:

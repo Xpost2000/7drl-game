@@ -547,6 +547,18 @@ func draw_room(center_position, half_width, half_height, override=false):
 					_world.set_cell(cell_position, 8);
 			else:
 				_world.set_cell(cell_position, 1);
+	
+# This really should be a bresenham, but since I want my pathways to be thick...
+# I think this is perfectly acceptable...
+func draw_tunnel(center_position, thickness, length, direction):
+	var perpendicular_direction = Vector2(-direction.y, direction.x);
+	for distance in length:
+		var cell_position = center_position + (direction * distance);
+		_world.set_cell(cell_position, 1);
+		for thick_distance in range(-thickness, thickness):
+			var cell_padding_position = cell_position + (perpendicular_direction * thick_distance);
+			_world.set_cell(cell_padding_position, 1);
+		
 func draw_chunky_room(center_position, half_width, half_height):
 	var rooms_to_draw = randi() % 3+1;
 	for room_index in rooms_to_draw:
@@ -560,6 +572,7 @@ func generate_random_dungeon():
 	clear_world_state();
 	_player.position = Vector2(7,7);
 	draw_chunky_room(Vector2(7,7), 5, 5);
+	draw_tunnel(Vector2(6, 7), 2, 12, Vector2.RIGHT);
 	pass;
 
 func generate_next_room():
