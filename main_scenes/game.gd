@@ -572,7 +572,7 @@ func generate_random_dungeon():
 	clear_world_state();
 	_player.position = Vector2(7,7);
 	draw_chunky_room(Vector2(7,7), 5, 5);
-	draw_tunnel(Vector2(6, 7), 2, 12, Vector2.RIGHT);
+	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
 	pass;
 
 func generate_next_room():
