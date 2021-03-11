@@ -531,6 +531,9 @@ func initialize_second_room():
 # I'm going to adlib this, I have no idea what will happen.
 # I know I just want a linear dungeon with preferably no cyclic paths
 # with minimal branching. 
+
+# none of these functions will check if they're in bounds, we're supposed to generate
+# a list of rooms that should fit before this happens...
 func draw_room(center_position, half_width, half_height, override=false):
 	for y_displacement in range(-half_height, half_height):
 		for x_displacement in range(-half_width, half_width):
@@ -539,16 +542,24 @@ func draw_room(center_position, half_width, half_height, override=false):
 			var cell_position = center_position + Vector2(x_displacement, y_displacement);
 			var already_present_cell = _world.get_cell(cell_position)[0] != 0;
 			var should_draw_solid_cell = not _world.is_solid_tile(cell_position) or override;
-			if not already_present_cell and (horizontal_wall or vertical_wall) and should_draw_solid_cell:
-				_world.set_cell(cell_position, 8);
+			if (horizontal_wall or vertical_wall):
+				if not already_present_cell:
+					_world.set_cell(cell_position, 8);
 			else:
 				_world.set_cell(cell_position, 1);
+func draw_chunky_room(center_position, half_width, half_height):
+	var rooms_to_draw = randi() % 3+1;
+	for room_index in rooms_to_draw:
+		var direction_shift = 1 if randi()%2 == 1 else -1;
+		draw_room(center_position + 
+		direction_shift*Vector2(randi()%(half_width/2), randi()%(half_height/2)), 
+		randi()%(half_width/2)+(half_width/2)+1,
+		 randi()%(half_height/2)+(half_height/2)+1);
 
 func generate_random_dungeon():
 	clear_world_state();
-	_player.position = Vector2(4, 4);
-	draw_room(Vector2(4, 4), 3, 3);
-	draw_room(Vector2(6, 3), 3, 2);
+	_player.position = Vector2(7,7);
+	draw_chunky_room(Vector2(7,7), 5, 5);
 	pass;
 
 func generate_next_room():
@@ -560,6 +571,7 @@ func generate_next_room():
 	_temporary_current_dungeon_room += 1;
 
 func _ready():
+	randomize();
 	initialize_survivors();
 	_entities.connect("_on_entity_do_action", self, "present_entity_actions_as_messages");
 	_ascii_renderer.world = _world;
