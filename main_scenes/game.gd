@@ -576,12 +576,38 @@ func draw_chunky_room(center_position, half_width, half_height):
 		randi()%(half_width/2)+(half_width/2)+1,
 		 randi()%(half_height/2)+(half_height/2)+1);
 
+var _generated_rooms = [];
+func generate_random_room_positions():
+	var generated_room_positions = [];
+	var speeds = [];
+	var room_count = 7 + randi()%5;
+	var spacing = ((len(_world.world_chunks[0])-4)*_world.CHUNK_MAX_SIZE)/room_count;
+	for room_horizontal_position in range(0, room_count):
+		generated_room_positions.push_back(Vector2(spacing * room_horizontal_position + 15, 15));
+		speeds.push_back(randi() % 15 + 5);
+	var random_end_line = randi() % ((len(_world.world_chunks)-4)*_world.CHUNK_MAX_SIZE-10)+20;
+	var any_reached = false;
+	while not any_reached:
+		for room_index in range(len(generated_room_positions)):
+			for displacement in range(speeds[room_index]):
+				generated_room_positions[room_index].y += 1;
+				if generated_room_positions[room_index].y >= random_end_line:
+					any_reached = true;
+					break;
+			if any_reached:
+				break;
+	return generated_room_positions;
+	
 func generate_random_dungeon():
 	clear_world_state();
-	_player.position = Vector2(7,7);
-	draw_chunky_room(Vector2(7,7), 5, 5);
-	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
-	pass;
+#	_player.position = Vector2(7,7);
+#	draw_chunky_room(Vector2(7,7), 5, 5);
+#	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
+	var room_positions = generate_random_room_positions();
+	print(room_positions);
+	_player.position = room_positions[0];
+	for room in room_positions:
+		draw_chunky_room(room, randi()%10+4, randi()%10+4);
 	
 # ATM, and probably even on finish, this might just have to be a plain room, with supplies in the center.
 # Or at the end of the room. It's a last stand sort of thing.
@@ -596,8 +622,8 @@ func generate_horde_finale_room():
 	pass;
 func generate_next_room():
 	match _temporary_current_dungeon_room:
-		#0: generate_random_dungeon();
-		0: generate_horde_finale_room();
+		0: generate_random_dungeon();
+		1: generate_horde_finale_room();
 	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 	update_player_visibility(_player, 8);
 	_temporary_current_dungeon_room += 1;
