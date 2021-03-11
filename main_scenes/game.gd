@@ -553,10 +553,10 @@ func draw_room(center_position, half_width, half_height, override=false):
 func draw_tunnel(center_position, thickness, length, direction):
 	var perpendicular_direction = Vector2(-direction.y, direction.x);
 	for distance in length:
-		var cell_position = center_position + (direction * distance);
+		var cell_position = (center_position + (direction * distance)).round();
 		_world.set_cell(cell_position, 1);
 		for thick_distance in range(-thickness, thickness):
-			var cell_padding_position = cell_position + (perpendicular_direction * thick_distance);
+			var cell_padding_position = (cell_position + (perpendicular_direction * thick_distance)).round();
 			_world.set_cell(cell_padding_position, 1);
 		
 func draw_chunky_room(center_position, half_width, half_height):
