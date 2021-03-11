@@ -532,6 +532,15 @@ func initialize_second_room():
 # I know I just want a linear dungeon with preferably no cyclic paths
 # with minimal branching. 
 
+# An easy dungeon type would just be to start a bunch of center points at the top.
+# Then maybe "race" them to the bottom? Or some random point. When the "race" finishes
+# sprout a room around where they stop, then connect them.
+# Maybe do this one additional time to make the level look slightly more interesting?
+# This is definitely going to be linear, which is what I want, and should take very little time.
+# We can simply filter out rooms that would theoretically not fit.
+
+# If I don't have time to come up with better dungeon gen or an alternate kind this is a quick alternative....
+
 # none of these functions will check if they're in bounds, we're supposed to generate
 # a list of rooms that should fit before this happens...
 func draw_room(center_position, half_width, half_height, override=false):
