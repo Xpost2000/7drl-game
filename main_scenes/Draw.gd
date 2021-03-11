@@ -52,7 +52,12 @@ func _draw():
 					for x in range(world.CHUNK_MAX_SIZE):
 						var tile_position = Vector2(x + (chunk_x * world.CHUNK_MAX_SIZE), (y) + (chunk_y * world.CHUNK_MAX_SIZE));
 						var cell = world.get_cell(tile_position);
-						var cell_symbol = "#" if world.is_solid_tile(tile_position) else ".";
+						var cell_symbol = "?";
+						match cell[0]:
+							0: cell_symbol = " ";
+							1: cell_symbol = ".";
+							8: cell_symbol = "#";
+
 						var light_value = world.is_cell_visible(tile_position);
 						var cell_color = Color(1, 1, 1) if world.is_solid_tile(tile_position) else Color(0.3, 0.3, 0.3);
 						if cell[1]:

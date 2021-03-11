@@ -51,17 +51,6 @@ class WorldChunk:
 			for x in range(size):
 				row.push_back(0);
 				visibility_row.push_back(0);
-				# var probability = randf();
-				# if probability > 0.7:
-				# 	row.push_back(0);
-				# elif probability > 0.1: 
-				# 	row.push_back(8);
-				# else:
-				# 	# This push is for collision detection. Auxiliary holder
-				# 	row.push_back(10);
-				# 	# Animated cells draw on top of "real" cells.
-				# 	# maybe this should be a dictionary.
-				# 	animated_cells.push_back([Vector2(x, y), 10, 4]);
 				self.dirty_cells.push_back(Vector2(x, y));
 			chunk_result.push_back(row);
 			visibility_result.push_back(visibility_row);

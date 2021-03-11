@@ -466,28 +466,31 @@ func initialize_survivors():
 	_player.add_item(make_rifle());
 	_player.add_item(make_pistol());
 	_player.add_item(make_shotgun());
-	var second = _entities.add_entity("Louis", Vector2(2, 2), EntitySurvivorBrain.new());
-	second.health = 100;
-	second.turn_speed = 1;
-	second.flags = 1;
-	second.add_item(Globals.Medkit.new());
-	second.add_item(make_pistol());
-	second.add_item(Globals.PipebombItem.new());
-	var third = _entities.add_entity("Francis", Vector2(4, 3), EntitySurvivorBrain.new());
-	third.health = 100;
-	third.turn_speed = 1;
-	third.flags = 1;
-	third.add_item(Globals.Medkit.new());
-	third.add_item(make_pistol());
-	third.add_item(Globals.PipebombItem.new());
-	var fourth = _entities.add_entity("Zoey", Vector2(1, 4), EntitySurvivorBrain.new());
-	fourth.health = 100;
-	fourth.turn_speed = 1;
-	fourth.flags = 1;
-	fourth.add_item(Globals.Medkit.new());
-	fourth.add_item(make_pistol());
-	fourth.add_item(Globals.PipebombItem.new());
-	_survivors = [_player, second, third, fourth];
+	if false:
+		var second = _entities.add_entity("Louis", Vector2(2, 2), EntitySurvivorBrain.new());
+		second.health = 100;
+		second.turn_speed = 1;
+		second.flags = 1;
+		second.add_item(Globals.Medkit.new());
+		second.add_item(make_pistol());
+		second.add_item(Globals.PipebombItem.new());
+		var third = _entities.add_entity("Francis", Vector2(4, 3), EntitySurvivorBrain.new());
+		third.health = 100;
+		third.turn_speed = 1;
+		third.flags = 1;
+		third.add_item(Globals.Medkit.new());
+		third.add_item(make_pistol());
+		third.add_item(Globals.PipebombItem.new());
+		var fourth = _entities.add_entity("Zoey", Vector2(1, 4), EntitySurvivorBrain.new());
+		fourth.health = 100;
+		fourth.turn_speed = 1;
+		fourth.flags = 1;
+		fourth.add_item(Globals.Medkit.new());
+		fourth.add_item(make_pistol());
+		fourth.add_item(Globals.PipebombItem.new());
+		_survivors = [_player, second, third, fourth];
+	else:
+		_survivors = [_player];
 
 func remove_all_infected_from_entities():
 	for entity in _entities.entities:
@@ -525,9 +528,32 @@ func initialize_second_room():
 		_world.set_cell(Vector2(8, 4+i), 8);
 		make_common_infected_chaser(Vector2(3+i, 15));
 
+# I'm going to adlib this, I have no idea what will happen.
+# I know I just want a linear dungeon with preferably no cyclic paths
+# with minimal branching. 
+func draw_room(center_position, half_width, half_height, override=false):
+	for y_displacement in range(-half_height, half_height):
+		for x_displacement in range(-half_width, half_width):
+			var horizontal_wall = x_displacement == -half_width or x_displacement == half_width-1;
+			var vertical_wall = y_displacement == -half_height or y_displacement == half_height-1;
+			var cell_position = center_position + Vector2(x_displacement, y_displacement);
+			var already_present_cell = _world.get_cell(cell_position)[0] != 0;
+			var should_draw_solid_cell = not _world.is_solid_tile(cell_position) or override;
+			if not already_present_cell and (horizontal_wall or vertical_wall) and should_draw_solid_cell:
+				_world.set_cell(cell_position, 8);
+			else:
+				_world.set_cell(cell_position, 1);
+
+func generate_random_dungeon():
+	clear_world_state();
+	_player.position = Vector2(4, 4);
+	draw_room(Vector2(4, 4), 3, 3);
+	draw_room(Vector2(6, 3), 3, 2);
+	pass;
+
 func generate_next_room():
 	match _temporary_current_dungeon_room:
-		0: initialize_initial_test_room();
+		0: generate_random_dungeon();
 		1: initialize_second_room();
 	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 	update_player_visibility(_player, 8);
