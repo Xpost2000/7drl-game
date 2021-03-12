@@ -15,9 +15,14 @@ func _ready():
 export var director_calmness_score_threshold = 100;
 var calmness_score = 50;
 
+
+func try_to_decorate_world_with_witches():
+	pass;
+
 func on_new_world():
 	director_think_tick = 0;
 	calmness_score = 50;
+	try_to_decorate_world_with_witches();
 	
 func should_spawn_infected():
 	return (calmness_score >= director_calmness_score_threshold);

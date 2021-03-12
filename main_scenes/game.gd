@@ -182,6 +182,26 @@ class EntityCommonInfectedChaserBrain extends EntityBrain:
 				game_state._survivor_distance_field, entity_self.position, game_state._entities);
 			var direction = next_position - entity_self.position;
 			return EntityBrain.MoveTurnAction.new(direction);
+			
+class EntityCommonInfectedPassiveBrain extends EntityBrain:
+	var aggressive: bool;
+	func on_hit(game_state, entity_self, from_entity):
+		self.aggressive = true;
+	func get_turn_action(entity_self, game_state):
+		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
+		if entity_self.can_see_from(game_state._world, nearest_survivor.position):
+			if randf() > 0.95:
+				self.aggressive = true;
+			
+		if self.aggressive:
+			if nearest_survivor and entity_self.position.distance_squared_to(nearest_survivor.position) <= 2:
+				return EntityBrain.AttackTurnAction.new(nearest_survivor, 5);
+			else:
+				var next_position = game_state._world.distance_field_next_best_position(
+					game_state._survivor_distance_field, entity_self.position, game_state._entities);
+				var direction = next_position - entity_self.position;
+				return EntityBrain.MoveTurnAction.new(direction);
+		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 
 class EntitySpecialInfectedTank extends EntityBrain:
 	var victim: Object;
