@@ -32,6 +32,7 @@ class Gun extends Item:
 	
 	var rounds_per_shot: int;
 	var shotgun: bool; # Why doesn't subclassing work????
+	var tier; # for AI selection purposes...
 	
 	func as_string():
 		return self.name + " (" + str(self.current_capacity) + "/" + str(self.capacity) + ")";

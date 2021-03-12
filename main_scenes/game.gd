@@ -381,6 +381,7 @@ func make_pistol():
 	pistol.current_capacity_limit = 4;
 	pistol.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
 	pistol.reload_sound_string = "resources/snds/guns/pistol_clip_in_1.wav";
+	gun.tier = 1;
 	return pistol;
 
 func make_rifle():
@@ -391,6 +392,7 @@ func make_rifle():
 	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
 	gun.reload_sound_string = "resources/snds/guns/rifle_clip_in_1.wav";
 	gun.rounds_per_shot = 3;
+	gun.tier = 3;
 	return gun;
 	
 func make_shotgun():
@@ -401,6 +403,7 @@ func make_shotgun():
 	gun.current_capacity_limit = 4;
 	gun.firing_sound_string = "resources/snds/guns/shotgun_fire_1.wav";
 	gun.reload_sound_string = "resources/snds/guns/shotgun_load_shell_2.wav";
+	gun.tier = 3;
 	return gun;
 
 func make_common_infected_chaser(position):
@@ -456,16 +459,9 @@ func initialize_survivors():
 	_player.flags = 1;
 	_player.position = Vector2(12, 7);
 	_player.add_item(Globals.Medkit.new());
-	_player.add_item(Globals.AdrenalineShot.new());
 	_player.add_item(Globals.PipebombItem.new());
-	_player.add_item(Globals.MolotovCocktailItem.new());
-	_player.add_item(Globals.MolotovCocktailItem.new());
-	_player.add_item(Globals.MolotovCocktailItem.new());
-	_player.add_item(Globals.BoomerBileItem.new());
 	_player.add_item(Globals.PillBottle.new());
-	_player.add_item(make_rifle());
 	_player.add_item(make_pistol());
-	_player.add_item(make_shotgun());
 	if false:
 		var second = _entities.add_entity("Louis", Vector2(2, 2), EntitySurvivorBrain.new());
 		second.health = 100;
