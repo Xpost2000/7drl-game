@@ -21,7 +21,7 @@ __meta__ = {
 }
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Holder"]
-margin_left = -82.0
+margin_left = -177.0
 margin_top = -41.0
 margin_right = 318.0
 margin_bottom = 27.0
@@ -30,18 +30,13 @@ __meta__ = {
 }
 
 [node name="FlavorText" type="Label" parent="Holder/VBoxContainer"]
-margin_right = 400.0
-margin_bottom = 32.0
-text = "DEATH IS NOT YOUR FATE..."
+margin_right = 495.0
+margin_bottom = 28.0
+text = "ALL THE SURVIVORS HAVE DIED"
+align = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="Label" type="Label" parent="Holder/VBoxContainer"]
-margin_top = 36.0
-margin_right = 400.0
-margin_bottom = 68.0
-text = "SCORE: 1234567889"
 
 [node name="OptionsLayout" type="VBoxContainer" parent="Holder"]
 margin_left = -58.9166
@@ -53,18 +48,18 @@ __meta__ = {
 }
 
 [node name="Restart" type="Button" parent="Holder/OptionsLayout"]
-margin_right = 252.0
-margin_bottom = 32.0
+margin_right = 251.0
+margin_bottom = 28.0
 text = "Restart"
 
 [node name="Quit" type="Button" parent="Holder/OptionsLayout"]
-margin_top = 36.0
-margin_right = 252.0
-margin_bottom = 68.0
+margin_top = 32.0
+margin_right = 251.0
+margin_bottom = 60.0
 text = "Quit"
 
 [node name="Exit" type="Button" parent="Holder/OptionsLayout"]
-margin_top = 72.0
-margin_right = 252.0
-margin_bottom = 104.0
+margin_top = 64.0
+margin_right = 251.0
+margin_bottom = 92.0
 text = "Exit to Windows"
