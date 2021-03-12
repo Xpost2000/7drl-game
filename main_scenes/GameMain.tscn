@@ -113,6 +113,9 @@ script = ExtResource( 7 )
 [node name="CharacterASCIIDraw" type="Node2D" parent="."]
 script = ExtResource( 8 )
 
+[node name="AIDirector" type="Node" parent="."]
+script = ExtResource( 15 )
+
 [node name="Fixed" type="CanvasLayer" parent="."]
 
 [node name="Draw" type="Node2D" parent="Fixed"]
@@ -184,8 +187,3 @@ script = ExtResource( 6 )
 
 [node name="Projectiles" type="Node2D" parent="."]
 script = ExtResource( 14 )
-
-[node name="AIDirector" type="Node" parent="."]
-script = ExtResource( 15 )
-director_think_delay = null
-director_calmness_score_threshold = null
