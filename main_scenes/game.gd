@@ -635,10 +635,13 @@ func vertically_biased_whatever_dungeon():
 	var room_positions = generate_random_room_positions(16, 16);
 	_player.position = room_positions[0];
 	for room in room_positions:
+		$AIDirector.add_spawn_location(room);
 		draw_chunky_room(room, randi()%10+4, randi()%8+5);
 	for room in generate_random_room_positions(30, 24):
+		$AIDirector.add_spawn_location(room);
 		draw_chunky_room(room, randi()%10+6, randi()%4+6);
 	for room in generate_random_room_positions(20, 38):
+		$AIDirector.add_spawn_location(room);
 		draw_chunky_room(room, randi()%3+4, randi()%3+6);
 # This is the more common type of dungeon.
 # The plan is to block out part of a street plan, and then around the streets,
