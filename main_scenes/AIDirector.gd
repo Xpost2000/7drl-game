@@ -49,12 +49,21 @@ func score_of(infected_type):
 		InfectedSpawnTypes.HUNTER: return 190;
 		InfectedSpawnTypes.HORDE_AND_BOOMER: return 220;
 		
+func spawn_common_infected_horde_block(where, radius):
+	for y_position in range(radius):
+		for x_position in range(radius):
+			game_state.make_common_infected_chaser(Vector2(x_position, y_position) + where);
+			
+# When doing dungeon generation place "spawn markers" around landmarks
+# This usually just means rooms or buildings.
+# Then scan through them here, and decide if I can fit what I need and then spawn them.
+func find_best_block_placement_position(block_size, minimum_distance=-1):
+	return Vector2.ZERO;
+			
 func do_spawn_of(infected_type):
 	if infected_type == InfectedSpawnTypes.CALM_HORDE:
-		for zombie_index in range(4):
-			game_state.make_common_infected_chaser(Vector2(zombie_index+9, 8));
-		for zombie_index in range(4):
-			game_state.make_common_infected_chaser(Vector2(8, 9+zombie_index));
+		var position = find_best_block_placement_position(3);
+		spawn_common_infected_horde_block(position, 3);
 	
 func choose_infected_type_to_spawn():
 	return InfectedSpawnTypes.CALM_HORDE;
