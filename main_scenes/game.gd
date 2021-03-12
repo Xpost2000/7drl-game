@@ -381,7 +381,7 @@ func make_pistol():
 	pistol.current_capacity_limit = 4;
 	pistol.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
 	pistol.reload_sound_string = "resources/snds/guns/pistol_clip_in_1.wav";
-	gun.tier = 1;
+	pistol.tier = 1;
 	return pistol;
 
 func make_rifle():
@@ -499,6 +499,7 @@ func clear_world_state():
 	_boomer_bile_sources.clear();
 	_explosions.clear();
 	_flame_areas.clear();
+	$AIDirector.on_new_world();
 	
 const MAX_DUNGEON_LEVELS = 2;
 var _temporary_current_dungeon_room = 0;
@@ -668,7 +669,7 @@ func _ready():
 	_ascii_renderer.world = _world;
 	_ascii_renderer.entities = _entities;
 	_ascii_renderer.game_state = self;
-	
+	$AIDirector.game_state = self;
 	generate_next_room();
 
 	_ascii_renderer.update();
@@ -715,6 +716,7 @@ func step_round(_delta):
 		else:
 			_survivor_distance_field_regenerate_timer -= 1;
 
+	$AIDirector.step_round(_delta);
 	for boomer_bile_source in _boomer_bile_sources:
 		if boomer_bile_source[1] <= 0:
 			_boomer_bile_sources.erase(boomer_bile_source);
