@@ -22,7 +22,6 @@ func on_new_world():
 	potential_spawn_locations.clear();
 	director_think_tick = 0;
 	calmness_score = 50;
-	try_to_decorate_world_with_witches();
 
 func add_spawn_location(where):
 	potential_spawn_locations.push_back(where);
@@ -71,7 +70,7 @@ func score_of(infected_type):
 # When doing dungeon generation place "spawn markers" around landmarks
 # This usually just means rooms or buildings.
 # Then scan through them here, and decide if I can fit what I need and then spawn them.
-func find_best_block_placement_position(block_size, minimum_distance_from_player=-1):
+func best_placement_candidates(block_size, minimum_distance_from_player=-1):
 	if not potential_spawn_locations.empty():
 		var player_location = game_state._player.position;
 		# prefer to spawn farther from the player for this case.
@@ -86,18 +85,27 @@ func find_best_block_placement_position(block_size, minimum_distance_from_player
 				var block_fits = true;
 				for y_displacement in range(-block_size, block_size):
 					for x_displacement in range(-block_size, block_size):
-						if game_state._world.is_solid_tile(Vector2(x_displacement, y_displacement) + potential_spawn_location):
+						var chosen_position = Vector2(x_displacement, y_displacement) + potential_spawn_location;
+						if game_state._world.is_solid_tile(chosen_position) or game_state._entities.get_entity_at_position(chosen_position):
 							block_fits = false;
 							break;
 					if not block_fits:
 						break;
-				if max_distance == current_distance:
-					best_placement_candidates.push_back(potential_spawn_location);
-				elif max_distance < current_distance:
-					max_distance = current_distance;
-					best_placement_candidates = [potential_spawn_location];
-		return Utilities.random_nth(best_placement_candidates);
-	return Vector2.ZERO;
+				if block_fits:
+					if max_distance == current_distance:
+						best_placement_candidates.push_back(potential_spawn_location);
+					elif max_distance < current_distance:
+						max_distance = current_distance;
+						best_placement_candidates = [potential_spawn_location];
+		return best_placement_candidates;
+	return null;
+
+func find_best_block_placement_position(block_size, minimum_distance_from_player=-1):
+	var candidates = best_placement_candidates(block_size, minimum_distance_from_player);
+	if not candidates.empty():
+		return Utilities.random_nth(candidates);
+	else:
+		return null;
 
 func spawn_common_infected_horde_block(where, radius):
 	for y_position in range(radius):
@@ -116,24 +124,33 @@ func spawn_witch(where):
 func do_spawn_of(infected_type):
 	if infected_type == InfectedSpawnTypes.AGGRESSIVE_HORDE:
 		var position = find_best_block_placement_position(2);
-		spawn_common_infected_horde_block(position, 2);
+		if position:
+			spawn_common_infected_horde_block(position, 2);
 	elif infected_type == InfectedSpawnTypes.TANK:
 		var position = find_best_block_placement_position(1, 8);
-		spawn_tank(position);
+		if position:
+			spawn_tank(position);
 	elif infected_type == InfectedSpawnTypes.BOOMER:
 		var position = find_best_block_placement_position(1);
-		spawn_boomer(position);
+		if position:
+			spawn_boomer(position);
 	elif infected_type == InfectedSpawnTypes.SMOKER:
 		var position = find_best_block_placement_position(1);
-		spawn_smoker(position);
+		if position:
+			spawn_smoker(position);
 
 func try_to_decorate_world_with_witches():
 	# would require a list of rooms to decorate with to start with.
 	var placed_witches = 0;
 	for witch_placement_attempts in range(10):
-		if placed_witches < 2:
-			var position = find_best_block_placement_position(10, 12);
+		if placed_witches < 1:
+			# TODO, this requires a version that checks distances between other witches.
+			# in reality, this can actually just pick random placements, as long as the witches
+			# are not close to each other. That's a pretty small thing though
+			var position = find_best_block_placement_position(6, 18);
+			print(position);
 			if position:
+				print(position)
 				spawn_witch(position);
 				placed_witches += 1;
 	
