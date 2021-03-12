@@ -20,6 +20,7 @@ class PickupItemTurnAction extends TurnAction:
 		self.item = item;
 	func do_action(game_state, target):
 		if self.item:
+			
 			target.add_item(self.item.item);
 			game_state._entities.remove_item_pickup(self.item);
 class UseItemAction extends TurnAction:

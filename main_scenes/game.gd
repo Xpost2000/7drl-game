@@ -607,31 +607,44 @@ func generate_random_room_positions(displacement_x, displacement_y, horizontal=f
 				break;
 	return generated_room_positions;
 
+
+# Small interlude areas. These areas should be very short.
 func vertically_biased_whatever_dungeon():
 	var room_positions = generate_random_room_positions(16, 16);
 	_player.position = room_positions[0];
 	for room in room_positions:
-		draw_chunky_room(room, randi()%10+4, randi()%10+5);
-	for room in generate_random_room_positions(30, 26):
+		draw_chunky_room(room, randi()%10+4, randi()%8+5);
+	for room in generate_random_room_positions(30, 24):
 		draw_chunky_room(room, randi()%10+6, randi()%4+6);
-	for room in generate_random_room_positions(20, 42):
+	for room in generate_random_room_positions(20, 38):
 		draw_chunky_room(room, randi()%3+4, randi()%3+6);
-func horizontally_biased_whatever_dungeon():
-	var room_positions = generate_random_room_positions(15, 25, true);
-	_player.position = room_positions[0];
-	for room in room_positions:
-		draw_chunky_room(room, randi()%10+4, randi()%10+6);
-	for room in generate_random_room_positions(27, 28, true):
-		draw_chunky_room(room, randi()%10+9, randi()%4+6);
-	for room in generate_random_room_positions(41, 29, true):
-		draw_chunky_room(room, randi()%3+4, randi()%3+6);
+# This is the more common type of dungeon.
+# The plan is to block out part of a street plan, and then around the streets,
+# carve out "buildings."
+# This won't look super duper natural, because it's being carved out but I can't
+# easily prevent the player from leaving the map.
+# I guess I can generate the streets, then buildings, then "fence" it in.
+# then generate the next street.
+# Generate maybe 2 - 3 streets?
+# These streets are still relatively empty so I'm not really sure about how well
+# these will turn out.
+# The buildings may either be mini dungeons or just blocked out rooms. Sometimes they'll
+# have stuff. Mostly so zombies can spawn from within them.
+# Maybe sometimes instead of a street we'll spawn a building to walk through?
+# That might be pretty rough to try... But I've got at least two days... So might
+# as well try.
+# Looks like my searches for building generation lead to BSP.
+func attempt_at_random_city_block():
+	pass;
 func generate_random_dungeon():
 	clear_world_state();
-#	_player.position = Vector2(7,7);
+	_player.position = Vector2(7,7);
 #	draw_chunky_room(Vector2(7,7), 5, 5);
 #	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
 	vertically_biased_whatever_dungeon();
-#	horizontally_biased_whatever_dungeon();
+	_entities.add_item_pickup(_player.position, Globals.Medkit.new());
+#	attempt_at_random_city_block();
+#	build_building(Vector2(10, 10), 20, 15);
 	
 # ATM, and probably even on finish, this might just have to be a plain room, with supplies in the center.
 # Or at the end of the room. It's a last stand sort of thing.
@@ -737,6 +750,7 @@ func _process(_delta):
 	var item_pickup_prompt = _interface.get_node("Ingame/PickupItemPrompt");
 	if item_occupying_current_space:
 		item_pickup_prompt.show();
+		item_pickup_prompt.text = "Pickup " + item_occupying_current_space.item.name + " with g!";
 	else:
 		item_pickup_prompt.hide();
 
