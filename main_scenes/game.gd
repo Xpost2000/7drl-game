@@ -156,6 +156,13 @@ class EntityPlayerBrain extends EntityBrain:
 
 class EntitySurvivorBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
+		# Prioritize chasing the player unless healing is required
+		# Chase the player with some breathing space (2 blocks apart?)
+		# Equip a weapon always.
+		# Approach a weapon pickup if it doesn't have a weapon or is low on ammo.
+		# When less than 60% health try to heal. If not see if there's a nearby healthpack.
+		# If infected are spotted. Shoot infected.
+		# Survivors should ideally be able to heal each other but that might not be necessary.
 		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 		
 #################################### Infected
