@@ -67,6 +67,15 @@ func player_movement_direction():
 		return Vector2(1, 0);
 	return Vector2.ZERO;
 
+func play_walk_sound():
+	AudioGlobal.play_sound(
+		Utilities.random_nth([
+		"resources/snds/footsteps/gravel1.wav",
+		"resources/snds/footsteps/gravel2.wav",
+		"resources/snds/footsteps/gravel3.wav",
+		"resources/snds/footsteps/gravel4.wav"
+		]));
+
 class EntityPlayerBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
 		if entity_self.currently_equipped_weapon and (entity_self.rounds_left_in_burst > 0) and entity_self.currently_equipped_weapon is Globals.Gun:
@@ -137,13 +146,7 @@ class EntityPlayerBrain extends EntityBrain:
 				else:
 					game_state._interface.message("No gun or projectile equipped");
 			if move_direction != Vector2.ZERO:
-				AudioGlobal.play_sound(
-				Utilities.random_nth([
-				"resources/snds/footsteps/gravel1.wav",
-				"resources/snds/footsteps/gravel2.wav",
-				"resources/snds/footsteps/gravel3.wav",
-				"resources/snds/footsteps/gravel4.wav"
-				]));
+				game_state.play_walk_sound();
 				var move_result = game_state._entities.try_move(entity_self, move_direction);
 				if move_result == Enumerations.COLLISION_HIT_ENTITY:
 					return EntityBrain.ShoveTurnAction.new(move_direction);
@@ -868,7 +871,7 @@ func _process(_delta):
 					var actor_turn_action = actor.get_turn_action(self);
 					if actor_turn_action:
 						_entities.do_action(self, actor, actor_turn_action);
-						if not actor_turn_action is EntityBrain.FireWeaponTurnAction or (actor.rounds_left_in_burst > 0):
+						if not (actor_turn_action is EntityBrain.FireWeaponTurnAction and (actor.rounds_left_in_burst > 0)):
 							current_actor_turn_information.turns_left -= 1;
 						# this is important for the player as it doesn't allow
 						# them to burn through all their turns

@@ -78,7 +78,7 @@ func _draw():
 			if cell and cell > 0.0:
 				var entity_visual = entity.visual_info;
 				draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), entity_visual.background);
-				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), entity_visual.symbol, entity_visual.foreground*world.is_cell_visible(tile_position));
+				draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), entity_visual.symbol, entity_visual.foreground*cell);
 				if entity.smoker_link:
 					var smoker_entity = entity.smoker_link;
 					draw_line(Vector2((entity.position.x+0.5) * (FONT_HEIGHT/2), (entity.position.y+1) * (FONT_HEIGHT)), 
