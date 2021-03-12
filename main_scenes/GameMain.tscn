@@ -22,7 +22,7 @@ script = ExtResource( 2 )
 
 [node name="GameCamera" type="Camera2D" parent="."]
 current = true
-zoom = Vector2( 2, 2 )
+zoom = Vector2( 0.75, 0.75 )
 smoothing_enabled = true
 smoothing_speed = 10.0
 

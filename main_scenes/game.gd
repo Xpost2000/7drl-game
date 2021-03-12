@@ -207,7 +207,7 @@ class EntitySpecialInfectedTank extends EntityBrain:
 	var victim: Object;
 	func get_turn_action(entity_self, game_state):
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
-		if nearest_survivor and (self.victim == null or self.victim.is_dead()) and entity_self.can_see_from(game_state._world, nearest_survivor.position):
+		if nearest_survivor and entity_self.can_see_from(game_state._world, nearest_survivor.position):
 			self.victim = nearest_survivor;
 		if self.victim and not self.victim.is_dead():
 			if entity_self.position.distance_squared_to(self.victim.position) <= 3:
@@ -318,7 +318,7 @@ class EntitySpecialInfectedSmoker extends EntityBrain:
 				self.target.smoker_link = null;
 	func get_turn_action(entity_self, game_state):
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
-		if not self.target:
+		if not self.target or self.target.is_dead():
 			if nearest_survivor and not nearest_survivor.is_dead():
 				self.target = nearest_survivor;
 			
@@ -487,7 +487,7 @@ func initialize_survivors():
 	_player.add_item(Globals.PipebombItem.new());
 	_player.add_item(Globals.PillBottle.new());
 	_player.add_item(make_pistol());
-	if false:
+	if true:
 		var second = _entities.add_entity("Louis", Vector2(2, 2), EntitySurvivorBrain.new());
 		second.health = 100;
 		second.turn_speed = 1;
@@ -528,6 +528,12 @@ func clear_world_state():
 	
 const MAX_DUNGEON_LEVELS = 2;
 var _temporary_current_dungeon_room = 0;
+func arrange_survivors_at(where):
+	_survivors[0].position = where;
+	_survivors[1].position = where + Vector2(2, 0);
+	_survivors[2].position = where + Vector2(2, 2);
+	_survivors[3].position = where + Vector2(0, 2);
+
 func initialize_initial_test_room():
 	clear_world_state();
 	#make_boomer(Vector2(3, 3));
@@ -535,7 +541,7 @@ func initialize_initial_test_room():
 #	make_tank(Vector2(8, 9));
 #	for i in range (5):
 #		make_common_infected_chaser(Vector2(5, 5+i));
-	_player.position = Vector2(12, 7);
+	arrange_survivors_at(Vector2(12, 7));
 	_entities.add_item_pickup(Vector2(4, 5), Globals.Medkit.new());
 	for i in range (5):
 		_world.set_cell(Vector2(8+i, 4), 8);
@@ -633,7 +639,7 @@ func generate_random_room_positions(displacement_x, displacement_y, horizontal=f
 # Small interlude areas. These areas should be very short.
 func vertically_biased_whatever_dungeon():
 	var room_positions = generate_random_room_positions(16, 16);
-	_player.position = room_positions[0];
+	arrange_survivors_at(room_positions[0]);
 	for room in room_positions:
 		$AIDirector.add_spawn_location(room);
 		draw_chunky_room(room, randi()%10+4, randi()%8+5);
