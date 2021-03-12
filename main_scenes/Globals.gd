@@ -44,7 +44,7 @@ class Gun extends Item:
 	func reload():
 		if self.capacity > 0 and self.current_capacity < self.current_capacity_limit:
 			if self.capacity - self.current_capacity_limit > 0:
-				self.capacity -= self.current_capacity_limit;
+				self.capacity -= self.current_capacity;
 				self.current_capacity = self.current_capacity_limit;
 			else:
 				self.current_capacity = self.capacity;
