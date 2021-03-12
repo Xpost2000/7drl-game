@@ -207,7 +207,7 @@ class EntitySpecialInfectedTank extends EntityBrain:
 	var victim: Object;
 	func get_turn_action(entity_self, game_state):
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
-		if nearest_survivor and self.victim == null or self.victim.is_dead() and entity_self.can_see_from(game_state._world, nearest_survivor.position):
+		if nearest_survivor and (self.victim == null or self.victim.is_dead()) and entity_self.can_see_from(game_state._world, nearest_survivor.position):
 			self.victim = nearest_survivor;
 		if self.victim and not self.victim.is_dead():
 			if entity_self.position.distance_squared_to(self.victim.position) <= 3:

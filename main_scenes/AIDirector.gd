@@ -46,7 +46,7 @@ enum InfectedSpawnTypes {
 const IMPOSSIBLE_TO_SPAWN_ANYMORE = -1;
 
 var spawned = {
-	InfectedSpawnTypes.CALM_HORDE: [0, 2],
+	#InfectedSpawnTypes.CALM_HORDE: [0, 2],
 	InfectedSpawnTypes.AGGRESSIVE_HORDE: [0, 2],
 	InfectedSpawnTypes.TANK: [0, 4],
 	InfectedSpawnTypes.BOOMER: [0, -1],
@@ -57,13 +57,14 @@ var spawned = {
 
 func all_spawn_limits_hit():
 	for spawn_entry in spawned:
-		if spawn_entry[0] < spawn_entry[1]:
+		var entry = spawned[spawn_entry];
+		if entry[0] < entry[1]:
 			return false;
 	return true;
 
 func score_of(infected_type):
 	match infected_type:
-		InfectedSpawnTypes.CALM_HORDE: return 150;
+		#InfectedSpawnTypes.CALM_HORDE: return 150;
 		InfectedSpawnTypes.AGGRESSIVE_HORDE: return 190;
 		InfectedSpawnTypes.TANK: return 320;
 		InfectedSpawnTypes.BOOMER: return 180;
@@ -115,9 +116,9 @@ func spawn_boomer(where):
 	game_state.make_boomer(where);
 			
 func do_spawn_of(infected_type):
-	if infected_type == InfectedSpawnTypes.CALM_HORDE or infected_type == InfectedSpawnTypes.AGGRESSIVE_HORDE:
-		var position = find_best_block_placement_position(3);
-		spawn_common_infected_horde_block(position, 3);
+	if infected_type == InfectedSpawnTypes.AGGRESSIVE_HORDE:
+		var position = find_best_block_placement_position(2);
+		spawn_common_infected_horde_block(position, 2);
 	elif infected_type == InfectedSpawnTypes.TANK:
 		var position = find_best_block_placement_position(1, 8);
 		spawn_tank(position);
@@ -130,16 +131,19 @@ func do_spawn_of(infected_type):
 	
 # TODO these should be weighted.
 func choose_infected_type_to_spawn():
-	var chosen = Utilities.random_nth([
-	InfectedSpawnTypes.CALM_HORDE,
-	InfectedSpawnTypes.AGGRESSIVE_HORDE,
-	InfectedSpawnTypes.TANK,
-	InfectedSpawnTypes.BOOMER,
-	InfectedSpawnTypes.SMOKER,]);
+	var chosen = Utilities.weighted_random(
+		[
+			[InfectedSpawnTypes.AGGRESSIVE_HORDE, 60],
+			[InfectedSpawnTypes.TANK, 25],
+			[InfectedSpawnTypes.BOOMER, 30],
+			[InfectedSpawnTypes.SMOKER, 30],
+		]
+	);
 	if spawned[chosen][0] < spawned[chosen][1]:
 		return chosen;
 	else:
-		if not all_spawn_limits_hit():
+		var feels_like_rerolling = randf() < 0.6;
+		if not all_spawn_limits_hit() and feels_like_rerolling:
 			return choose_infected_type_to_spawn();
 		else:
 			return IMPOSSIBLE_TO_SPAWN_ANYMORE;
