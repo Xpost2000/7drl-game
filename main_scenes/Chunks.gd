@@ -118,7 +118,7 @@ func set_cell_gore(where, value):
 	var chunk = get_chunk_at(where);
 	where -= current_chunk_location * CHUNK_MAX_SIZE;
 	if chunk:
-		chunk.set_cell(where.x, where.y, 1, value);
+		chunk.set_cell(where.x, where.y, chunk.get_cell(where.x, where.y)[0], value);
 func set_cell(where, value):
 	var current_chunk_location = calculate_chunk_position(where); 
 	var chunk = get_chunk_at(where);
