@@ -115,6 +115,8 @@ script = ExtResource( 8 )
 
 [node name="AIDirector" type="Node" parent="."]
 script = ExtResource( 15 )
+director_calmness_score_threshold = 0
+mercy_threshold = 0.68
 
 [node name="Fixed" type="CanvasLayer" parent="."]
 

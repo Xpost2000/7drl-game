@@ -13,10 +13,12 @@ func _ready():
 
 # score until director will choose to spawn something
 export var director_calmness_score_threshold = 100;
+# Threshold that makes director with-hold a spawn.
+export var mercy_threshold = 0.65;
 var calmness_score = 50;
 
-
 func try_to_decorate_world_with_witches():
+	# would require a list of rooms to decorate with to start with.
 	pass;
 
 func on_new_world():
@@ -39,26 +41,37 @@ enum InfectedSpawnTypes {
 
 func score_of(infected_type):
 	match infected_type:
-		InfectedSpawnTypes.CALM_HORDE: return 36+(randi()%25);
-		InfectedSpawnTypes.AGGRESSIVE_HORDE: return 50 + (randi()%15);
-		InfectedSpawnTypes.TANK: return 125;
-		InfectedSpawnTypes.BOOMER: return 40;
-		InfectedSpawnTypes.SMOKER: return 45;
-		InfectedSpawnTypes.HUNTER: return 40;
-		InfectedSpawnTypes.HORDE_AND_BOOMER: return 70;
+		InfectedSpawnTypes.CALM_HORDE: return 150;
+		InfectedSpawnTypes.AGGRESSIVE_HORDE: return 190;
+		InfectedSpawnTypes.TANK: return 320;
+		InfectedSpawnTypes.BOOMER: return 180;
+		InfectedSpawnTypes.SMOKER: return 190;
+		InfectedSpawnTypes.HUNTER: return 190;
+		InfectedSpawnTypes.HORDE_AND_BOOMER: return 220;
 		
 func do_spawn_of(infected_type):
-	print(infected_type);
+	if infected_type == InfectedSpawnTypes.CALM_HORDE:
+		for zombie_index in range(4):
+			game_state.make_common_infected_chaser(Vector2(zombie_index+9, 8));
+		for zombie_index in range(4):
+			game_state.make_common_infected_chaser(Vector2(8, 9+zombie_index));
 	
 func choose_infected_type_to_spawn():
 	return InfectedSpawnTypes.CALM_HORDE;
 
 func step_round(_delta):
+	print("THINK DIRECTOR");
+	calmness_score = min(calmness_score, 430);
 	if director_think_tick <= 0:
 		director_think_tick = director_think_delay;
-		if should_spawn_infected():
+		print(calmness_score);
+		if (randf() > mercy_threshold) and should_spawn_infected():
+			print("Would choose to spawn stuff!");
 			var chosen_infected_type = choose_infected_type_to_spawn();
 			do_spawn_of(chosen_infected_type);
 			calmness_score -= score_of(chosen_infected_type);
+			print(chosen_infected_type);
+		else:
+			print("not spawning yet!");
 	else:
 		director_think_tick -= 1;

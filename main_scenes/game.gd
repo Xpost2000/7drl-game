@@ -189,7 +189,7 @@ class EntityCommonInfectedPassiveBrain extends EntityBrain:
 		self.aggressive = true;
 	func get_turn_action(entity_self, game_state):
 		var nearest_survivor = game_state.nearest_survivor_to(entity_self.position);
-		if entity_self.can_see_from(game_state._world, nearest_survivor.position):
+		if nearest_survivor and entity_self.can_see_from(game_state._world, nearest_survivor.position):
 			if randf() > 0.95:
 				self.aggressive = true;
 			
@@ -428,6 +428,11 @@ func make_shotgun():
 
 func make_common_infected_chaser(position):
 	var zombie = _entities.add_entity("Infected", position, EntityCommonInfectedChaserBrain.new());
+	zombie.visual_info.symbol = "Z";
+	zombie.visual_info.foreground = Color.gray;
+	return zombie;
+func make_common_infected_passive(position):
+	var zombie = _entities.add_entity("Infected", position, EntityCommonInfectedPassiveBrain.new());
 	zombie.visual_info.symbol = "Z";
 	zombie.visual_info.foreground = Color.gray;
 	return zombie;
@@ -736,7 +741,9 @@ func step_round(_delta):
 		else:
 			_survivor_distance_field_regenerate_timer -= 1;
 
+	$AIDirector.calmness_score += 3;
 	$AIDirector.step_round(_delta);
+
 	for boomer_bile_source in _boomer_bile_sources:
 		if boomer_bile_source[1] <= 0:
 			_boomer_bile_sources.erase(boomer_bile_source);

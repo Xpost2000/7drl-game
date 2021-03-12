@@ -118,7 +118,7 @@ func set_cell_gore(where, value):
 	var chunk = get_chunk_at(where);
 	where -= current_chunk_location * CHUNK_MAX_SIZE;
 	if chunk:
-		chunk.set_cell(where.x, where.y, get_cell(where)[0], value);
+		chunk.set_cell(where.x, where.y, 1, value);
 func set_cell(where, value):
 	var current_chunk_location = calculate_chunk_position(where); 
 	var chunk = get_chunk_at(where);
@@ -224,10 +224,11 @@ func distance_field_next_best_position(distance_field, from, entities=null):
 		var result_position = from;
 		var minimum_neighbor = distance_field[from];
 		for neighbor in neighbors(self, from, entities):
-			var neighbor_cell = distance_field[neighbor]; 
-			if not minimum_neighbor or neighbor_cell < minimum_neighbor:
-				minimum_neighbor = neighbor_cell;
-				result_position = neighbor;
+			if neighbor in distance_field:
+				var neighbor_cell = distance_field[neighbor]; 
+				if not minimum_neighbor or neighbor_cell < minimum_neighbor:
+					minimum_neighbor = neighbor_cell;
+					result_position = neighbor;
 		return result_position;
 	return from;
 	
