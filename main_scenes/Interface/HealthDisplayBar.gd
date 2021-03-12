@@ -8,6 +8,9 @@ const HEALTH_HEALTHY = Color(64/255.0, 120/255.0, 32/255.0, 255/255.0);
 const HEALTH_MEDIUM = Color(204/255.0, 182/255.0, 35/255.0, 255/255.0);
 const HEALTH_DANGER = Color(120/255.0, 32/255.0, 32/255.0, 255/255.0);
 
+func _ready():
+	set("custom_styles/fg", StyleBoxFlat.new());
+
 func update_from(entity):
 	name_label.text = entity.name;
 	health_bar.max_value = entity.max_health;

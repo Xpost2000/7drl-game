@@ -571,7 +571,7 @@ func draw_room(center_position, half_width, half_height, override=false):
 			var horizontal_wall = x_displacement == -half_width or x_displacement == half_width-1;
 			var vertical_wall = y_displacement == -half_height or y_displacement == half_height-1;
 			var cell_position = center_position + Vector2(x_displacement, y_displacement);
-			var already_present_cell = _world.get_cell(cell_position)[0] != 0;
+			var already_present_cell = _world.get_cell(cell_position) and _world.get_cell(cell_position)[0] != 0;
 			if (horizontal_wall or vertical_wall):
 				if not already_present_cell:
 					_world.set_cell(cell_position, 8);
