@@ -18,10 +18,6 @@ export var director_calmness_score_threshold = 100;
 export var mercy_threshold = 0.65;
 var calmness_score = 50;
 
-func try_to_decorate_world_with_witches():
-	# would require a list of rooms to decorate with to start with.
-	pass;
-
 func on_new_world():
 	potential_spawn_locations.clear();
 	director_think_tick = 0;
@@ -114,6 +110,8 @@ func spawn_smoker(where):
 	game_state.make_smoker(where);
 func spawn_boomer(where):
 	game_state.make_boomer(where);
+func spawn_witch(where):
+	game_state.make_witch(where);
 			
 func do_spawn_of(infected_type):
 	if infected_type == InfectedSpawnTypes.AGGRESSIVE_HORDE:
@@ -128,13 +126,23 @@ func do_spawn_of(infected_type):
 	elif infected_type == InfectedSpawnTypes.SMOKER:
 		var position = find_best_block_placement_position(1);
 		spawn_smoker(position);
+
+func try_to_decorate_world_with_witches():
+	# would require a list of rooms to decorate with to start with.
+	var placed_witches = 0;
+	for witch_placement_attempts in range(10):
+		if placed_witches < 2:
+			var position = find_best_block_placement_position(10, 12);
+			if position:
+				spawn_witch(position);
+				placed_witches += 1;
 	
 # TODO these should be weighted.
 func choose_infected_type_to_spawn():
 	var chosen = Utilities.weighted_random(
 		[
 			[InfectedSpawnTypes.AGGRESSIVE_HORDE, 60],
-			[InfectedSpawnTypes.TANK, 25],
+			[InfectedSpawnTypes.TANK, 15],
 			[InfectedSpawnTypes.BOOMER, 30],
 			[InfectedSpawnTypes.SMOKER, 30],
 		]
@@ -149,19 +157,14 @@ func choose_infected_type_to_spawn():
 			return IMPOSSIBLE_TO_SPAWN_ANYMORE;
 
 func step_round(_delta):
-	print("THINK DIRECTOR");
 	calmness_score = min(calmness_score, 430);
 	if director_think_tick <= 0:
 		director_think_tick = director_think_delay;
-		print(calmness_score);
+		#print(calmness_score);
 		if (randf() > mercy_threshold) and should_spawn_infected():
-			print("Would choose to spawn stuff!");
 			var chosen_infected_type = choose_infected_type_to_spawn();
 			if chosen_infected_type != IMPOSSIBLE_TO_SPAWN_ANYMORE:
 				do_spawn_of(chosen_infected_type);
 				calmness_score -= score_of(chosen_infected_type);
-				print(chosen_infected_type);
-		else:
-			print("not spawning yet!");
 	else:
 		director_think_tick -= 1;

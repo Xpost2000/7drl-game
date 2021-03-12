@@ -668,6 +668,7 @@ func generate_random_dungeon():
 #	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
 	vertically_biased_whatever_dungeon();
 	_entities.add_item_pickup(_player.position, Globals.Medkit.new());
+	$AIDirector.try_to_decorate_world_with_witches();
 #	attempt_at_random_city_block();
 #	build_building(Vector2(10, 10), 20, 15);
 	
