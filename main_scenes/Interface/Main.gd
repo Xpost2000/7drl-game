@@ -18,6 +18,7 @@ onready var states = {
 	INGAME_STATE: $Ingame,
 	PAUSE_STATE: $Pause,
 	SUMMARY_STATE: $MovingToNextFloor,
+	UNDEFINED: $Ingame,
 };
 onready var state = UNDEFINED setget set_state;
 onready var previous_state = INGAME_STATE;
@@ -69,3 +70,6 @@ func _ready():
 	$Death/Holder/OptionsLayout/Restart.connect("pressed", get_tree(), "reload_current_scene");
 	$Death/Holder/OptionsLayout/Quit.connect("pressed", get_tree(), "change_scene_to", [Globals.main_menu_scene]);
 	$Death/Holder/OptionsLayout/Exit.connect("pressed", get_tree(), "quit");
+
+	$Pause/Layout/Quit.connect("pressed", get_tree(), "change_scene_to", [Globals.main_menu_scene]);
+	$Pause/Layout/Exit.connect("pressed", get_tree(), "quit");

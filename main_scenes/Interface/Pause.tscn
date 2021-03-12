@@ -7,9 +7,30 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="Label" parent="."]
-margin_right = 1279.0
-margin_bottom = 718.0
-text = "GAME PAUSED"
+[node name="Layout" type="VBoxContainer" parent="."]
+margin_left = 524.0
+margin_top = 251.0
+margin_right = 744.0
+margin_bottom = 513.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Layout"]
+margin_right = 222.0
+margin_bottom = 14.0
+text = "GAME PAUSED (Escape to Resume)"
 align = 1
 valign = 1
+
+[node name="Quit" type="Button" parent="Layout"]
+margin_top = 18.0
+margin_right = 222.0
+margin_bottom = 38.0
+text = "Quit"
+
+[node name="Exit" type="Button" parent="Layout"]
+margin_top = 42.0
+margin_right = 222.0
+margin_bottom = 62.0
+text = "Exit to Windows"
