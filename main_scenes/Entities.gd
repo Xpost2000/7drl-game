@@ -52,6 +52,20 @@ class Entity:
 		self.inventory = [];
 		self.adrenaline_active_timer = 0;
 
+	func find_best_gun_item():
+		var best_item = null;
+		for item in self.inventory:
+			if item is Globals.Gun:
+				if not best_item or best_item.tier < item.tier:
+					best_item = item;
+		return best_item;
+
+	func find_medkit():
+		for item in self.inventory:
+			if item is Globals.Medkit:
+				return item;
+		return null;
+
 	func find_closest_entity(game_state, account_for_visibility_map=false):
 		var closest_entity = null;
 		var closest_distance = INF;

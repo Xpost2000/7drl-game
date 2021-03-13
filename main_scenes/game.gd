@@ -166,6 +166,17 @@ class EntitySurvivorBrain extends EntityBrain:
 		var distance_to_player = entity_self.position.distance_squared_to(game_state._player.position);
 		var closest_zombie = entity_self.find_closest_zombie_entity(game_state, game_state._survivors);
 		var distance_to_zombie = entity_self.position.distance_squared_to(closest_zombie.position) if closest_zombie else 999999999;
+
+		var gun_item = entity_self.find_best_gun_item();
+
+		if entity_self.current_medkit:
+			print("okay... Heal");
+			return EntityBrain.WaitTurnAction.new();
+
+		# handle out of ammo.
+		if !entity_self.currently_equipped_weapon and gun_item:
+			return EntityBrain.UseItemAction.new(gun_item);
+
 		if distance_to_zombie <= (16):
 			if distance_to_zombie <= 1:
 				var direction_to_zombie = entity_self.position.direction_to(closest_zombie.position).normalized();
@@ -180,14 +191,39 @@ class EntitySurvivorBrain extends EntityBrain:
 
 				return EntityBrain.ShoveTurnAction.new(direction_to_zombie);
 			else:
-				print("Firing time!");
-				return EntityBrain.WaitTurnAction.new();
+				if entity_self.currently_equipped_weapon and entity_self.can_see_from(game_state._world, closest_zombie.position):
+					if entity_self.currently_equipped_weapon is Globals.Gun and entity_self.currently_equipped_weapon.rounds_per_shot > 1:
+						entity_self.rounds_left_in_burst = entity_self.currently_equipped_weapon.rounds_per_shot-1;
+
+					if entity_self.currently_equipped_weapon.current_capacity <= 0:
+						return EntityBrain.ReloadWeaponTurnAction.new();
+					else:
+						return EntityBrain.FireWeaponTurnAction.new(closest_zombie.position);
+				else:
+					var next_position = game_state._world.request_path_from_to(entity_self.position, closest_zombie.position)[1];
+					var direction = next_position - entity_self.position;
+					return EntityBrain.MoveTurnAction.new(direction);
+					# return EntityBrain.WaitTurnAction.new();
 		elif distance_to_player > (25):
 			var next_position = game_state._world.request_path_from_to(entity_self.position, game_state._player.position)[1];
 			var direction = next_position - entity_self.position;
 			return EntityBrain.MoveTurnAction.new(direction);
 		else:
-			return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
+			if entity_self.health <= 65:
+				# unfortunately they don't know how to cancel...
+				var medkit = entity_self.find_medkit();
+				if medkit and not entity_self.current_medkit:
+					print("HEALING!");
+					entity_self.use_medkit_timer = Globals.HEALING_MEDKIT_TURNS+1;
+					medkit.on_use(game_state, entity_self);
+					return EntityBrain.WaitTurnAction.new();
+				else:
+					# stay close to survive.
+					var next_position = game_state._world.request_path_from_to(entity_self.position, game_state._player.position)[1];
+					var direction = next_position - entity_self.position;
+					return EntityBrain.MoveTurnAction.new(direction);
+			else:
+				return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 		
 #################################### Infected
 class EntityRandomWanderingBrain extends EntityBrain:
