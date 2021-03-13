@@ -177,7 +177,8 @@ class EntitySurvivorBrain extends EntityBrain:
 		if !entity_self.currently_equipped_weapon and gun_item:
 			return EntityBrain.UseItemAction.new(gun_item);
 
-		if distance_to_zombie <= (16):
+		var is_witch = closest_zombie.brain is game_state.EntitySpecialInfectedWitch if closest_zombie else false;
+		if distance_to_zombie <= (16) and not is_witch:
 			if distance_to_zombie <= 1:
 				var direction_to_zombie = entity_self.position.direction_to(closest_zombie.position).normalized();
 				if direction_to_zombie.x > 0:
@@ -192,18 +193,16 @@ class EntitySurvivorBrain extends EntityBrain:
 				return EntityBrain.ShoveTurnAction.new(direction_to_zombie);
 			else:
 				if entity_self.currently_equipped_weapon and entity_self.can_see_from(game_state._world, closest_zombie.position):
-					if entity_self.currently_equipped_weapon is Globals.Gun and entity_self.currently_equipped_weapon.rounds_per_shot > 1:
-						entity_self.rounds_left_in_burst = entity_self.currently_equipped_weapon.rounds_per_shot-1;
-
 					if entity_self.currently_equipped_weapon.current_capacity <= 0:
 						return EntityBrain.ReloadWeaponTurnAction.new();
 					else:
+						if entity_self.currently_equipped_weapon is Globals.Gun and entity_self.currently_equipped_weapon.rounds_per_shot > 1:
+							entity_self.rounds_left_in_burst = entity_self.currently_equipped_weapon.rounds_per_shot-1;
 						return EntityBrain.FireWeaponTurnAction.new(closest_zombie.position);
 				else:
 					var next_position = game_state._world.request_path_from_to(entity_self.position, closest_zombie.position)[1];
 					var direction = next_position - entity_self.position;
 					return EntityBrain.MoveTurnAction.new(direction);
-					# return EntityBrain.WaitTurnAction.new();
 		elif distance_to_player > (25):
 			var next_position = game_state._world.request_path_from_to(entity_self.position, game_state._player.position)[1];
 			var direction = next_position - entity_self.position;
