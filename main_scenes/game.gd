@@ -732,7 +732,13 @@ func dungeon_with_alcoves_and_crap():
 	cursor_y += 6;
 	plunk_some_rooms(cursor_x, cursor_y);
 	cursor_y += 6;
-	plunk_some_rooms(cursor_x, cursor_y);
+	var last_set_of_rooms = plunk_some_rooms(cursor_x, cursor_y);
+	var lowest_room = null;
+	var lowest_room_dimensions = null;
+	for room in last_set_of_rooms:
+		if not lowest_room or lowest_room.y < room.y:
+			lowest_room = room;
+	_safe_room = lowest_room + Vector2(0, 3);
 
 func dungeon_with_alcoves_and_crap_1():
 	arrange_survivors_at(Vector2(16, 10));
@@ -755,7 +761,13 @@ func dungeon_with_alcoves_and_crap_1():
 	cursor_y += 6;
 	plunk_some_rooms(cursor_x, cursor_y);
 	cursor_y += 7;
-	plunk_some_rooms(cursor_x, cursor_y);
+	var last_set_of_rooms = plunk_some_rooms(cursor_x, cursor_y);
+	var lowest_room = null;
+	var lowest_room_dimensions = null;
+	for room in last_set_of_rooms:
+		if not lowest_room or lowest_room.y < room.y:
+			lowest_room = room;
+	_safe_room = lowest_room + Vector2(0, 3);
 
 func generate_random_dungeon():
 	clear_world_state();
