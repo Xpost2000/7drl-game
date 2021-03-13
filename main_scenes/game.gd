@@ -345,16 +345,16 @@ class EntitySpecialInfectedWitch extends EntityBrain:
 				return EntityBrain.MoveTurnAction.new(direction);
 		else:
 			# TODO make this a queued sound.
-			if randf() < 0.15 and entity_self.position.distance_squared_to(game_state._player.position) <= 16:
-				AudioGlobal.play_sound(
-					Utilities.random_nth(
-					[
-						"resources/snds/witch/female_cry_1.wav",
-						"resources/snds/witch/female_cry_2.wav",
-						"resources/snds/witch/female_cry_3.wav",
-					]	
-					)
-				);
+			# if randf() < 0.15 and entity_self.position.distance_squared_to(game_state._player.position) <= 16:
+			#	AudioGlobal.play_sound(
+			#		Utilities.random_nth(
+			#		[
+			#			"resources/snds/witch/female_cry_1.wav",
+			#			"resources/snds/witch/female_cry_2.wav",
+			#			"resources/snds/witch/female_cry_3.wav",
+			#		]	
+			#		)
+			#	);
 			return EntityBrain.WaitTurnAction.new();
 
 class EntitySpecialInfectedBoomer extends EntityBrain:
@@ -787,13 +787,26 @@ func generate_random_dungeon():
 func generate_horde_finale_room():
 	_safe_room = null;
 	_interface.message("You're almost there now!");
-	_interface.message("Head to the end of the room, and prepare for a horde!");
-	_interface.message("Take advantage of the open area, and try to survive.");
 	_interface.message("Pickup the radio, and survive the waves. Good luck!");
-	clear_world_state();
-	arrange_survivors_at(Vector2(27, 19));
-	_entities.add_item_pickup(Vector2(27, 19), Globals.HordeRadio.new());
-	draw_room(Vector2(24, 24), 30, 30);
+	arrange_survivors_at(Vector2(16, 10));
+	_entities.add_item_pickup(Vector2(16, 10), Globals.HordeRadio.new());
+	var cursor_x = 16;
+	var cursor_y = 16;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += 10;
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+
+	# arrange_survivors_at(Vector2(27, 19));
+	# draw_room(Vector2(24, 24), 30, 30);
+	# for y in range(24-28, 24+28, 1):
+	#	for x in range(24-28, 24+28, 1):
+	#		print(Vector2(x, y));
+	#		$AIDirector.add_spawn_location(Vector2(x, y));
 	pass;
 func generate_next_room():
 	if _temporary_current_dungeon_room == MAX_DUNGEON_LEVELS-1:
@@ -864,7 +877,7 @@ func step_round(_delta):
 		if _player.position == _safe_room:
 			_interface.state = _interface.SUMMARY_STATE;
 
-	$AIDirector.calmness_score += 3;
+	$AIDirector.calmness_score += 3 if not _horde_mode_start else 6;
 	$AIDirector.step_round(_delta);
 
 	if _horde_mode_start:
@@ -894,12 +907,15 @@ var _show_summary_state_timer = SHOW_SUMMARY_STATE_TIMER_MAX;
 func begin_horde_mode():
 	if not _horde_mode_start:
 		AudioGlobal.play_sound("resources/snds/snowballinhell.wav");
-		_horde_mode_turns_left = 540 + (randi()%200);
+		_horde_mode_turns_left = 100 + (randi()%200);
 		_horde_mode_start = true;
 
 func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
+
+	if Input.is_action_just_pressed("ui_end"):
+		_interface.state = _interface.SUMMARY_STATE;
 
 	_interface.report_inventory(_player);
 	_interface.report_player_health(_player);

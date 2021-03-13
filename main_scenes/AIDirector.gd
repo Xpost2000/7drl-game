@@ -82,7 +82,7 @@ func survivor_care_package_at_spawn():
 func all_spawn_limits_hit():
 	for spawn_entry in spawned:
 		var entry = spawned[spawn_entry];
-		if entry[0] < entry[1]:
+		if entry[0] < entry[1] if not game_state._horde_mode_start else entry[1] * 2:
 			return false;
 	return true;
 
@@ -210,6 +210,7 @@ func step_round(_delta):
 			var chosen_infected_type = choose_infected_type_to_spawn();
 			if chosen_infected_type != IMPOSSIBLE_TO_SPAWN_ANYMORE:
 				do_spawn_of(chosen_infected_type);
+				print(chosen_infected_type);
 				calmness_score -= score_of(chosen_infected_type);
 
 		for survivor in game_state._survivors:
@@ -228,6 +229,14 @@ func step_round(_delta):
 		if randf() > 0.98:
 			var position = find_best_block_placement_position(6, 8);
 			if position:
-				survivor_care_package_at(position, [Globals.make_pistol(), Globals.make_shotgun(), Globals.make_rifle(), Globals.PipebombItem.new(). Globals.BoomerBileItem.new(), Globals.MolotovCocktailItem.new()], 4);
+				survivor_care_package_at(position, [Globals.make_pistol(),
+													Globals.make_shotgun(),
+													Globals.make_rifle(),
+													Globals.PipebombItem.new(),
+													Globals.BoomerBileItem.new(),
+													Globals.MolotovCocktailItem.new()], 4);
 	else:
-		director_think_tick -= 1;
+		if game_state._horde_mode_start:
+			director_think_tick -= 2;
+		else:
+			director_think_tick -= 1;
