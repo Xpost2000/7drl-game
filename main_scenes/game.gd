@@ -463,38 +463,6 @@ func present_entity_actions_as_messages(entity, action):
 			else:
 				_interface.message(entity.name + " finished using a medkit.");
 
-func make_pistol():
-	var pistol = Globals.Gun.new("Pistol");
-	pistol.capacity = 30;
-	pistol.current_capacity = 4;
-	pistol.current_capacity_limit = 4;
-	pistol.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
-	pistol.reload_sound_string = "resources/snds/guns/pistol_clip_in_1.wav";
-	pistol.tier = 1;
-	return pistol;
-
-func make_rifle():
-	var gun = Globals.Gun.new("Assault Rifle");
-	gun.capacity = 150;
-	gun.current_capacity = 30;
-	gun.current_capacity_limit = 30;
-	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
-	gun.reload_sound_string = "resources/snds/guns/rifle_clip_in_1.wav";
-	gun.rounds_per_shot = 3;
-	gun.tier = 3;
-	return gun;
-	
-func make_shotgun():
-	var gun = Globals.Gun.new("Shotgun");
-	gun.shotgun = true;
-	gun.capacity = 45;
-	gun.current_capacity = 4;
-	gun.current_capacity_limit = 4;
-	gun.firing_sound_string = "resources/snds/guns/shotgun_fire_1.wav";
-	gun.reload_sound_string = "resources/snds/guns/shotgun_load_shell_2.wav";
-	gun.tier = 3;
-	return gun;
-
 func make_common_infected_chaser(position):
 	var zombie = _entities.add_entity("Infected", position, EntityCommonInfectedChaserBrain.new());
 	zombie.visual_info.symbol = "Z";
@@ -555,28 +523,28 @@ func initialize_survivors():
 	_player.add_item(Globals.Medkit.new());
 	_player.add_item(Globals.PipebombItem.new());
 	_player.add_item(Globals.PillBottle.new());
-	_player.add_item(make_pistol());
+	_player.add_item(Globals.make_pistol());
 	if true:
 		var second = _entities.add_entity("Louis", Vector2(2, 2), EntitySurvivorBrain.new());
 		second.health = 100;
 		second.turn_speed = 1;
 		second.flags = 1;
 		second.add_item(Globals.Medkit.new());
-		second.add_item(make_pistol());
+		second.add_item(Gloabls.make_pistol());
 		second.add_item(Globals.PipebombItem.new());
 		var third = _entities.add_entity("Francis", Vector2(4, 3), EntitySurvivorBrain.new());
 		third.health = 100;
 		third.turn_speed = 1;
 		third.flags = 1;
 		third.add_item(Globals.Medkit.new());
-		third.add_item(make_pistol());
+		third.add_item(Globals.make_pistol());
 		third.add_item(Globals.PipebombItem.new());
 		var fourth = _entities.add_entity("Zoey", Vector2(1, 4), EntitySurvivorBrain.new());
 		fourth.health = 100;
 		fourth.turn_speed = 1;
 		fourth.flags = 1;
 		fourth.add_item(Globals.Medkit.new());
-		fourth.add_item(make_pistol());
+		fourth.add_item(Globals.make_pistol());
 		fourth.add_item(Globals.PipebombItem.new());
 		_survivors = [_player, second, third, fourth];
 	else:

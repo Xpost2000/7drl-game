@@ -83,6 +83,38 @@ class Gun extends Item:
 		else:
 			AudioGlobal.play_sound("resources/snds/clipempty_rifle.wav");
 
+func make_pistol():
+	var pistol = Globals.Gun.new("Pistol");
+	pistol.capacity = 30;
+	pistol.current_capacity = 4;
+	pistol.current_capacity_limit = 4;
+	pistol.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
+	pistol.reload_sound_string = "resources/snds/guns/pistol_clip_in_1.wav";
+	pistol.tier = 1;
+	return pistol;
+
+func make_rifle():
+	var gun = Globals.Gun.new("Assault Rifle");
+	gun.capacity = 150;
+	gun.current_capacity = 30;
+	gun.current_capacity_limit = 30;
+	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
+	gun.reload_sound_string = "resources/snds/guns/rifle_clip_in_1.wav";
+	gun.rounds_per_shot = 3;
+	gun.tier = 3;
+	return gun;
+	
+func make_shotgun():
+	var gun = Globals.Gun.new("Shotgun");
+	gun.shotgun = true;
+	gun.capacity = 45;
+	gun.current_capacity = 4;
+	gun.current_capacity_limit = 4;
+	gun.firing_sound_string = "resources/snds/guns/shotgun_fire_1.wav";
+	gun.reload_sound_string = "resources/snds/guns/shotgun_load_shell_2.wav";
+	gun.tier = 3;
+	return gun;
+
 const HEALING_MEDKIT_TURNS = 3;
 # glorified state setter.
 # this is really bad already.
