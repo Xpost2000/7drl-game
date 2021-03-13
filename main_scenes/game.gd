@@ -174,7 +174,7 @@ class EntitySurvivorBrain extends EntityBrain:
 			return EntityBrain.WaitTurnAction.new();
 
 		# handle out of ammo.
-		if !entity_self.currently_equipped_weapon and gun_item:
+		if !entity_self.currently_equipped_weapon or entity_self.currently_equipped_weapon.capacity == 0 and gun_item:
 			return EntityBrain.UseItemAction.new(gun_item);
 
 		var is_witch = closest_zombie.brain is game_state.EntitySpecialInfectedWitch if closest_zombie else false;
@@ -192,7 +192,7 @@ class EntitySurvivorBrain extends EntityBrain:
 
 				return EntityBrain.ShoveTurnAction.new(direction_to_zombie);
 			else:
-				if entity_self.currently_equipped_weapon and entity_self.can_see_from(game_state._world, closest_zombie.position):
+				if entity_self.currently_equipped_weapon and entity_self.currently_equipped_weapon.capacity > 0 and entity_self.can_see_from(game_state._world, closest_zombie.position):
 					if entity_self.currently_equipped_weapon.current_capacity <= 0:
 						return EntityBrain.ReloadWeaponTurnAction.new();
 					else:

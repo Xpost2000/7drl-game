@@ -57,7 +57,8 @@ class Entity:
 		for item in self.inventory:
 			if item is Globals.Gun:
 				if not best_item or best_item.tier < item.tier:
-					best_item = item;
+					if item.capacity > 0:
+						best_item = item;
 		return best_item;
 
 	func find_medkit():
