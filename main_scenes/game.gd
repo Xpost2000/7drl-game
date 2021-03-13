@@ -530,7 +530,7 @@ func initialize_survivors():
 		second.turn_speed = 1;
 		second.flags = 1;
 		second.add_item(Globals.Medkit.new());
-		second.add_item(Gloabls.make_pistol());
+		second.add_item(Globals.make_pistol());
 		second.add_item(Globals.PipebombItem.new());
 		var third = _entities.add_entity("Francis", Vector2(4, 3), EntitySurvivorBrain.new());
 		third.health = 100;
@@ -812,6 +812,10 @@ func step_round(_delta):
 
 const SHOW_SUMMARY_STATE_TIMER_MAX = 1.5;
 var _show_summary_state_timer = SHOW_SUMMARY_STATE_TIMER_MAX;
+
+func begin_horde_mode():
+	
+
 func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
@@ -820,7 +824,7 @@ func _process(_delta):
 	_interface.report_player_health(_player);
 	_interface.report_survivor_stats(_survivors);
 	
-	var item_pickup_prompt = _interface.get_node("Ingame/PickupItemPrompt");
+	var item_pickup_prompt = _interface.get_node("Ingame/TopAreaInfo/PickupItemPrompt");
 	if item_occupying_current_space:
 		item_pickup_prompt.show();
 		item_pickup_prompt.text = "Pickup " + item_occupying_current_space.item.name + " with g!";
@@ -835,20 +839,20 @@ func _process(_delta):
 		healing_display.find_node("HealingProgressBar").value = 0;
 
 	if prompting_firing_target:
-		_interface.get_node("Ingame/TargettingInfo").show();
+		_interface.get_node("Ingame/TopAreaInfo/TargettingInfo").show();
 		var move_direction = player_movement_direction();
 		firing_target_cursor_location += move_direction;
 		# we could still selectively update screen at certain points.
 		# also do bounds checking for the cursor.
 		_ascii_renderer.update();
-		var target_information_label = _interface.get_node("Ingame/TargettingInfo/Info");
+		var target_information_label = _interface.get_node("Ingame/TopAreaInfo/TargettingInfo/Info");
 		var entity_at = _entities.get_entity_at_position(firing_target_cursor_location);
 		if entity_at:
 			target_information_label.text = entity_at.name;
 		else:
-			target_information_label.text = "Air";
+			target_information_label.text = "Nothing";
 	else:
-		_interface.get_node("Ingame/TargettingInfo").hide();
+		_interface.get_node("Ingame/TopAreaInfo/TargettingInfo").hide();
 
 	if prompting_item_use:
 		_interface.get_node("Ingame/ItemPrompt").show();

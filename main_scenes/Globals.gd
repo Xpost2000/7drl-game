@@ -153,6 +153,17 @@ class AdrenalineShot extends Item:
 		target.adrenaline_active_timer = 5;
 		target.remove_item(self);
 
+class HordeRadio extends Item:
+	func as_string():
+		return self.name;
+	func _init():
+		self.name = "Old Radio";
+	func on_use(game_state, target):
+		game_state._interface.message(target.name + " has called for rescue!");
+		game_state._interface.message("Get ready to rumble!");
+		game_state.begin_horde_mode();
+		target.remove_item(self);
+
 class BoomerBileItem extends Item:
 	const Projectiles = preload("res://main_scenes/Projectiles.gd");
 	func as_string():
