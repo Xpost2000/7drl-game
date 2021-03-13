@@ -80,7 +80,7 @@ func best_placement_candidates(block_size, minimum_distance_from_player=-1):
 		
 		for potential_spawn_location in potential_spawn_locations:
 			var current_distance = potential_spawn_location.distance_to(player_location);
-			var passes_threshold = current_distance  >= minimum_distance_from_player;
+			var passes_threshold = current_distance	 >= minimum_distance_from_player;
 			if passes_threshold:
 				var block_fits = true;
 				for y_displacement in range(-block_size, block_size):
@@ -102,7 +102,7 @@ func best_placement_candidates(block_size, minimum_distance_from_player=-1):
 
 func find_best_block_placement_position(block_size, minimum_distance_from_player=-1):
 	var candidates = best_placement_candidates(block_size, minimum_distance_from_player);
-	if not candidates.empty():
+	if candidates and not candidates.empty():
 		return Utilities.random_nth(candidates);
 	else:
 		return null;

@@ -149,7 +149,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="Label" parent="TopAreaInfo"]
+[node name="HordeInfo" type="Label" parent="TopAreaInfo"]
 margin_top = 96.0
 margin_right = 1282.0
 margin_bottom = 124.0

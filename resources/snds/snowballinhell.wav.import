@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/snowballinhell.wav-1952d7af8b6f2ad8e2e3b2ec10a4eb1c.sample"
+
+[deps]
+
+source_file="res://resources/snds/snowballinhell.wav"
+dest_files=[ "res://.import/snowballinhell.wav-1952d7af8b6f2ad8e2e3b2ec10a4eb1c.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

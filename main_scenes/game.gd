@@ -561,6 +561,7 @@ func clear_world_state():
 	_boomer_bile_sources.clear();
 	_explosions.clear();
 	_flame_areas.clear();
+	_entities.item_pickups.clear();
 	$AIDirector.on_new_world();
 	
 const MAX_DUNGEON_LEVELS = 2;
@@ -707,6 +708,7 @@ func attempt_at_random_city_block():
 func generate_random_dungeon():
 	clear_world_state();
 	_player.position = Vector2(7,7);
+
 #	draw_chunky_room(Vector2(7,7), 5, 5);
 #	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
 	vertically_biased_whatever_dungeon();
@@ -722,10 +724,12 @@ func generate_random_dungeon():
 func generate_horde_finale_room():
 	_interface.message("You're almost there now!");
 	_interface.message("Head to the end of the room, and prepare for a horde!");
-	_interface.message("Interact with the radio at the end to start. Good luck!");
+	_interface.message("Take advantage of the open area, and try to survive.");
+	_interface.message("Pickup the radio, and survive the waves. Good luck!");
 	clear_world_state();
-	_player.position = Vector2(9,10);
-	draw_room(Vector2(24, 24), 17, 17);
+	arrange_survivors_at(Vector2(27, 19));
+	_entities.add_item_pickup(Vector2(27, 19), Globals.HordeRadio.new());
+	draw_room(Vector2(24, 24), 30, 30);
 	pass;
 func generate_next_room():
 	match _temporary_current_dungeon_room:
@@ -782,6 +786,8 @@ func regenerate_infected_distance_field():
 	_survivor_distance_field = _world.distance_field_map_from(sources);
 	_survivor_distance_field_regenerate_timer = MAX_REGENERATE_FIELD_TURN_TIME;
 	
+var _horde_mode_start = false;
+var _horde_mode_turns_left = 0;
 func step_round(_delta):
 	if (not _player.is_dead()):
 		if _survivor_distance_field_regenerate_timer <= 0:
@@ -791,6 +797,9 @@ func step_round(_delta):
 
 	$AIDirector.calmness_score += 3;
 	$AIDirector.step_round(_delta);
+
+	if _horde_mode_start:
+		_horde_mode_turns_left -= 1;
 
 	for boomer_bile_source in _boomer_bile_sources:
 		if boomer_bile_source[1] <= 0:
@@ -814,7 +823,10 @@ const SHOW_SUMMARY_STATE_TIMER_MAX = 1.5;
 var _show_summary_state_timer = SHOW_SUMMARY_STATE_TIMER_MAX;
 
 func begin_horde_mode():
-	
+	if not _horde_mode_start:
+		AudioGlobal.play_sound("resources/snds/snowballinhell.wav");
+		_horde_mode_turns_left = 540 + (randi()%200);
+		_horde_mode_start = true;
 
 func _process(_delta):
 	rerender_chunks();
@@ -830,6 +842,15 @@ func _process(_delta):
 		item_pickup_prompt.text = "Pickup " + item_occupying_current_space.item.name + " with g!";
 	else:
 		item_pickup_prompt.hide();
+
+	var horde_mode_display = _interface.get_node("Ingame/TopAreaInfo/HordeInfo");
+	if _horde_mode_start and _horde_mode_turns_left <= 0:
+		_interface.state = _interface.SUMMARY_STATE;
+	elif _horde_mode_start and _horde_mode_turns_left:
+		horde_mode_display.show();
+		horde_mode_display.text = "HORDE TURNS LEFT: " + str(_horde_mode_turns_left);
+	else:
+		horde_mode_display.hide();
 
 	var healing_display = _interface.get_node("Ingame/HealingDisplay");
 	if _player.current_medkit:
