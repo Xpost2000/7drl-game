@@ -54,7 +54,7 @@ func _draw():
 						var cell = world.get_cell(tile_position);
 						var cell_symbol = "?";
 						match cell[0]:
-							0: cell_symbol = " ";
+							0: cell_symbol = "*";
 							1: cell_symbol = ".";
 							8: cell_symbol = "#";
 						
@@ -90,6 +90,10 @@ func _draw():
 		if world.is_cell_visible(tile_position) == 1.0:
 			draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color.black);
 			draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "x", Color.white);
+	if game_state._safe_room:
+		var tile_position = game_state._safe_room;
+		draw_rect(Rect2(tile_position.x*(FONT_HEIGHT/2), tile_position.y*(FONT_HEIGHT), FONT_HEIGHT/2, FONT_HEIGHT), Color(0, 1, 0, 0.5));
+		draw_string(game_font, Vector2(tile_position.x*(FONT_HEIGHT/2), (1+tile_position.y)*FONT_HEIGHT), "x", Color.blue);
 			
 	for flame_source in game_state._flame_areas:
 		var tile_position = flame_source[0];

@@ -24,7 +24,6 @@ class ItemPickup:
 		self.visual_info = VisualInfo.new();
 		self.item = item;
 
-
 var item_pickups = []; # I will probably move this later
 const EntityBrain = preload("res://main_scenes/EntityBrain.gd");
 # scary god class.
@@ -66,6 +65,12 @@ class Entity:
 			if item is Globals.Medkit:
 				return item;
 		return null;
+
+	func resupply_weapons():
+		for item in self.inventory:
+			if item is Globals.Gun:
+				item.current_capacity = item.current_capacity_limit;
+				item.capacity = item.max_capacity;
 
 	func find_closest_entity(game_state, account_for_visibility_map=false):
 		var closest_entity = null;

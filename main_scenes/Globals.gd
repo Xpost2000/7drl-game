@@ -26,6 +26,8 @@ class Gun extends Item:
 	var capacity: int;
 	var current_capacity_limit: int;
 	var current_capacity: int;
+
+	var max_capacity: int;
 	
 	var firing_sound_string: String;
 	var reload_sound_string: String;
@@ -84,20 +86,22 @@ class Gun extends Item:
 			AudioGlobal.play_sound("resources/snds/clipempty_rifle.wav");
 
 func make_pistol():
-	var pistol = Globals.Gun.new("Pistol");
-	pistol.capacity = 30;
-	pistol.current_capacity = 4;
-	pistol.current_capacity_limit = 4;
-	pistol.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
-	pistol.reload_sound_string = "resources/snds/guns/pistol_clip_in_1.wav";
-	pistol.tier = 1;
-	return pistol;
+	var gun = Globals.Gun.new("Pistol");
+	gun.max_capacity = 70;
+	gun.capacity = gun.max_capacity;
+	gun.current_capacity_limit = 4;
+	gun.current_capacity = gun.current_capacity_limit;
+	gun.firing_sound_string = "resources/snds/guns/pistol_fire.wav";
+	gun.reload_sound_string = "resources/snds/guns/pistol_clip_in_1.wav";
+	gun.tier = 1;
+	return gun;
 
 func make_rifle():
 	var gun = Globals.Gun.new("Assault Rifle");
-	gun.capacity = 150;
-	gun.current_capacity = 30;
+	gun.max_capacity = 150;
+	gun.capacity = gun.max_capacity;
 	gun.current_capacity_limit = 30;
+	gun.current_capacity = gun.current_capacity_limit;
 	gun.firing_sound_string = "resources/snds/guns/rifle_fire_1.wav";
 	gun.reload_sound_string = "resources/snds/guns/rifle_clip_in_1.wav";
 	gun.rounds_per_shot = 3;
@@ -107,9 +111,10 @@ func make_rifle():
 func make_shotgun():
 	var gun = Globals.Gun.new("Shotgun");
 	gun.shotgun = true;
-	gun.capacity = 45;
-	gun.current_capacity = 4;
+	gun.max_capacity = 50;
+	gun.capacity = gun.max_capacity;
 	gun.current_capacity_limit = 4;
+	gun.current_capacity = gun.current_capacity_limit;
 	gun.firing_sound_string = "resources/snds/guns/shotgun_fire_1.wav";
 	gun.reload_sound_string = "resources/snds/guns/shotgun_load_shell_2.wav";
 	gun.tier = 3;
