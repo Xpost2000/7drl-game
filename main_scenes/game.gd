@@ -163,7 +163,31 @@ class EntitySurvivorBrain extends EntityBrain:
 		# When less than 60% health try to heal. If not see if there's a nearby healthpack.
 		# If infected are spotted. Shoot infected.
 		# Survivors should ideally be able to heal each other but that might not be necessary.
-		return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
+		var distance_to_player = entity_self.position.distance_squared_to(game_state._player.position);
+		var closest_zombie = entity_self.find_closest_zombie_entity(game_state, game_state._survivors);
+		var distance_to_zombie = entity_self.position.distance_squared_to(closest_zombie.position) if closest_zombie else 999999999;
+		if distance_to_zombie <= (16):
+			if distance_to_zombie <= 1:
+				var direction_to_zombie = entity_self.position.direction_to(closest_zombie.position).normalized();
+				if direction_to_zombie.x > 0:
+					direction_to_zombie.x = 1;
+				elif direction_to_zombie.x < 0:
+					direction_to_zombie.x = -1;
+				if direction_to_zombie.y > 0:
+					direction_to_zombie.y = 1;
+				elif direction_to_zombie.y < 0:
+					direction_to_zombie.y = -1;
+
+				return EntityBrain.ShoveTurnAction.new(direction_to_zombie);
+			else:
+				print("Firing time!");
+				return EntityBrain.WaitTurnAction.new();
+		elif distance_to_player > (25):
+			var next_position = game_state._world.request_path_from_to(entity_self.position, game_state._player.position)[1];
+			var direction = next_position - entity_self.position;
+			return EntityBrain.MoveTurnAction.new(direction);
+		else:
+			return EntityBrain.MoveTurnAction.new(Utilities.random_nth([Vector2.UP, Vector2.LEFT, Vector2.RIGHT, Vector2.DOWN]));
 		
 #################################### Infected
 class EntityRandomWanderingBrain extends EntityBrain:
