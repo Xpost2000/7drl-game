@@ -682,53 +682,66 @@ func generate_random_room_positions(displacement_x, displacement_y, horizontal=f
 				break;
 	return generated_room_positions;
 
-
-# Small interlude areas. These areas should be very short.
-func vertically_biased_whatever_dungeon():
-	var room_positions = generate_random_room_positions(16, 16);
-	arrange_survivors_at(Vector2(16, 10));
+func plunk_some_rooms(rx, ry, a=10, b=4, c=8, d=7):
+	var room_positions = generate_random_room_positions(rx, ry);
 	for room in room_positions:
 		$AIDirector.add_spawn_location(room);
-		draw_chunky_room(room, randi()%10+4, randi()%8+7);
-	for room in generate_random_room_positions(30, 22):
-		$AIDirector.add_spawn_location(room);
-		draw_chunky_room(room, randi()%10+6, randi()%4+7);
-	room_positions = generate_random_room_positions(20, 30);
+		draw_chunky_room(room, randi()%a+b, randi()%c+d);
+	return room_positions;
+
+# Small interlude areas. These areas should be very short.
+func vertically_biased_whatever_dungeon_small():
+	arrange_survivors_at(Vector2(16, 10));
+	var cursor_x = 16;
+	var cursor_y = 16;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += randi() % 6+3;
+	cursor_y += randi() % 4+2;
+	plunk_some_rooms(cursor_x, cursor_y, 10, 6, 4, 7);
+	cursor_x += randi() % 6+4;
+	cursor_y += randi() % 4+5;
+	var last_set_of_rooms = plunk_some_rooms(cursor_x, cursor_y, 10, 6, 4, 7);
+	# room_positions = generate_random_room_positions(20, 30);
 	var lowest_room = null;
 	var lowest_room_dimensions = null;
-	for room in generate_random_room_positions(30, 22):
-		var dimensions = Vector2(float(randi()%3+4), float(randi()%3+6));
+	for room in last_set_of_rooms:
 		if not lowest_room or lowest_room.y < room.y:
 			lowest_room = room;
-			lowest_room_dimensions = dimensions;
-		$AIDirector.add_spawn_location(room);
-		draw_chunky_room(room, int(round(dimensions.x)), int(round(dimensions.y)));
-	_safe_room = lowest_room + Vector2(0, lowest_room_dimensions.y/2);
-# This is the more common type of dungeon.
-# The plan is to block out part of a street plan, and then around the streets,
-# carve out "buildings."
-# This won't look super duper natural, because it's being carved out but I can't
-# easily prevent the player from leaving the map.
-# I guess I can generate the streets, then buildings, then "fence" it in.
-# then generate the next street.
-# Generate maybe 2 - 3 streets?
-# These streets are still relatively empty so I'm not really sure about how well
-# these will turn out.
-# The buildings may either be mini dungeons or just blocked out rooms. Sometimes they'll
-# have stuff. Mostly so zombies can spawn from within them.
-# Maybe sometimes instead of a street we'll spawn a building to walk through?
-# That might be pretty rough to try... But I've got at least two days... So might
-# as well try.
-# Looks like my searches for building generation lead to BSP.
-func attempt_at_random_city_block():
-	pass;
+	_safe_room = lowest_room + Vector2(0, 3);
+
+# errr.. I'm forgoing a better dungeon algorithm cause I have no time left...
+# At least the game part works...
+func dungeon_with_alcoves_and_crap():
+	arrange_survivors_at(Vector2(16, 10));
+	var cursor_x = 16;
+	var cursor_y = 16;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += 10;
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += 10;
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += 10;
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += 6;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += 6;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += 6;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += 6;
+	plunk_some_rooms(cursor_x, cursor_y);
+
 func generate_random_dungeon():
 	clear_world_state();
 	_player.position = Vector2(7,7);
 
 #	draw_chunky_room(Vector2(7,7), 5, 5);
 #	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
-	vertically_biased_whatever_dungeon();
+	# vertically_biased_whatever_dungeon();
+	dungeon_with_alcoves_and_crap();
 	# _entities.add_item_pickup(_player.position, Globals.Medkit.new());
 
 	$AIDirector.try_to_decorate_world_with_witches();
