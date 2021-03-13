@@ -18,6 +18,9 @@ export var director_calmness_score_threshold = 100;
 export var mercy_threshold = 0.65;
 var calmness_score = 50;
 
+const MAX_CARE_PACKAGES_DROPPED = 6;
+var care_packages_dropped = 0;
+
 func on_new_world():
 	potential_spawn_locations.clear();
 	director_think_tick = 0;
@@ -50,27 +53,31 @@ var spawned = {
 	#InfectedSpawnTypes.HORDE_AND_BOOMER: [0, 1],
 };
 
-func survivor_care_package_at(where, goodies_count=4):
-	for y in range(goodies_count):
-		for x in range(goodies_count):
-			var getting_item = randi() % 100;
-			if getting_item < 70:
-				game_state._entities.add_item_pickup(where + Vector2(x, y),
-													 Utilities.random_nth(
-														 [
-															 Globals.make_shotgun(),
-															 Globals.make_rifle(),
-															 Globals.MolotovCocktailItem.new(),
-															 Globals.PipebombItem.new(),
-															 Globals.BoomerBileItem.new(),
-															 Globals.PillBottle.new(),
-															 ]
-														 ));
+func survivor_care_package_at(where, items, goodies_count=4):
+	if care_packages_dropped < MAX_CARE_PACKAGES_DROPPED:
+		care_packages_dropped+=1;
+		for y in range(goodies_count):
+			for x in range(goodies_count):
+				var getting_item = randi() % 100;
+				if getting_item < 70:
+					game_state._entities.add_item_pickup(where + Vector2(x, y), Utilities.random_nth(items));
+		# This isn't very immersive, but it's highly unlikely anyone would backtrack to look for
+		# it unless prompted to. I don't have a smart enough dungeon layout to place it onto areas
+		# the player hasn't visited yet! (Well actually I do... But I don't think I can test it with the time left.)
+		game_state._interface.message("A care package has been spawned for your team!");
+		game_state._interface.message("Find it and resupply.");
 
 func survivor_care_package_at_spawn():
 	var player_position = game_state._player.position;
 	var care_package_spawn_position = player_position + Vector2(0, 5);
-	survivor_care_package_at(care_package_spawn_position);
+	survivor_care_package_at(care_package_spawn_position,
+							 [Globals.make_shotgun(),
+							  Globals.make_rifle(),
+							  Globals.MolotovCocktailItem.new(),
+							  Globals.PipebombItem.new(),
+							  Globals.BoomerBileItem.new(),
+							  Globals.PillBottle.new(),
+							  ]);
 
 func all_spawn_limits_hit():
 	for spawn_entry in spawned:
@@ -204,5 +211,23 @@ func step_round(_delta):
 			if chosen_infected_type != IMPOSSIBLE_TO_SPAWN_ANYMORE:
 				do_spawn_of(chosen_infected_type);
 				calmness_score -= score_of(chosen_infected_type);
+
+		for survivor in game_state._survivors:
+			if survivor.health < 70:
+				if randf() > mercy_threshold:
+					var position = find_best_block_placement_position(3, 12);
+					if position:
+						survivor_care_package_at(position, [Globals.Medkit.new(), Globals.AdrenalineShot.new()], 2);
+					break;
+			elif survivor.health < 30:
+				var position = find_best_block_placement_position(6, 8);
+				if position:
+					survivor_care_package_at(position, [Globals.Medkit.new(), Globals.AdrenalineShot.new()], 2);
+				break;	
+		
+		if randf() > 0.98:
+			var position = find_best_block_placement_position(6, 8);
+			if position:
+				survivor_care_package_at(position, [Globals.make_pistol(), Globals.make_shotgun(), Globals.make_rifle(), Globals.PipebombItem.new(). Globals.BoomerBileItem.new(), Globals.MolotovCocktailItem.new()], 4);
 	else:
 		director_think_tick -= 1;
