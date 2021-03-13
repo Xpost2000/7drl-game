@@ -154,6 +154,9 @@ MESSAGE_LIFETIME_MAX = 3.0
 [node name="MovingToNextFloor" type="Control" parent="InterfaceLayer/Interface"]
 margin_right = 40.0
 margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Border" type="ColorRect" parent="InterfaceLayer/Interface/MovingToNextFloor"]
 margin_left = 407.153
@@ -179,7 +182,7 @@ __meta__ = {
 [node name="Label" type="Label" parent="InterfaceLayer/Interface/MovingToNextFloor/Border/Section"]
 margin_right = 536.0
 margin_bottom = 229.0
-text = "Found safe room!
+text = "Found pathway!
 
 
 Moving to next destination..."
