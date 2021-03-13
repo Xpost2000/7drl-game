@@ -155,29 +155,33 @@ margin_right = 40.0
 margin_bottom = 40.0
 
 [node name="Border" type="ColorRect" parent="InterfaceLayer/Interface/MovingToNextFloor"]
-margin_left = 250.0
-margin_top = 146.0
-margin_right = 999.0
-margin_bottom = 527.0
+margin_left = 407.153
+margin_top = 234.441
+margin_right = 947.153
+margin_bottom = 471.441
 color = Color( 0.737255, 0.345098, 0.345098, 1 )
 __meta__ = {
+"_edit_group_": true,
 "_edit_use_anchors_": false
 }
 
 [node name="Section" type="ColorRect" parent="InterfaceLayer/Interface/MovingToNextFloor/Border"]
 margin_left = 2.0
 margin_top = 3.0
-margin_right = 746.0
-margin_bottom = 378.0
+margin_right = 538.0
+margin_bottom = 234.0
 color = Color( 0, 0, 0, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Label" type="Label" parent="InterfaceLayer/Interface/MovingToNextFloor/Border/Section"]
-margin_right = 747.0
-margin_bottom = 372.0
-text = "SUMMARY!"
+margin_right = 536.0
+margin_bottom = 229.0
+text = "Found safe room!
+
+
+Moving to next destination..."
 align = 1
 clip_text = true
 __meta__ = {

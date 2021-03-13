@@ -903,6 +903,15 @@ func _process(_delta):
 		_entities.show();
 	
 	if _interface.state == _interface.SUMMARY_STATE:
+		if (_temporary_current_dungeon_room) >= MAX_DUNGEON_LEVELS:
+			var widget = _interface.get_node("MovingToNextFloor/Border/Section/Label");
+			widget.text = """
+			You've survived the horde!
+
+			You've been rescued!
+			""";
+
+
 		if _show_summary_state_timer <= 0.0:
 			_show_summary_state_timer = SHOW_SUMMARY_STATE_TIMER_MAX;
 			_interface.state = _interface.INGAME_STATE;
