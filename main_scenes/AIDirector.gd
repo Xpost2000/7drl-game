@@ -50,6 +50,28 @@ var spawned = {
 	#InfectedSpawnTypes.HORDE_AND_BOOMER: [0, 1],
 };
 
+func survivor_care_package_at(where, goodies_count=4):
+	for y in range(goodies_count):
+		for x in range(goodies_count):
+			var getting_item = randi() % 100;
+			if getting_item < 70:
+				game_state._entities.add_item_pickup(where + Vector2(x, y),
+													 Utilities.random_nth(
+														 [
+															 Globals.make_shotgun(),
+															 Globals.make_rifle(),
+															 Globals.MolotovCocktailItem.new(),
+															 Globals.PipebombItem.new(),
+															 Globals.BoomerBileItem.new(),
+															 Globals.PillBottle.new(),
+															 ]
+														 ));
+
+func survivor_care_package_at_spawn():
+	var player_position = game_state._player.position;
+	var care_package_spawn_position = player_position + Vector2(0, 5);
+	survivor_care_package_at(care_package_spawn_position);
+
 func all_spawn_limits_hit():
 	for spawn_entry in spawned:
 		var entry = spawned[spawn_entry];

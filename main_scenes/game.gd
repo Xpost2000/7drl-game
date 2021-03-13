@@ -573,7 +573,7 @@ func clear_world_state():
 		survivor.resupply_weapons();
 	$AIDirector.on_new_world();
 	
-const MAX_DUNGEON_LEVELS = 2;
+const MAX_DUNGEON_LEVELS = 5;
 var _temporary_current_dungeon_room = 0;
 func arrange_survivors_at(where):
 	_survivors[0].position = where;
@@ -773,21 +773,19 @@ func generate_random_dungeon():
 	clear_world_state();
 	_player.position = Vector2(7,7);
 
-#	draw_chunky_room(Vector2(7,7), 5, 5);
-#	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
-	# vertically_biased_whatever_dungeon();
-	dungeon_with_alcoves_and_crap();
-	# dungeon_with_alcoves_and_crap_1();
-	# _entities.add_item_pickup(_player.position, Globals.Medkit.new());
+	match randi() % 3:
+		0: vertically_biased_whatever_dungeon_small();
+		1: dungeon_with_alcoves_and_crap();
+		2: dungeon_with_alcoves_and_crap_1();
 
 	$AIDirector.try_to_decorate_world_with_witches();
-#	attempt_at_random_city_block();
-#	build_building(Vector2(10, 10), 20, 15);
+	$AIDirector.survivor_care_package_at_spawn();
 	
 # ATM, and probably even on finish, this might just have to be a plain room, with supplies in the center.
 # Or at the end of the room. It's a last stand sort of thing.
 # Zombies, flood in... good luck!
 func generate_horde_finale_room():
+	_safe_room = null;
 	_interface.message("You're almost there now!");
 	_interface.message("Head to the end of the room, and prepare for a horde!");
 	_interface.message("Take advantage of the open area, and try to survive.");
@@ -798,9 +796,10 @@ func generate_horde_finale_room():
 	draw_room(Vector2(24, 24), 30, 30);
 	pass;
 func generate_next_room():
-	match _temporary_current_dungeon_room:
-		0: generate_random_dungeon();
-		1: generate_horde_finale_room();
+	if _temporary_current_dungeon_room == MAX_DUNGEON_LEVELS-1:
+		generate_horde_finale_room();
+	else:
+		generate_random_dungeon();
 	_last_known_current_chunk_position = _world.calculate_chunk_position(_entities.entities[0].position);
 	update_player_visibility(_player, 8);
 	_temporary_current_dungeon_room += 1;
@@ -860,6 +859,10 @@ func step_round(_delta):
 			regenerate_infected_distance_field();
 		else:
 			_survivor_distance_field_regenerate_timer -= 1;
+
+	if _safe_room:
+		if _player.position == _safe_room:
+			_interface.state = _interface.SUMMARY_STATE;
 
 	$AIDirector.calmness_score += 3;
 	$AIDirector.step_round(_delta);
@@ -953,9 +956,6 @@ func _process(_delta):
 		else:
 			_interface.state = _interface.previous_state;
 			Globals.paused = false;
-
-	if Input.is_action_just_pressed("ui_end") and not prompting_firing_target and not prompting_item_use:
-		_interface.state = _interface.SUMMARY_STATE;
 
 	if GamePreferences.ascii_mode:
 		$CameraTracer.position = _player.position * Vector2(_ascii_renderer.FONT_HEIGHT/2, _ascii_renderer.FONT_HEIGHT);
