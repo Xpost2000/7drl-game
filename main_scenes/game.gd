@@ -157,13 +157,6 @@ class EntityPlayerBrain extends EntityBrain:
 
 class EntitySurvivorBrain extends EntityBrain:
 	func get_turn_action(entity_self, game_state):
-		# Prioritize chasing the player unless healing is required
-		# Chase the player with some breathing space (2 blocks apart?)
-		# Equip a weapon always.
-		# Approach a weapon pickup if it doesn't have a weapon or is low on ammo.
-		# When less than 60% health try to heal. If not see if there's a nearby healthpack.
-		# If infected are spotted. Shoot infected.
-		# Survivors should ideally be able to heal each other but that might not be necessary.
 		var distance_to_player = entity_self.position.distance_squared_to(game_state._player.position);
 		var closest_zombie = entity_self.find_closest_zombie_entity(game_state, game_state._survivors);
 		var distance_to_zombie = entity_self.position.distance_squared_to(closest_zombie.position) if closest_zombie else 999999999;
@@ -525,27 +518,37 @@ func initialize_survivors():
 	_player.add_item(Globals.PipebombItem.new());
 	_player.add_item(Globals.PillBottle.new());
 	_player.add_item(Globals.make_pistol());
+	_player.add_item(Globals.make_rifle());
 	if true:
 		var second = _entities.add_entity("Louis", Vector2(2, 2), EntitySurvivorBrain.new());
 		second.health = 100;
 		second.turn_speed = 1;
 		second.flags = 1;
 		second.add_item(Globals.Medkit.new());
+		second.add_item(Globals.Medkit.new());
+		second.add_item(Globals.Medkit.new());
 		second.add_item(Globals.make_pistol());
+		second.add_item(Globals.make_shotgun());
 		second.add_item(Globals.PipebombItem.new());
 		var third = _entities.add_entity("Francis", Vector2(4, 3), EntitySurvivorBrain.new());
 		third.health = 100;
 		third.turn_speed = 1;
 		third.flags = 1;
 		third.add_item(Globals.Medkit.new());
+		third.add_item(Globals.Medkit.new());
+		third.add_item(Globals.Medkit.new());
 		third.add_item(Globals.make_pistol());
+		third.add_item(Globals.make_rifle());
 		third.add_item(Globals.PipebombItem.new());
 		var fourth = _entities.add_entity("Zoey", Vector2(1, 4), EntitySurvivorBrain.new());
 		fourth.health = 100;
 		fourth.turn_speed = 1;
 		fourth.flags = 1;
 		fourth.add_item(Globals.Medkit.new());
+		fourth.add_item(Globals.Medkit.new());
+		fourth.add_item(Globals.Medkit.new());
 		fourth.add_item(Globals.make_pistol());
+		fourth.add_item(Globals.make_shotgun());
 		fourth.add_item(Globals.PipebombItem.new());
 		_survivors = [_player, second, third, fourth];
 	else:
@@ -716,13 +719,13 @@ func dungeon_with_alcoves_and_crap():
 	var cursor_x = 16;
 	var cursor_y = 16;
 	plunk_some_rooms(cursor_x, cursor_y);
-	cursor_x += 10;
+	cursor_x += randi() % 5 - 10;
 	cursor_y += randi() % 3;
 	plunk_some_rooms(cursor_x, cursor_y);
 	cursor_x += 10;
 	cursor_y += randi() % 3;
 	plunk_some_rooms(cursor_x, cursor_y);
-	cursor_x += 10;
+	cursor_x += randi() % 5 - 10;
 	cursor_y += randi() % 3;
 	plunk_some_rooms(cursor_x, cursor_y);
 	cursor_y += 6;
@@ -758,8 +761,10 @@ func dungeon_with_alcoves_and_crap_1():
 	cursor_x += 10;
 	cursor_y += 6;
 	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += (randi() % 15) - 10;
 	cursor_y += 6;
 	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += (randi() % 15) - 10;
 	cursor_y += 7;
 	var last_set_of_rooms = plunk_some_rooms(cursor_x, cursor_y);
 	var lowest_room = null;

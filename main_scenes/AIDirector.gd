@@ -25,6 +25,7 @@ func on_new_world():
 	potential_spawn_locations.clear();
 	director_think_tick = 0;
 	calmness_score = 50;
+	care_packages_dropped = 0;
 
 func add_spawn_location(where):
 	potential_spawn_locations.push_back(where);
@@ -154,7 +155,7 @@ func do_spawn_of(infected_type):
 	if infected_type == InfectedSpawnTypes.AGGRESSIVE_HORDE:
 		var position = find_best_block_placement_position(2);
 		if position:
-			spawn_common_infected_horde_block(position, 3);
+			spawn_common_infected_horde_block(position, randi()%3 + 3);
 	elif infected_type == InfectedSpawnTypes.TANK:
 		var position = find_best_block_placement_position(1, 8);
 		if position:

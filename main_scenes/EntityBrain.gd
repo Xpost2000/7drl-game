@@ -21,14 +21,14 @@ class PickupItemTurnAction extends TurnAction:
 	func do_action(game_state, target):
 		if self.item:
 			if len(target.inventory) < 10:
-				if self.item is Globals.Gun:
+				if self.item.item is Globals.Gun and target.currently_equipped_weapon and target.currently_equipped_weapon is Globals.Gun:
 					# add fixed amount of ammo for gun...
 					target.currently_equipped_weapon.capacity += 30;
 				else:
 					target.add_item(self.item.item);
 				game_state._entities.remove_item_pickup(self.item);
 			else:
-				game_state._interface.message("Too many items! You'll have to use/drop some!");
+				game_state._interface.message("Too many items! You'll have to use some!");
 class UseItemAction extends TurnAction:
 	var item_picked: Object;
 	func _init(item):
