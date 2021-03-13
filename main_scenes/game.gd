@@ -919,8 +919,8 @@ func _process(_delta):
 	rerender_chunks();
 	$Fixed/Draw.update();
 
-	if Input.is_action_just_pressed("ui_end"):
-		_interface.state = _interface.SUMMARY_STATE;
+	# if Input.is_action_just_pressed("ui_end"):
+	#	_interface.state = _interface.SUMMARY_STATE;
 
 	_interface.report_inventory(_player);
 	_interface.report_player_health(_player);
