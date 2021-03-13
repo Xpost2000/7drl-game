@@ -125,7 +125,7 @@ func do_spawn_of(infected_type):
 	if infected_type == InfectedSpawnTypes.AGGRESSIVE_HORDE:
 		var position = find_best_block_placement_position(2);
 		if position:
-			spawn_common_infected_horde_block(position, 2);
+			spawn_common_infected_horde_block(position, 3);
 	elif infected_type == InfectedSpawnTypes.TANK:
 		var position = find_best_block_placement_position(1, 8);
 		if position:
@@ -158,10 +158,10 @@ func try_to_decorate_world_with_witches():
 func choose_infected_type_to_spawn():
 	var chosen = Utilities.weighted_random(
 		[
-			[InfectedSpawnTypes.AGGRESSIVE_HORDE, 60],
-			[InfectedSpawnTypes.TANK, 15],
-			[InfectedSpawnTypes.BOOMER, 30],
-			[InfectedSpawnTypes.SMOKER, 30],
+			[InfectedSpawnTypes.AGGRESSIVE_HORDE, 65],
+			[InfectedSpawnTypes.TANK, 18],
+			[InfectedSpawnTypes.BOOMER, 45],
+			[InfectedSpawnTypes.SMOKER, 33],
 		]
 	);
 	if spawned[chosen][0] < spawned[chosen][1]:
@@ -174,10 +174,9 @@ func choose_infected_type_to_spawn():
 			return IMPOSSIBLE_TO_SPAWN_ANYMORE;
 
 func step_round(_delta):
-	calmness_score = min(calmness_score, 430);
+	calmness_score = min(calmness_score, 400);
 	if director_think_tick <= 0:
 		director_think_tick = director_think_delay;
-		#print(calmness_score);
 		if (randf() > mercy_threshold) and should_spawn_infected():
 			var chosen_infected_type = choose_infected_type_to_spawn();
 			if chosen_infected_type != IMPOSSIBLE_TO_SPAWN_ANYMORE:

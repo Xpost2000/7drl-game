@@ -734,6 +734,29 @@ func dungeon_with_alcoves_and_crap():
 	cursor_y += 6;
 	plunk_some_rooms(cursor_x, cursor_y);
 
+func dungeon_with_alcoves_and_crap_1():
+	arrange_survivors_at(Vector2(16, 10));
+	var cursor_x = 16;
+	var cursor_y = 16;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += 10;
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += randi() % 3;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += 10;
+	cursor_y += 6;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_x += 10;
+	cursor_y += 6;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += 6;
+	plunk_some_rooms(cursor_x, cursor_y);
+	cursor_y += 7;
+	plunk_some_rooms(cursor_x, cursor_y);
+
 func generate_random_dungeon():
 	clear_world_state();
 	_player.position = Vector2(7,7);
@@ -742,6 +765,7 @@ func generate_random_dungeon():
 #	draw_tunnel(Vector2(6, 7), 2, 12, Vector2(0.5, 0.5));
 	# vertically_biased_whatever_dungeon();
 	dungeon_with_alcoves_and_crap();
+	# dungeon_with_alcoves_and_crap_1();
 	# _entities.add_item_pickup(_player.position, Globals.Medkit.new());
 
 	$AIDirector.try_to_decorate_world_with_witches();
