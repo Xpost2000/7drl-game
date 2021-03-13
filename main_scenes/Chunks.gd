@@ -85,8 +85,8 @@ class WorldChunk:
 
 	# Technically we shouldn't be doing dirty cells for this one but whatever.
 	func set_cell_visible(x, y, val):
-		# visible_cells[y][x] = val;
-		visible_cells[y][x] = 1.0;
+		visible_cells[y][x] = val;
+		# visible_cells[y][x] = 1.0;
 		self.dirty_cells.push_back(Vector2(x, y));
 
 	func set_cell(x, y, val, bloody=false):

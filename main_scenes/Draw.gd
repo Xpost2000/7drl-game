@@ -54,7 +54,7 @@ func _draw():
 						var cell = world.get_cell(tile_position);
 						var cell_symbol = "?";
 						match cell[0]:
-							0: cell_symbol = "*";
+							0: cell_symbol = " ";
 							1: cell_symbol = ".";
 							8: cell_symbol = "#";
 						
