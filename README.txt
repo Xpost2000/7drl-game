@@ -15,3 +15,5 @@ The bog standard entities aren't very flexible but I'll see if I can change that
 7DRL starts.
 
 This is the "base" that I'm using for 7DRL.
+
+I should've let godot's nodes handle more of my crap...
