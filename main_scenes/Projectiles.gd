@@ -125,7 +125,7 @@ class BulletProjectile extends Projectile:
 			if game_state._world.is_solid_tile(self.position.round()) or not game_state._world.get_chunk_at(self.position.round()):
 				self.dead = true;
 			for entity in game_state._entities.entities:
-				if entity.position == self.position.round():
+				if (not (entity.brain is game_state.EntitySurvivorBrain) and not (entity.brain is game_state.EntityPlayerBrain)) and entity.position == self.position.round():
 					entity.health -= 40;
 					self.penetration_health -= 1;
 					entity.on_hit(game_state, self.owner);
